@@ -6,3 +6,15 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
+
+# Output
+
+The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC. 
+
+
+```{r}
+write_csv("data/output/pres16_state.csv")
+```
+
