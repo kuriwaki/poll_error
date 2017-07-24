@@ -23,8 +23,6 @@ mm <- mm_gs %>%
 
 
 
-
-
 # Final count ----
 # David Wasserman's Tracker
 # https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8/edit#gid=19
@@ -68,8 +66,6 @@ cc <- cc_gs %>%
          cces_djt = cces_djt/100,
          cces_johnson = cces_johnson/100,
          cces_stein = cces_stein/100)
-
-
 
 
 
