@@ -64,7 +64,7 @@ gg0 <- ggplot(df, aes(label = st, color = color)) +
 
 gg0 + 
   aes(x = log(tot_votes), y = log(abs(rho_voter))) +
-  labs(x = "log(Total Voters)", y = expression(rho)) +
+  labs(x = "log(Total Voters)", y = expression(log(abs(rho)))) +
   geom_label(data = filter(sdf, est == "rho_voter", pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
@@ -72,7 +72,7 @@ ggsave("figures/rho_voter_pooled.pdf", width = fig.w, height = fig.h)
 
 gg0 + 
   aes(x = log(tot_votes), y = log(abs(rho_voter))) +
-  labs(x = "log(Total Voters)", y = expression(rho)) +
+  labs(x = "log(Total Voters)", y = expression(log(abs(rho)))) +
   facet_grid( ~ rho_voter_positive, labeller = labeller(rho_voter_positive = rho_pos_labs)) +
   geom_label(data = filter(sdf, est == "rho_voter", !pooled), 
             aes(x = x, y = y, label = slopes), 
@@ -82,7 +82,7 @@ ggsave("figures/rho_voter_separated.pdf", width = fig.w, height = fig.h)
   
 gg0 + 
   aes(x = log(vep), y = log(abs(rho_vep))) +
-  labs(x = "log(Total Voting Eligible Population)", y = expression(rho)) +
+  labs(x = "log(Total Voting Eligible Population)", y = expression(log(abs(rho)))) +
   geom_label(data = filter(sdf, est == "rho_vep", pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
@@ -90,7 +90,7 @@ ggsave("figures/rho_vep_pooled.pdf", width = fig.w, height = fig.h)
 
 gg0 + 
   aes(x = log(vep), y = log(abs(rho_vep))) +
-  labs(x = "log(Total Voting Eligible Population)", y = expression(rho)) +
+  labs(x = "log(Total Voting Eligible Population)", y = expression(log(abs(rho)))) +
   facet_grid( ~ rho_vep_positive, labeller = labeller(rho_vep_positive = rho_pos_labs)) +
   geom_label(data = filter(sdf, est == "rho_vep", !pooled), 
             aes(x = x, y = y, label = slopes), 
