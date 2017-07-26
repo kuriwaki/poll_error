@@ -18,7 +18,9 @@ df <- df_joined %>%
   select(state, st, color, vap, vep, 
          votes_hrc, tot_votes, 
          pct_hrc_vep, pct_hrc_voters,
-         cces_pct_hrc_vep, cces_pct_hrc_voters,
+         cces_pct_hrc_vep, cces_pct_hrc_voters, cces_pct_hrc_raw,
+         cces_tothrc_raw,
+         cces_tothrc_adj_trn,
          cces_n_raw, cces_n_voters,
          yougov_pct_hrc, yougov_n,
          `State Results Website`)
@@ -57,8 +59,15 @@ df$rho_voter <- rho_estimate(N = "tot_votes",
                              n = "cces_n_voters")
 
 df$rho_vep <- rho_estimate(N = "vep",
-                             mu = "pct_hrc_vep",
-                             muhat = "cces_pct_hrc_vep",
+                             mu = "pct_hrc_voters",
+                             muhat = "cces_pct_hrc_raw",
                              n = "cces_n_raw")
 # Save ----
 write_csv(df, "data/output/pres16_state.csv")
+
+
+ggplot(df, aes(x = cces_n_voters / cces_n_raw, y = tot_votes / vap)) +
+  geom_point() +
+  coord_equal() +
+  geom_abline(intercept = 0, slope = 1)
+
