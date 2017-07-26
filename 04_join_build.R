@@ -1,4 +1,5 @@
-
+library(dplyr)
+library(readr)
 
 mm <- readRDS("data/output/mm_popultn_state.rds")
 dw <- readRDS("data/output/dw_results_state.rds")
@@ -62,12 +63,8 @@ df$rho_vep <- rho_estimate(N = "vep",
                              mu = "pct_hrc_voters",
                              muhat = "cces_pct_hrc_raw",
                              n = "cces_n_raw")
+
+
 # Save ----
 write_csv(df, "data/output/pres16_state.csv")
-
-
-ggplot(df, aes(x = cces_n_voters / cces_n_raw, y = tot_votes / vap)) +
-  geom_point() +
-  coord_equal() +
-  geom_abline(intercept = 0, slope = 1)
 
