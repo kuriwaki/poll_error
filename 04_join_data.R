@@ -40,7 +40,7 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
   s2hat <- mu * (1 - mu)
   
   ## estimate of rho
-  one_over_sqrtN * abs(diff_mu) / sqrt((one_minus_f / n) * s2hat)
+  one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat)
 }
 
 
