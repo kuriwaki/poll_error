@@ -12,7 +12,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 14
+    ## # A tibble: 51 x 17
     ##                   state    st      vap      vep votes_hrc tot_votes
     ##                   <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL  3770142  3601361    729547   2123372
@@ -25,10 +25,11 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE   749872   689125    235603    441590
     ##  9 District of Columbia    DC   562329   511463    282830    311268
     ## 10              Florida    FL 16565588 14572210   4504975   9420039
-    ## # ... with 41 more rows, and 8 more variables: pct_hrc_vep <dbl>,
+    ## # ... with 41 more rows, and 11 more variables: pct_hrc_vep <dbl>,
     ## #   pct_hrc_voters <dbl>, cces_pct_hrc_vep <dbl>,
     ## #   cces_pct_hrc_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
-    ## #   yougov_pct_hrc <dbl>, yougov_n <dbl>
+    ## #   yougov_pct_hrc <dbl>, yougov_n <dbl>, `State Results Website` <chr>,
+    ## #   rho_voter <dbl>, rho_vep <dbl>
 
 The main columns are
 
@@ -46,7 +47,19 @@ Outcomes (including estimates of VAP/VEP)
 -   `pct_hrc_voters`: Election Oucome. Hillary Clinton's Vote as a Percentage of Ballots Cast for President. Computed by `votes_hrc / tot_votes`
 -   `pct_hrc_vep`: Hillary Clinton's Vote as a Percentage of Ballots (estimated) eligible population. Computed by `votes_hrc / vep`
 
-Poll estiamtes. Construction detailed below and in `03_tabulate_polls.R` \* `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (loosely defined) \* `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters (i.e. those who turn out) \* `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity \* `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population. \* `yougov_pct_hrc`: YouGov estimated of Clinton votes among voters \* `yougov_n`: YouGov poll sample size
+Poll estiamtes. Construction detailed below and in `03_tabulate_polls.R`
+
+-   `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (loosely defined)
+-   `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters (i.e. those who turn out)
+-   `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity
+-   `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population.
+-   `yougov_pct_hrc`: YouGov estimated of Clinton votes among voters
+-   `yougov_n`: YouGov poll sample size
+
+Parameter Estimates
+
+-   `rho_voter`: The *ρ* parameter with *voters* as the target population
+-   `rho_vep`: The *ρ* parameter with *eligible population* as the target population
 
 Data Sources
 ============
@@ -148,6 +161,111 @@ gg0 + geom_point(size = 1) +  geom_label_repel(aes(label = st), segment.alpha = 
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
+
+Estimates of rho
+================
+
+``` r
+rho_estimate <- function(data = df, N, mu, muhat, n) {
+  
+  N <- data[[N]]
+  n <- data[[n]]
+  mu <- data[[mu]]
+  muhat <- data[[muhat]]
+  
+  ## parts
+  one_over_sqrtN <- 1 / sqrt(N)
+  diff_mu <- muhat - mu
+  f <- n / N
+  one_minus_f <- 1 - f
+  s2hat <- mu * (1 - mu)
+  
+  ## estimate of rho
+  one_over_sqrtN * abs(diff_mu) / sqrt((one_minus_f / n) * s2hat)
+}
+```
+
+Distribution
+
+``` r
+ggplot(df, aes(x = rho_voter)) + geom_histogram() + theme_bw()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
+
+``` r
+ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
+
+Correlates
+
+``` r
+gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(rho_voter))) +
+  theme_bw() +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "gray")
+gg_rho_voter
+```
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-9-1.png)
+
+``` r
+summary(lm(log(rho_voter) ~ log(tot_votes), df))
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = log(rho_voter) ~ log(tot_votes), data = df)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.7377 -0.5154  0.2908  0.6758  1.5932 
+    ## 
+    ## Coefficients:
+    ##                Estimate Std. Error t value Pr(>|t|)   
+    ## (Intercept)     -0.3806     1.9875  -0.192  0.84892   
+    ## log(tot_votes)  -0.4433     0.1384  -3.204  0.00239 **
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 1.006 on 49 degrees of freedom
+    ## Multiple R-squared:  0.1732, Adjusted R-squared:  0.1563 
+    ## F-statistic: 10.26 on 1 and 49 DF,  p-value: 0.002388
+
+``` r
+gg_rho_voter + aes(x = log(vep), y = log(rho_vep))
+```
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-11-1.png)
+
+``` r
+summary(lm(log(rho_vep) ~ log(vep), df))
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = log(rho_vep) ~ log(vep), data = df)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.4279 -0.1386  0.1314  0.3068  0.8911 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -6.92504    1.12693  -6.145  1.4e-07 ***
+    ## log(vep)     0.10701    0.07582   1.411    0.164    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.5457 on 49 degrees of freedom
+    ## Multiple R-squared:  0.03907,    Adjusted R-squared:  0.01946 
+    ## F-statistic: 1.992 on 1 and 49 DF,  p-value: 0.1644
 
 References
 ==========

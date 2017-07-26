@@ -38,6 +38,7 @@ Outcomes (including estimates of VAP/VEP)
 * `pct_hrc_vep`: Hillary Clinton's Vote as a Percentage of Ballots (estimated) eligible population. Computed by `votes_hrc / vep`
 
 Poll estiamtes. Construction detailed below and in `03_tabulate_polls.R`
+
 * `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (loosely defined)
 * `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters (i.e. those who turn out)
 * `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity
@@ -46,6 +47,10 @@ Poll estiamtes. Construction detailed below and in `03_tabulate_polls.R`
 * `yougov_n`: YouGov poll sample size
 
 
+Parameter Estimates
+
+* `rho_voter`: The $\rho$ parameter with _voters_ as the target population
+* `rho_vep`: The $\rho$ parameter with _eligible population_ as the target population
 
 
 # Data Sources 
@@ -151,6 +156,63 @@ gg0 + geom_point()
 ```{r}
 gg0 + geom_point(size = 1) +  geom_label_repel(aes(label = st), segment.alpha = 0.5)
 ```
+
+
+# Estimates of rho
+```{r, eval = FALSE}
+rho_estimate <- function(data = df, N, mu, muhat, n) {
+  
+  N <- data[[N]]
+  n <- data[[n]]
+  mu <- data[[mu]]
+  muhat <- data[[muhat]]
+  
+  ## parts
+  one_over_sqrtN <- 1 / sqrt(N)
+  diff_mu <- muhat - mu
+  f <- n / N
+  one_minus_f <- 1 - f
+  s2hat <- mu * (1 - mu)
+  
+  ## estimate of rho
+  one_over_sqrtN * abs(diff_mu) / sqrt((one_minus_f / n) * s2hat)
+}
+```
+
+
+Distribution
+```{r}
+ggplot(df, aes(x = rho_voter)) + geom_histogram() + theme_bw()
+```
+
+```{r}
+ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
+```
+
+Correlates
+
+```{r}
+gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(rho_voter))) +
+  theme_bw() +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "gray")
+gg_rho_voter
+```
+
+```{r}
+summary(lm(log(rho_voter) ~ log(tot_votes), df))
+```
+
+
+
+```{r}
+gg_rho_voter + aes(x = log(vep), y = log(rho_vep))
+```
+
+```{r}
+summary(lm(log(rho_vep) ~ log(vep), df))
+```
+
 
 
 

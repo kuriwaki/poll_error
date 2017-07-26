@@ -24,9 +24,36 @@ df <- df_joined %>%
          `State Results Website`)
 
 
+# estimate rho
+rho_estimate <- function(data = df, N, mu, muhat, n) {
+  
+  N <- data[[N]]
+  n <- data[[n]]
+  mu <- data[[mu]]
+  muhat <- data[[muhat]]
+  
+  ## parts
+  one_over_sqrtN <- 1 / sqrt(N)
+  diff_mu <- muhat - mu
+  f <- n / N
+  one_minus_f <- 1 - f
+  s2hat <- mu * (1 - mu)
+  
+  ## estimate of rho
+  one_over_sqrtN * abs(diff_mu) / sqrt((one_minus_f / n) * s2hat)
+}
 
 
 
+df$rho_voter <- rho_estimate(N = "tot_votes",
+                             mu = "pct_hrc_voters",
+                             muhat = "cces_pct_hrc_voters",
+                             n = "cces_n_voters")
+
+df$rho_vep <- rho_estimate(N = "vep",
+                             mu = "pct_hrc_vep",
+                             muhat = "cces_pct_hrc_vep",
+                             n = "cces_n_raw")
 # Save
 write_csv(df, "data/output/pres16_state.csv")
 
