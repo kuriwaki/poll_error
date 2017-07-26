@@ -148,10 +148,7 @@ gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, size = cces_n
   labs(x = "CCES Pre-election Survey Clinton Support",
        y = "Final Clinton Popular Vote Share",
        caption = "Sized proportional to the survey's estimated votes. \nSurevy estimates are unofficial, and calculated as described in the vignette.")
-gg0
 ```
-
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
 
 As points
 
@@ -216,8 +213,8 @@ Correlates of $\\hat{\\rho}$:
 gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(rho_voter + 1), label = st)) +
   theme_bw() +
   geom_point() +
-  geom_text_repel() +
-  geom_smooth(method = "lm", se = FALSE, color = "gray")
+  geom_smooth(method = "lm", se = FALSE, color = "gray") +
+  geom_text_repel()
 gg_rho_voter
 ```
 
