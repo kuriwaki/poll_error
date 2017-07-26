@@ -74,7 +74,7 @@ __Voting Eligible Population (VEP)__ is [defined](http://www.electproject.org/ho
 I pulled the VAP and VEP numbers from his spreadsheet [here](https://docs.google.com/spreadsheets/d/1VAcF0eJ06y_8T4o2gvIL4YcyQy8pxb1zYkgXF76Uu1s/edit#gid=2030096602)
 
 
-Next, the observed election outcome. Vote counts are reported from official election reports and measured exactly. Any final count will do; I used the Cook Political Report's spreadsheet [here](https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8)
+Next, the observed election outcome. Vote counts are reported from official election reports and measured exactly. Any final count will do; I used the Cook Political Report's spreadsheet [here](https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8).
 
 The column `votes_hrc` refers to the column `Clinton (D)` in the above-linked spreadsheet. `tot_votes` refers to the sum of the three columns `Clinton (D)`, `Trump (R)`, and `Others`.
 
@@ -197,7 +197,7 @@ ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
 Correlates of $\hat{\rho}$:
 
 ```{r}
-gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(rho_voter + 1), label = st)) +
+gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st)) +
   theme_bw() +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "gray") +
@@ -206,17 +206,17 @@ gg_rho_voter
 ```
 
 ```{r}
-summary(lm(log(rho_voter + 1) ~ log(tot_votes), df))
+summary(lm(log(abs(rho_voter)) ~ log(tot_votes), df))
 ```
 
 
 
 ```{r}
-gg_rho_voter + aes(x = log(vep), y = log(rho_vep + 1))
+gg_rho_voter + aes(x = log(vep), y = log(abs(rho_vep)))
 ```
 
 ```{r}
-summary(lm(log(rho_vep + 1) ~ log(vep), df))
+summary(lm(log(abs(rho_vep)) ~ log(vep), df))
 ```
 
 

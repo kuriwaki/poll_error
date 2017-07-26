@@ -210,7 +210,7 @@ ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
 Correlates of $\\hat{\\rho}$:
 
 ``` r
-gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(rho_voter + 1), label = st)) +
+gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st)) +
   theme_bw() +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "gray") +
@@ -221,52 +221,56 @@ gg_rho_voter
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-9-1.png)
 
 ``` r
-summary(lm(log(rho_voter + 1) ~ log(tot_votes), df))
+summary(lm(log(abs(rho_voter)) ~ log(tot_votes), df))
 ```
 
     ## 
     ## Call:
-    ## lm(formula = log(rho_voter + 1) ~ log(tot_votes), data = df)
+    ## lm(formula = log(abs(rho_voter)) ~ log(tot_votes), data = df)
     ## 
     ## Residuals:
-    ##        Min         1Q     Median         3Q        Max 
-    ## -0.0060963 -0.0012966 -0.0000039  0.0016878  0.0061823 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.7377 -0.5154  0.2908  0.6758  1.5932 
     ## 
     ## Coefficients:
-    ##                  Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept)     4.689e-04  4.723e-03   0.099    0.921
-    ## log(tot_votes) -2.171e-05  3.289e-04  -0.066    0.948
+    ##                Estimate Std. Error t value Pr(>|t|)   
+    ## (Intercept)     -0.3806     1.9875  -0.192  0.84892   
+    ## log(tot_votes)  -0.4433     0.1384  -3.204  0.00239 **
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.00239 on 49 degrees of freedom
-    ## Multiple R-squared:  8.891e-05,  Adjusted R-squared:  -0.02032 
-    ## F-statistic: 0.004357 on 1 and 49 DF,  p-value: 0.9476
+    ## Residual standard error: 1.006 on 49 degrees of freedom
+    ## Multiple R-squared:  0.1732, Adjusted R-squared:  0.1563 
+    ## F-statistic: 10.26 on 1 and 49 DF,  p-value: 0.002388
 
 ``` r
-gg_rho_voter + aes(x = log(vep), y = log(rho_vep + 1))
+gg_rho_voter + aes(x = log(vep), y = log(abs(rho_vep)))
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-11-1.png)
 
 ``` r
-summary(lm(log(rho_vep + 1) ~ log(vep), df))
+summary(lm(log(abs(rho_vep)) ~ log(vep), df))
 ```
 
     ## 
     ## Call:
-    ## lm(formula = log(rho_vep + 1) ~ log(vep), data = df)
+    ## lm(formula = log(abs(rho_vep)) ~ log(vep), data = df)
     ## 
     ## Residuals:
-    ##        Min         1Q     Median         3Q        Max 
-    ## -0.0047394 -0.0010135  0.0001729  0.0013640  0.0044762 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.4279 -0.1386  0.1314  0.3068  0.8911 
     ## 
     ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept) 0.0035648  0.0037927   0.940    0.352
-    ## log(vep)    0.0001165  0.0002552   0.456    0.650
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -6.92504    1.12693  -6.145  1.4e-07 ***
+    ## log(vep)     0.10701    0.07582   1.411    0.164    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.001837 on 49 degrees of freedom
-    ## Multiple R-squared:  0.004235,   Adjusted R-squared:  -0.01609 
-    ## F-statistic: 0.2084 on 1 and 49 DF,  p-value: 0.6501
+    ## Residual standard error: 0.5457 on 49 degrees of freedom
+    ## Multiple R-squared:  0.03907,    Adjusted R-squared:  0.01946 
+    ## F-statistic: 1.992 on 1 and 49 DF,  p-value: 0.1644
 
 References
 ==========
