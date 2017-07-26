@@ -32,13 +32,13 @@ Identifiers
 Outcomes (including estimates of VAP/VEP)
 
 * `vap`: Estimated Voting Age Population (see below for definition)
-* `vep`: Estimated Voting Eligible Population (see below for definiton)
+* `vep`: Estimated Voting Eligible Population (see below for definition)
 * `votes_hrc`: Votes for Clinton
 * `tot_votes`: Ballots cast for the Office of President.
-* `pct_hrc_voters`: Election Oucome. Hillary Clinton's Vote as a Percentage of Ballots Cast for President. Computed by `votes_hrc / tot_votes`
+* `pct_hrc_voters`: Election Outcome. Hillary Clinton's Vote as a Percentage of Ballots Cast for President. Computed by `votes_hrc / tot_votes`
 * `pct_hrc_vep`: Hillary Clinton's Vote as a Percentage of Ballots (estimated) eligible population. Computed by `votes_hrc / vep`
 
-Poll estiamtes. Construction detailed below and in `03_tabulate_polls.R`
+Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
 * `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (loosely defined)
 * `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters (i.e. those who turn out)
@@ -64,7 +64,7 @@ First, the sample space. The U.S. does not have an official census of citizens o
 
 Here we rely on Michael McDonald's estimates at <http://www.electproject.org/>
 
-__Voting Age Population (VAP)__ is [defined](http://www.electproject.org/home/voter-turnout/faq/denominator) as folllows:
+__Voting Age Population (VAP)__ is [defined](http://www.electproject.org/home/voter-turnout/faq/denominator) as follows:
 
 > The voting-age population, known by the acronym VAP, is defined by the Bureau of the Census as everyone residing in the United States, age 18 and older. Before 1971, the voting-age population was age 21 and older for most states.
 
@@ -94,7 +94,7 @@ __CCES__
 
 The  Cooperative Congressional Election Study (CCES) is one of the largest pre-election studies conducted in the 2016 election. The CCES is conducted online for the several weeks before the election.
 
-The target population is registered voters. Sampling is continuouslly adjusted to obtain a representative sample. Multi-level models and other weighting schemes contribute to final state-level estimates. 
+The target population is registered voters. Sampling is continuously adjusted to obtain a representative sample. Multi-level models and other weighting schemes contribute to final state-level estimates. 
 
 I estimated state-level predictions without adjusting for sampling or any other covariate adjustment weights. 
 
@@ -143,32 +143,36 @@ library(readr)
 
 df <- read_csv("data/output/pres16_state.csv")
 
-colorvec <- c("R" =  '#d7191c', "swing" = '#ffffbf', "D" = '#2c7bb6')
+colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')
 
-gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, size = cces_n_voters, color = color)) +
+gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   scale_x_continuous(limits = c(0, 1), label = percent) +
   scale_y_continuous(limits = c(0, 1), label = percent) +
   scale_color_manual(values = colorvec) +
-  guides(size = FALSE) +
+  guides(size = FALSE, color = FALSE) +
   coord_equal() +
   theme_bw() +
-  annotate("text", x = 0.8, y = 0.1, label = "Poll Underestiamted\nClinton Vote") +
-  annotate("text", x = 0.2, y = 0.9, label = "Poll Overestiamted\nClinton Vote") +
-  labs(x = "CCES Pre-election Survey Clinton Support",
-       y = "Final Clinton Popular Vote Share",
-       caption = "Sized proportional to the survey's estimated votes. \nSurevy estimates are unofficial, and calculated as described in the vignette.\n Colored by the R (red) or D (blue) or swing (yellow)")
+  geom_point(alpha = 0.8) +
+  annotate("text", x = 0.8, y = 0.1, label = "Poll Overestimated\nClinton Vote") +
+  annotate("text", x = 0.2, y = 0.9, label = "Poll Underestimated\nClinton Vote") +
+  labs(y = "Final Clinton Popular Vote Share",
+       caption = "Sized proportional to the survey's estimated votes.\n Colored by the R (red) or D (blue) or swing (green)")
 ```
 
 
 As points 
 ```{r}
-gg0 + geom_point()
+gg0 + aes(x = cces_pct_hrc_voters, size = cces_n_voters) +
+  xlab("Turnout-adjusted CCES Pre-election Survey Clinton Support")
 ```
 
+
 ```{r}
-gg0 + geom_point(size = 1) +  geom_text_repel(aes(label = st), segment.alpha = 0.5)
+gg0 + aes(x = cces_pct_hrc_raw, size = cces_n_raw) +
+  xlab("Raw CCES Pre-election Survey Clinton Suport")
 ```
+
 
 
 # Estimates of $\rho$
@@ -194,46 +198,44 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
 }
 ```
 
+We present two versions of this estimate based on the sampling
 
-Distribution of $\hat{\rho}$:
+## Based on voters
+For $\rho_{voter}$, we use
 
-```{r}
-ggplot(df, aes(x = rho_voter)) +geom_histogram() + theme_bw()
-```
+```{r, eval = FALSE}
+df$rho_voter <- rho_estimate(N = "tot_votes",
+                             mu = "pct_hrc_voters",
+                             muhat = "cces_pct_hrc_voters",
+                             n = "cces_n_voters")
 
-```{r}
-ggplot(df, aes(x = rho_vep)) +geom_histogram() + theme_bw()
-```
-
-
-Correlates of $\hat{\rho}$:
-
-```{r}
-gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st, color = color)) +
-  theme_bw() +
-  geom_point() +
-  scale_color_manual(values = colorvec)  +
-  geom_smooth(method = "lm", se = FALSE, color = "gray") +
-  geom_text_repel()
-gg_rho_voter
-```
-
-```{r}
-summary(lm(log(abs(rho_voter)) ~ log(tot_votes), df))
 ```
 
 
-
+Distribution
 ```{r}
-gg_rho_voter + aes(x = log(vep), y = log(abs(rho_vep)))
-```
-
-```{r}
-summary(lm(log(abs(rho_vep)) ~ log(vep), df))
+ggplot(df, aes(x = rho_voter)) + geom_histogram(bins = 25) + theme_bw()
 ```
 
 
+## Based on voting eligible population
+For $\rho_{vep}$, we use
+```{r, eval = FALSE}
+df$rho_vep <- rho_estimate(N = "vep",
+                             mu = "pct_hrc_voters",
+                             muhat = "cces_pct_hrc_raw",
+                             n = "cces_n_raw")
 
+```
+
+
+Distribution
+```{r}
+ggplot(df, aes(x = rho_vep)) + geom_histogram(bins = 25) + theme_bw()
+```
+
+
+Figures as PDFs are in `figures`.
 
 # References
 

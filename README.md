@@ -12,7 +12,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 18
+    ## # A tibble: 51 x 21
     ##                   state    st color      vap      vep votes_hrc tot_votes
     ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL     R  3770142  3601361    729547   2123372
@@ -25,11 +25,12 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE     D   749872   689125    235603    441590
     ##  9 District of Columbia    DC     D   562329   511463    282830    311268
     ## 10              Florida    FL swing 16565588 14572210   4504975   9420039
-    ## # ... with 41 more rows, and 11 more variables: pct_hrc_vep <dbl>,
+    ## # ... with 41 more rows, and 14 more variables: pct_hrc_vep <dbl>,
     ## #   pct_hrc_voters <dbl>, cces_pct_hrc_vep <dbl>,
-    ## #   cces_pct_hrc_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
-    ## #   yougov_pct_hrc <dbl>, yougov_n <dbl>, `State Results Website` <chr>,
-    ## #   rho_voter <dbl>, rho_vep <dbl>
+    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrc_raw <dbl>,
+    ## #   cces_tothrc_raw <int>, cces_tothrc_adj_trn <dbl>, cces_n_raw <int>,
+    ## #   cces_n_voters <dbl>, yougov_pct_hrc <dbl>, yougov_n <dbl>, `State
+    ## #   Results Website` <chr>, rho_voter <dbl>, rho_vep <dbl>
 
 The main columns are
 
@@ -42,13 +43,13 @@ Identifiers
 Outcomes (including estimates of VAP/VEP)
 
 -   `vap`: Estimated Voting Age Population (see below for definition)
--   `vep`: Estimated Voting Eligible Population (see below for definiton)
+-   `vep`: Estimated Voting Eligible Population (see below for definition)
 -   `votes_hrc`: Votes for Clinton
 -   `tot_votes`: Ballots cast for the Office of President.
--   `pct_hrc_voters`: Election Oucome. Hillary Clinton's Vote as a Percentage of Ballots Cast for President. Computed by `votes_hrc / tot_votes`
+-   `pct_hrc_voters`: Election Outcome. Hillary Clinton's Vote as a Percentage of Ballots Cast for President. Computed by `votes_hrc / tot_votes`
 -   `pct_hrc_vep`: Hillary Clinton's Vote as a Percentage of Ballots (estimated) eligible population. Computed by `votes_hrc / vep`
 
-Poll estiamtes. Construction detailed below and in `03_tabulate_polls.R`
+Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
 -   `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (loosely defined)
 -   `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters (i.e. those who turn out)
@@ -74,7 +75,7 @@ First, the sample space. The U.S. does not have an official census of citizens o
 
 Here we rely on Michael McDonald's estimates at <http://www.electproject.org/>
 
-**Voting Age Population (VAP)** is [defined](http://www.electproject.org/home/voter-turnout/faq/denominator) as folllows:
+**Voting Age Population (VAP)** is [defined](http://www.electproject.org/home/voter-turnout/faq/denominator) as follows:
 
 > The voting-age population, known by the acronym VAP, is defined by the Bureau of the Census as everyone residing in the United States, age 18 and older. Before 1971, the voting-age population was age 21 and older for most states.
 
@@ -101,7 +102,7 @@ Poll Prediction
 
 The Cooperative Congressional Election Study (CCES) is one of the largest pre-election studies conducted in the 2016 election. The CCES is conducted online for the several weeks before the election.
 
-The target population is registered voters. Sampling is continuouslly adjusted to obtain a representative sample. Multi-level models and other weighting schemes contribute to final state-level estimates.
+The target population is registered voters. Sampling is continuously adjusted to obtain a representative sample. Multi-level models and other weighting schemes contribute to final state-level estimates.
 
 I estimated state-level predictions without adjusting for sampling or any other covariate adjustment weights.
 
@@ -138,13 +139,15 @@ Setup plot...
 As points
 
 ``` r
-gg0 + geom_point()
+gg0 + aes(x = cces_pct_hrc_voters, size = cces_n_voters) +
+  xlab("Turnout-adjusted CCES Pre-election Survey Clinton Support")
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
 ``` r
-gg0 + geom_point(size = 1) +  geom_text_repel(aes(label = st), segment.alpha = 0.5)
+gg0 + aes(x = cces_pct_hrc_raw, size = cces_n_raw) +
+  xlab("Raw CCES Pre-election Survey Clinton Suport")
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
@@ -174,89 +177,49 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
 }
 ```
 
-Distribution of $\\hat{\\rho}$:
+We present two versions of this estimate based on the sampling
+
+Based on voters
+---------------
+
+For *ρ*<sub>*v**o**t**e**r*</sub>, we use
 
 ``` r
-ggplot(df, aes(x = rho_voter)) +geom_histogram() + theme_bw()
+df$rho_voter <- rho_estimate(N = "tot_votes",
+                             mu = "pct_hrc_voters",
+                             muhat = "cces_pct_hrc_voters",
+                             n = "cces_n_voters")
 ```
 
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
+Distribution
 
 ``` r
-ggplot(df, aes(x = rho_vep)) +geom_histogram() + theme_bw()
+ggplot(df, aes(x = rho_voter)) + geom_histogram(bins = 25) + theme_bw()
 ```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
 
-Correlates of $\\hat{\\rho}$:
+Based on voting eligible population
+-----------------------------------
+
+For *ρ*<sub>*v**e**p*</sub>, we use
 
 ``` r
-gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st, color = color)) +
-  theme_bw() +
-  geom_point() +
-  scale_color_manual(values = colorvec)  +
-  geom_smooth(method = "lm", se = FALSE, color = "gray") +
-  geom_text_repel()
-gg_rho_voter
+df$rho_vep <- rho_estimate(N = "vep",
+                             mu = "pct_hrc_voters",
+                             muhat = "cces_pct_hrc_raw",
+                             n = "cces_n_raw")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-9-1.png)
+Distribution
 
 ``` r
-summary(lm(log(abs(rho_voter)) ~ log(tot_votes), df))
+ggplot(df, aes(x = rho_vep)) + geom_histogram(bins = 25) + theme_bw()
 ```
 
-    ## 
-    ## Call:
-    ## lm(formula = log(abs(rho_voter)) ~ log(tot_votes), data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -2.7377 -0.5154  0.2908  0.6758  1.5932 
-    ## 
-    ## Coefficients:
-    ##                Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept)     -0.3806     1.9875  -0.192  0.84892   
-    ## log(tot_votes)  -0.4433     0.1384  -3.204  0.00239 **
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 1.006 on 49 degrees of freedom
-    ## Multiple R-squared:  0.1732, Adjusted R-squared:  0.1563 
-    ## F-statistic: 10.26 on 1 and 49 DF,  p-value: 0.002388
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-10-1.png)
 
-``` r
-gg_rho_voter + aes(x = log(vep), y = log(abs(rho_vep)))
-```
-
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-11-1.png)
-
-``` r
-summary(lm(log(abs(rho_vep)) ~ log(vep), df))
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = log(abs(rho_vep)) ~ log(vep), data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -2.4279 -0.1386  0.1314  0.3068  0.8911 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -6.92504    1.12693  -6.145  1.4e-07 ***
-    ## log(vep)     0.10701    0.07582   1.411    0.164    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.5457 on 49 degrees of freedom
-    ## Multiple R-squared:  0.03907,    Adjusted R-squared:  0.01946 
-    ## F-statistic: 1.992 on 1 and 49 DF,  p-value: 0.1644
+Figures as PDFs are in `figures`.
 
 References
 ==========
