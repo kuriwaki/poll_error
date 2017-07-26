@@ -15,10 +15,13 @@ tab_cc <- cc_raw %>%
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_tothrc_raw = sum(vote_hrc, na.rm = TRUE),
             cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE)) %>%
-  mutate(cces_pct_hrc_vep = cces_tothrc_raw / cces_n_raw,
+  mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
+         cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
          cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters)
 
 
-
+tab_cc
 
 saveRDS(tab_cc, "data/output/cc_tabulation_state.rds")
+
+plot(cces_n)
