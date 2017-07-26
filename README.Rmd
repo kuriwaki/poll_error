@@ -27,6 +27,7 @@ Identifiers
 
 * `state`: Name of state (full name)
 * `st`: Name of state (abbreviation)
+* `color`: Outcome of the Race as defined by Cook Political: `R` (Republican), `D` (Democrat), `swing` (swing -- see details below.)
 
 Outcomes (including estimates of VAP/VEP)
 
@@ -71,12 +72,20 @@ __Voting Eligible Population (VEP)__ is [defined](http://www.electproject.org/ho
 
 > The voting-eligible population or VEP is a phrase I coined to describe the population that is eligible to vote. Counted among the voting-age population are persons who are ineligible to vote, such as non-citizens, felons (depending on state law), and mentally incapacitated persons. Not counted are persons in the military or civilians living overseas.
 
-I pulled the VAP and VEP numbers from his spreadsheet [here](https://docs.google.com/spreadsheets/d/1VAcF0eJ06y_8T4o2gvIL4YcyQy8pxb1zYkgXF76Uu1s/edit#gid=2030096602)
+I pulled the VAP and VEP numbers from his spreadsheet [here](https://docs.google.com/spreadsheets/d/1VAcF0eJ06y_8T4o2gvIL4YcyQy8pxb1zYkgXF76Uu1s/edit#gid=2030096602).
 
 
 Next, the observed election outcome. Vote counts are reported from official election reports and measured exactly. Any final count will do; I used the Cook Political Report's spreadsheet [here](https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8).
 
 The column `votes_hrc` refers to the column `Clinton (D)` in the above-linked spreadsheet. `tot_votes` refers to the sum of the three columns `Clinton (D)`, `Trump (R)`, and `Others`.
+
+
+`color` is taken from the Color of this Cook Political's table and their classification of Swing. "Swing state" is defined as states in which:
+
+> "Swing State" defined as state that flipped from '12 or was decided by less than 5%.
+
+`R` and `D` are non-swing states defined by the presidential winner. 
+
 
 
 # Poll Prediction
@@ -126,7 +135,7 @@ Read the press release and guides (e.g. for 2014: [dataverse](https://dataverse.
 
 # Comparisons
 Setup plot...
-```{r, message=FALSE}
+```{r, message=FALSE, echo = FALSE}
 library(ggplot2)
 library(ggrepel)
 library(scales)
@@ -134,10 +143,13 @@ library(readr)
 
 df <- read_csv("data/output/pres16_state.csv")
 
-gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, size = cces_n_voters)) +
+colorvec <- c("R" =  '#d7191c', "swing" = '#ffffbf', "D" = '#2c7bb6')
+
+gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, size = cces_n_voters, color = color)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   scale_x_continuous(limits = c(0, 1), label = percent) +
   scale_y_continuous(limits = c(0, 1), label = percent) +
+  scale_color_manual(values = colorvec) +
   guides(size = FALSE) +
   coord_equal() +
   theme_bw() +
@@ -145,7 +157,7 @@ gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, size = cces_n
   annotate("text", x = 0.2, y = 0.9, label = "Poll Overestiamted\nClinton Vote") +
   labs(x = "CCES Pre-election Survey Clinton Support",
        y = "Final Clinton Popular Vote Share",
-       caption = "Sized proportional to the survey's estimated votes. \nSurevy estimates are unofficial, and calculated as described in the vignette.")
+       caption = "Sized proportional to the survey's estimated votes. \nSurevy estimates are unofficial, and calculated as described in the vignette.\n Colored by the R (red) or D (blue) or swing (yellow)")
 ```
 
 
@@ -186,20 +198,21 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
 Distribution of $\hat{\rho}$:
 
 ```{r}
-ggplot(df, aes(x = rho_voter)) + geom_histogram() + theme_bw()
+ggplot(df, aes(x = rho_voter)) +geom_histogram() + theme_bw()
 ```
 
 ```{r}
-ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
+ggplot(df, aes(x = rho_vep)) +geom_histogram() + theme_bw()
 ```
 
 
 Correlates of $\hat{\rho}$:
 
 ```{r}
-gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st)) +
+gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st, color = color)) +
   theme_bw() +
   geom_point() +
+  scale_color_manual(values = colorvec)  +
   geom_smooth(method = "lm", se = FALSE, color = "gray") +
   geom_text_repel()
 gg_rho_voter

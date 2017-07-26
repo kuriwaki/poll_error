@@ -12,10 +12,10 @@ df_joined <-  inner_join(mm, dw, by = "state") %>%
   inner_join(yg, by = "state")
   
   
-# select
+# select ----
 df <- df_joined %>% 
   mutate(pct_hrc_vep = votes_hrc / vep) %>%
-  select(state, st, vap, vep, 
+  select(state, st, color, vap, vep, 
          votes_hrc, tot_votes, 
          pct_hrc_vep, pct_hrc_voters,
          cces_pct_hrc_vep, cces_pct_hrc_voters,
@@ -24,7 +24,13 @@ df <- df_joined %>%
          `State Results Website`)
 
 
-# estimate rho
+# categorize swing state, red, blue
+# https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8/edit#gid=19
+
+
+
+
+# estimate rho ----
 rho_estimate <- function(data = df, N, mu, muhat, n) {
   
   N <- data[[N]]
@@ -54,7 +60,5 @@ df$rho_vep <- rho_estimate(N = "vep",
                              mu = "pct_hrc_vep",
                              muhat = "cces_pct_hrc_vep",
                              n = "cces_n_raw")
-# Save
+# Save ----
 write_csv(df, "data/output/pres16_state.csv")
-
-

@@ -12,19 +12,19 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 17
-    ##                   state    st      vap      vep votes_hrc tot_votes
-    ##                   <chr> <chr>    <int>    <int>     <int>     <int>
-    ##  1              Alabama    AL  3770142  3601361    729547   2123372
-    ##  2               Alaska    AK   555367   519849    116454    318608
-    ##  3              Arizona    AZ  5331034  4734313   1161167   2573165
-    ##  4             Arkansas    AR  2286625  2142571    380494   1130635
-    ##  5           California    CA 30201571 25017408   8753788  14181595
-    ##  6             Colorado    CO  4305728  3966297   1338870   2780220
-    ##  7          Connecticut    CT  2821935  2561555    897572   1644920
-    ##  8             Delaware    DE   749872   689125    235603    441590
-    ##  9 District of Columbia    DC   562329   511463    282830    311268
-    ## 10              Florida    FL 16565588 14572210   4504975   9420039
+    ## # A tibble: 51 x 18
+    ##                   state    st color      vap      vep votes_hrc tot_votes
+    ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
+    ##  1              Alabama    AL     R  3770142  3601361    729547   2123372
+    ##  2               Alaska    AK     R   555367   519849    116454    318608
+    ##  3              Arizona    AZ swing  5331034  4734313   1161167   2573165
+    ##  4             Arkansas    AR     R  2286625  2142571    380494   1130635
+    ##  5           California    CA     D 30201571 25017408   8753788  14181595
+    ##  6             Colorado    CO swing  4305728  3966297   1338870   2780220
+    ##  7          Connecticut    CT     D  2821935  2561555    897572   1644920
+    ##  8             Delaware    DE     D   749872   689125    235603    441590
+    ##  9 District of Columbia    DC     D   562329   511463    282830    311268
+    ## 10              Florida    FL swing 16565588 14572210   4504975   9420039
     ## # ... with 41 more rows, and 11 more variables: pct_hrc_vep <dbl>,
     ## #   pct_hrc_voters <dbl>, cces_pct_hrc_vep <dbl>,
     ## #   cces_pct_hrc_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
@@ -37,6 +37,7 @@ Identifiers
 
 -   `state`: Name of state (full name)
 -   `st`: Name of state (abbreviation)
+-   `color`: Outcome of the Race as defined by Cook Political: `R` (Republican), `D` (Democrat), `swing` (swing -- see details below.)
 
 Outcomes (including estimates of VAP/VEP)
 
@@ -81,11 +82,17 @@ Here we rely on Michael McDonald's estimates at <http://www.electproject.org/>
 
 > The voting-eligible population or VEP is a phrase I coined to describe the population that is eligible to vote. Counted among the voting-age population are persons who are ineligible to vote, such as non-citizens, felons (depending on state law), and mentally incapacitated persons. Not counted are persons in the military or civilians living overseas.
 
-I pulled the VAP and VEP numbers from his spreadsheet [here](https://docs.google.com/spreadsheets/d/1VAcF0eJ06y_8T4o2gvIL4YcyQy8pxb1zYkgXF76Uu1s/edit#gid=2030096602)
+I pulled the VAP and VEP numbers from his spreadsheet [here](https://docs.google.com/spreadsheets/d/1VAcF0eJ06y_8T4o2gvIL4YcyQy8pxb1zYkgXF76Uu1s/edit#gid=2030096602).
 
-Next, the observed election outcome. Vote counts are reported from official election reports and measured exactly. Any final count will do; I used the Cook Political Report's spreadsheet [here](https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8)
+Next, the observed election outcome. Vote counts are reported from official election reports and measured exactly. Any final count will do; I used the Cook Political Report's spreadsheet [here](https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8).
 
 The column `votes_hrc` refers to the column `Clinton (D)` in the above-linked spreadsheet. `tot_votes` refers to the sum of the three columns `Clinton (D)`, `Trump (R)`, and `Others`.
+
+`color` is taken from the Color of this Cook Political's table and their classification of Swing. "Swing state" is defined as states in which:
+
+> "Swing State" defined as state that flipped from '12 or was decided by less than 5%.
+
+`R` and `D` are non-swing states defined by the presidential winner.
 
 Poll Prediction
 ===============
@@ -127,28 +134,6 @@ Comparisons
 ===========
 
 Setup plot...
-
-``` r
-library(ggplot2)
-library(ggrepel)
-library(scales)
-library(readr)
-
-df <- read_csv("data/output/pres16_state.csv")
-
-gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, size = cces_n_voters)) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  scale_x_continuous(limits = c(0, 1), label = percent) +
-  scale_y_continuous(limits = c(0, 1), label = percent) +
-  guides(size = FALSE) +
-  coord_equal() +
-  theme_bw() +
-  annotate("text", x = 0.8, y = 0.1, label = "Poll Underestiamted\nClinton Vote") +
-  annotate("text", x = 0.2, y = 0.9, label = "Poll Overestiamted\nClinton Vote") +
-  labs(x = "CCES Pre-election Survey Clinton Support",
-       y = "Final Clinton Popular Vote Share",
-       caption = "Sized proportional to the survey's estimated votes. \nSurevy estimates are unofficial, and calculated as described in the vignette.")
-```
 
 As points
 
@@ -192,7 +177,7 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
 Distribution of $\\hat{\\rho}$:
 
 ``` r
-ggplot(df, aes(x = rho_voter)) + geom_histogram() + theme_bw()
+ggplot(df, aes(x = rho_voter)) +geom_histogram() + theme_bw()
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
@@ -200,7 +185,7 @@ ggplot(df, aes(x = rho_voter)) + geom_histogram() + theme_bw()
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
 
 ``` r
-ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
+ggplot(df, aes(x = rho_vep)) +geom_histogram() + theme_bw()
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
@@ -210,9 +195,10 @@ ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
 Correlates of $\\hat{\\rho}$:
 
 ``` r
-gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st)) +
+gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(abs(rho_voter)), label = st, color = color)) +
   theme_bw() +
   geom_point() +
+  scale_color_manual(values = colorvec)  +
   geom_smooth(method = "lm", se = FALSE, color = "gray") +
   geom_text_repel()
 gg_rho_voter

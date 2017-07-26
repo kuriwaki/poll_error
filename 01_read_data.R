@@ -22,6 +22,11 @@ mm <- mm_gs %>%
 
 
 
+# state color
+# https://docs.google.com/spreadsheets/d/1-EU9o8bHdXKudYIGUAj00rGtDPumhwGW2bAGmPr9iUo/edit#gid=0
+color <- gs_read(gs_title("2016_dw_color"))
+
+
 # Final count ----
 # David Wasserman's Tracker
 # https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8/edit#gid=19
@@ -40,10 +45,14 @@ dw <-  dw_gs %>%
   filter(!grepl("States|Total", state)) %>%
   mutate(state = gsub("\\*", "", state),
          pct_hrc_voters = votes_hrc / tot_votes) %>%
-  select(state, pct_hrc_voters, votes_hrc, tot_votes, everything())
+  select(state, pct_hrc_voters, votes_hrc, tot_votes, everything()) %>%
+  inner_join(color)
 
 
-# Poll prediction -----
+
+
+
+d# Poll prediction -----
 # CCES Release by YouGov Numbers
 # Copied from  https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016
 # https://docs.google.com/spreadsheets/d/1pJLEHfvCN-eX1mBfe6sgs0dwF2oq9G1FcUhKFk0Pe8g/edit#gid=0
