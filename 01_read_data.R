@@ -1,7 +1,6 @@
 
 library(readr)
 library(googlesheets)
-library("googlesheets")
 suppressPackageStartupMessages(library("dplyr"))
 
 
@@ -40,44 +39,36 @@ dw <-  dw_gs %>%
   filter(!is.na(votes_hrc)) %>% 
   filter(!grepl("States|Total", state)) %>%
   mutate(state = gsub("\\*", "", state),
-         pct_hrc = votes_hrc / tot_votes) %>%
-  select(state, pct_hrc, votes_hrc, tot_votes, everything())
+         pct_hrc_voters = votes_hrc / tot_votes) %>%
+  select(state, pct_hrc_voters, votes_hrc, tot_votes, everything())
 
 
 # Poll prediction -----
-# CCES Release
+# CCES Release by YouGov Numbers
 # Copied from  https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016
 # https://docs.google.com/spreadsheets/d/1pJLEHfvCN-eX1mBfe6sgs0dwF2oq9G1FcUhKFk0Pe8g/edit#gid=0
-cc2016 <- gs_title("20161107_CCES")
-cc_gs <- gs_read(cc2016)
+yg2016 <- gs_title("20161107_CCES")
+yg_gs <- gs_read(yg2016)
 
 
 # rename
-cc <- cc_gs %>% 
+yg <- yg_gs %>% 
   rename(state = X1,
-         cces_hrc = Clinton,
-         cces_djt = Trump,
-         cces_johnson = Johnson,
-         cces_stein = Stein,
-         cces_n = `Sample Size`) %>% 
+         yougov_hrc = Clinton,
+         yougov_djt = Trump,
+         yougov_johnson = Johnson,
+         yougov_stein = Stein,
+         yougov_n = `Sample Size`) %>% 
   filter(state != "U. S.") %>% 
   mutate(state = replace(state, state == "DC", "District of Columbia"),
-         cces_hrc = cces_hrc/100,
-         cces_djt = cces_djt/100,
-         cces_johnson = cces_johnson/100,
-         cces_stein = cces_stein/100)
+         yougov_pct_hrc = yougov_hrc/100,
+         yougov_pct_djt = yougov_djt/100,
+         yougov_pct_johnson = yougov_johnson/100,
+         yougov_pct_stein = yougov_stein/100)
 
 
-
-# Join ---
-df <-  inner_join(mm, dw, by = "state") %>%
-  inner_join(cc, by = "state") %>% 
-  select(state, st, vap, vep, pct_hrc, votes_hrc, tot_votes, cces_hrc, cces_n, everything())
-
-
-
-# Save
-write_csv(df, "data/output/pres16_state.csv")
-
-
+# save -----
+saveRDS(yg, "data/output/yg_release_state.rds")
+saveRDS(dw, "data/output/dw_results_state.rds")
+saveRDS(mm, "data/output/mm_popultn_state.rds")
 
