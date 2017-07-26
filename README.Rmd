@@ -141,10 +141,12 @@ gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, size = cces_n
   guides(size = FALSE) +
   coord_equal() +
   theme_bw() +
+  annotate("text", x = 0.8, y = 0.1, label = "Poll Underestiamted\nClinton Vote") +
+  annotate("text", x = 0.2, y = 0.9, label = "Poll Overestiamted\nClinton Vote") +
   labs(x = "CCES Pre-election Survey Clinton Support",
        y = "Final Clinton Popular Vote Share",
-       caption = "Sized proportional to the survey's estimated votes. Surevy estimates are unofficial, and calculated as described in the vignette.")
-
+       caption = "Sized proportional to the survey's estimated votes. \nSurevy estimates are unofficial, and calculated as described in the vignette.")
+gg0
 ```
 
 
@@ -154,11 +156,13 @@ gg0 + geom_point()
 ```
 
 ```{r}
-gg0 + geom_point(size = 1) +  geom_label_repel(aes(label = st), segment.alpha = 0.5)
+gg0 + geom_point(size = 1) +  geom_text_repel(aes(label = st), segment.alpha = 0.5)
 ```
 
 
-# Estimates of rho
+# Estimates of $\rho$
+
+We use this function for the columns `rho_*`. Input is defined in terms of its sampling target (actual votes vs. vep). We use the CCES estimates for now.
 ```{r, eval = FALSE}
 rho_estimate <- function(data = df, N, mu, muhat, n) {
   
@@ -175,12 +179,13 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
   s2hat <- mu * (1 - mu)
   
   ## estimate of rho
-  one_over_sqrtN * abs(diff_mu) / sqrt((one_minus_f / n) * s2hat)
+  one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat)
 }
 ```
 
 
-Distribution
+Distribution of $\hat{\rho}$:
+
 ```{r}
 ggplot(df, aes(x = rho_voter)) + geom_histogram() + theme_bw()
 ```
@@ -189,28 +194,30 @@ ggplot(df, aes(x = rho_voter)) + geom_histogram() + theme_bw()
 ggplot(df, aes(x = rho_vep)) + geom_histogram() + theme_bw()
 ```
 
-Correlates
+
+Correlates of $\hat{\rho}$:
 
 ```{r}
-gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(rho_voter))) +
+gg_rho_voter <-  ggplot(df, aes(x = log(tot_votes), y = log(rho_voter + 1), label = st)) +
   theme_bw() +
   geom_point() +
+  geom_text_repel() +
   geom_smooth(method = "lm", se = FALSE, color = "gray")
 gg_rho_voter
 ```
 
 ```{r}
-summary(lm(log(rho_voter) ~ log(tot_votes), df))
+summary(lm(log(rho_voter + 1) ~ log(tot_votes), df))
 ```
 
 
 
 ```{r}
-gg_rho_voter + aes(x = log(vep), y = log(rho_vep))
+gg_rho_voter + aes(x = log(vep), y = log(rho_vep + 1))
 ```
 
 ```{r}
-summary(lm(log(rho_vep) ~ log(vep), df))
+summary(lm(log(rho_vep + 1) ~ log(vep), df))
 ```
 
 
