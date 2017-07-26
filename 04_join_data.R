@@ -20,7 +20,8 @@ df <- df_joined %>%
          pct_hrc_vep, pct_hrc_voters,
          cces_pct_hrc_vep, cces_pct_hrc_voters,
          cces_n_raw, cces_n_voters,
-         yougov_pct_hrc, yougov_n)
+         yougov_pct_hrc, yougov_n,
+         `State Results Website`)
 
 
 
