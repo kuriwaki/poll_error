@@ -26,10 +26,10 @@ read_csv("data/output/pres16_state.csv")
     ##  9 District of Columbia    DC     D   562329   511463    282830    311268
     ## 10              Florida    FL swing 16565588 14572210   4504975   9420039
     ## # ... with 41 more rows, and 14 more variables: pct_hrc_vep <dbl>,
-    ## #   pct_hrc_voters <dbl>, cces_pct_hrc_vep <dbl>,
-    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrc_raw <dbl>,
-    ## #   cces_tothrc_raw <int>, cces_tothrc_adj_trn <dbl>, cces_n_raw <int>,
-    ## #   cces_n_voters <dbl>, yougov_pct_hrc <dbl>, yougov_n <dbl>, `State
+    ## #   pct_hrc_voters <dbl>, cces_n_voters <dbl>, cces_n_raw <int>,
+    ## #   cces_tothrc_adj_trn <dbl>, cces_tothrc_raw <int>,
+    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrc_vep <dbl>,
+    ## #   cces_pct_hrc_raw <dbl>, yougov_pct_hrc <dbl>, yougov_n <dbl>, `State
     ## #   Results Website` <chr>, rho_voter <dbl>, rho_vep <dbl>
 
 The main columns are
@@ -51,10 +51,14 @@ Outcomes (including estimates of VAP/VEP)
 
 Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
--   `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (loosely defined)
--   `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters (i.e. those who turn out)
 -   `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity
--   `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population.
+-   `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population
+-   `cces_tothrc_adj_trn`: CCES estimated Clinton votes
+-   `cces_tothrc_raw`: CCES unadjusted total Clinton votes
+-   `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters adjusting for turnout (`cces_tothrc_adj_trn/ cces_n_voters`)
+-   `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (`cces_tothrc_adj_trn / cces_n_raw`)
+-   `cces_pct_hrc_raw`: CCES estimated percent of Clinton votes without any adjustment (`cces_tothrc_raw/ cces_n_raw`)
+
 -   `yougov_pct_hrc`: YouGov estimated of Clinton votes among voters
 -   `yougov_n`: YouGov poll sample size
 
@@ -121,7 +125,8 @@ tab_cc <- cc_raw %>%
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_tothrc_raw = sum(vote_hrc, na.rm = TRUE),
             cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE)) %>%
-  mutate(cces_pct_hrc_vep = cces_tothrc_raw / cces_n_raw,
+  mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
+         cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
          cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters)
 ```
 
@@ -206,9 +211,9 @@ For *ρ*<sub>*v**e**p*</sub>, we use
 
 ``` r
 df$rho_vep <- rho_estimate(N = "vep",
-                             mu = "pct_hrc_voters",
-                             muhat = "cces_pct_hrc_raw",
-                             n = "cces_n_raw")
+                           mu = "pct_hrc_voters",
+                           muhat = "cces_pct_hrc_raw",
+                           n = "cces_n_raw")
 ```
 
 Distribution

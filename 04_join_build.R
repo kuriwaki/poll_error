@@ -19,10 +19,9 @@ df <- df_joined %>%
   select(state, st, color, vap, vep, 
          votes_hrc, tot_votes, 
          pct_hrc_vep, pct_hrc_voters,
-         cces_pct_hrc_vep, cces_pct_hrc_voters, cces_pct_hrc_raw,
-         cces_tothrc_raw,
-         cces_tothrc_adj_trn,
-         cces_n_raw, cces_n_voters,
+         cces_n_voters, cces_n_raw,
+         cces_tothrc_adj_trn, cces_tothrc_raw, 
+         cces_pct_hrc_voters, cces_pct_hrc_vep, cces_pct_hrc_raw,
          yougov_pct_hrc, yougov_n,
          `State Results Website`)
 
