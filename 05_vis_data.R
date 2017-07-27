@@ -1,6 +1,8 @@
+rm(list = ls())
 library(ggplot2)
 library(scales)
 library(readr)
+library(ggrepel)
 
 fig.w <- 6
 fig.h <- 4
@@ -46,6 +48,8 @@ sdf <- tibble(est = rep(c("rho_voter", "rho_vep"), each = 3),
               slopes = slopes)
 
 
+# colors
+colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')
 
 
 # plots for rho
@@ -97,3 +101,43 @@ gg0 +
             inherit.aes = FALSE)
 ggsave("figures/rho_vep_separated.pdf", width = fig.w, height = fig.h)
 
+
+
+ggplot(df, aes(x = rho_voter)) + 
+  labs(x = expression(rho), y = "Count") +
+  geom_histogram(bins = 25) + theme_bw()
+ggsave("figures/rho_voter_hist.pdf", width = fig.w, height = fig.h)
+
+ggplot(df, aes(x = rho_vep)) + 
+  labs(x = expression(rho), y = "Count") +
+  geom_histogram(bins = 25) + theme_bw()
+ggsave("figures/rho_vep_hist.pdf", width = fig.w, height = fig.h)
+
+
+
+
+
+
+
+gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  scale_x_continuous(limits = c(0, 1), label = percent) +
+  scale_y_continuous(limits = c(0, 1), label = percent) +
+  scale_color_manual(values = colorvec) +
+  guides(size = FALSE, color = FALSE) +
+  coord_equal() +
+  theme_bw() +
+  geom_point(alpha = 0.8) +
+  annotate("text", x = 0.8, y = 0.1, label = "Poll Overestimated\nClinton Vote") +
+  annotate("text", x = 0.2, y = 0.9, label = "Poll Underestimated\nClinton Vote") +
+  labs(y = "Final Clinton Popular Vote Share",
+       caption = "Sized proportional to the survey's estimated votes.\n Colored by the R (red) or D (blue) or swing (green)")
+
+
+gg0 + aes(x = cces_pct_hrc_voters, size = cces_n_voters) +
+  xlab("Turnout-adjusted CCES Pre-election Survey Clinton Support")
+ggsave("figures/scatter_turnout_adj.pdf", h = fig.h, w = fig.w)
+
+gg0 + aes(x = cces_pct_hrc_raw, size = cces_n_raw) +
+  xlab("Raw CCES Pre-election Survey Clinton Suport")
+ggsave("figures/scatter_raw.pdf", h = fig.h, w = fig.w)
