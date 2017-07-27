@@ -12,7 +12,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 21
+    ## # A tibble: 51 x 22
     ##                   state    st color      vap      vep votes_hrc tot_votes
     ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL     R  3770142  3601361    729547   2123372
@@ -25,12 +25,13 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE     D   749872   689125    235603    441590
     ##  9 District of Columbia    DC     D   562329   511463    282830    311268
     ## 10              Florida    FL swing 16565588 14572210   4504975   9420039
-    ## # ... with 41 more rows, and 14 more variables: pct_hrc_vep <dbl>,
+    ## # ... with 41 more rows, and 15 more variables: pct_hrc_vep <dbl>,
     ## #   pct_hrc_voters <dbl>, cces_n_voters <dbl>, cces_n_raw <int>,
     ## #   cces_tothrc_adj_trn <dbl>, cces_tothrc_raw <int>,
     ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrc_vep <dbl>,
-    ## #   cces_pct_hrc_raw <dbl>, yougov_pct_hrc <dbl>, yougov_n <dbl>, `State
-    ## #   Results Website` <chr>, rho_voter <dbl>, rho_vep <dbl>
+    ## #   cces_pct_hrc_raw <dbl>, cv_turnout_wgt <dbl>, yougov_pct_hrc <dbl>,
+    ## #   yougov_n <dbl>, `State Results Website` <chr>, rho_voter <dbl>,
+    ## #   rho_vep <dbl>
 
 The main columns are
 
@@ -116,6 +117,8 @@ I did estimate voters and adjust for estimated turnout in variables `pct_hrc_vot
 
 I coded other responses (No, Skipped, Missing).. to 0.
 
+`cv_turnout_wgt` is the coefficient of variation on weights.
+
 The code is in `03_tabulate_polls.R`,
 
 ``` r
@@ -124,7 +127,9 @@ tab_cc <- cc_raw %>%
   summarize(cces_n_raw = n(),
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_tothrc_raw = sum(vote_hrc, na.rm = TRUE),
-            cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE)) %>%
+            cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE),
+            sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
+            cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt)) %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
          cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
          cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters)
@@ -163,12 +168,14 @@ Estimates of *ρ*
 We use this function for the columns `rho_*`. Input is defined in terms of its sampling target (actual votes vs. vep). We use the CCES estimates for now.
 
 ``` r
-rho_estimate <- function(data = df, N, mu, muhat, n) {
+rho_estimate <- function(data = df, N, mu, muhat, n, cv = NULL) {
+  
   
   N <- data[[N]]
   n <- data[[n]]
   mu <- data[[mu]]
   muhat <- data[[muhat]]
+  if (!is.null(cv)) cv <- data[[cv]]
   
   ## parts
   one_over_sqrtN <- 1 / sqrt(N)
@@ -176,9 +183,18 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
   f <- n / N
   one_minus_f <- 1 - f
   s2hat <- mu * (1 - mu)
+  if (!is.null(cv)) {
+    A <- sqrt(1 + (cv^2 / one_minus_f))
+    one_over_A <- 1 /A
+  }
+
   
   ## estimate of rho
-  one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat)
+  if (!is.null(cv))
+    return(one_over_A* one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat))
+  
+  if (is.null(cv))
+     return(one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat))
 }
 ```
 
@@ -193,16 +209,9 @@ For *ρ*<sub>*v**o**t**e**r*</sub>, we use
 df$rho_voter <- rho_estimate(N = "tot_votes",
                              mu = "pct_hrc_voters",
                              muhat = "cces_pct_hrc_voters",
-                             n = "cces_n_voters")
+                             n = "cces_n_voters",
+                             cv = "cv_turnout_wgt")
 ```
-
-Distribution
-
-``` r
-ggplot(df, aes(x = rho_voter)) + geom_histogram(bins = 25) + theme_bw()
-```
-
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
 
 Based on voting eligible population
 -----------------------------------
@@ -215,14 +224,6 @@ df$rho_vep <- rho_estimate(N = "vep",
                            muhat = "cces_pct_hrc_raw",
                            n = "cces_n_raw")
 ```
-
-Distribution
-
-``` r
-ggplot(df, aes(x = rho_vep)) + geom_histogram(bins = 25) + theme_bw()
-```
-
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-10-1.png)
 
 Figures as PDFs are in `figures`.
 
