@@ -25,5 +25,3 @@ tab_cc <- cc_raw %>%
 tab_cc
 
 saveRDS(tab_cc, "data/output/cc_tabulation_state.rds")
-
-plot(cces_n)

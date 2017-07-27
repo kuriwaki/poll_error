@@ -34,12 +34,14 @@ df <- df_joined %>%
 
 
 # estimate rho ----
-rho_estimate <- function(data = df, N, mu, muhat, n) {
+rho_estimate <- function(data = df, N, mu, muhat, n, cv = NULL) {
+  
   
   N <- data[[N]]
   n <- data[[n]]
   mu <- data[[mu]]
   muhat <- data[[muhat]]
+  if (!is.null(cv)) cv <- data[[cv]]
   
   ## parts
   one_over_sqrtN <- 1 / sqrt(N)
@@ -47,9 +49,18 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
   f <- n / N
   one_minus_f <- 1 - f
   s2hat <- mu * (1 - mu)
+  if (!is.null(cv)) {
+    A <- sqrt(1 + (cv^2 / one_minus_f))
+    one_over_A <- 1 /A
+  }
+
   
   ## estimate of rho
-  one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat)
+  if (!is.null(cv))
+    return(one_over_A* one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat))
+  
+  if (is.null(cv))
+     return(one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat))
 }
 
 
@@ -57,7 +68,8 @@ rho_estimate <- function(data = df, N, mu, muhat, n) {
 df$rho_voter <- rho_estimate(N = "tot_votes",
                              mu = "pct_hrc_voters",
                              muhat = "cces_pct_hrc_voters",
-                             n = "cces_n_voters")
+                             n = "cces_n_voters",
+                             cv = "cv_turnout_wgt")
 
 df$rho_vep <- rho_estimate(N = "vep",
                              mu = "pct_hrc_voters",
