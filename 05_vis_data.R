@@ -31,10 +31,10 @@ lm_eqn <- function(ff, dat = df){
 
 
 
-slopes <- c(lm_eqn("log(abs(rho_voter)) ~ log(tot_votes)", df),
+slopes <- c(lm_eqn(ff = "log(abs(rho_voter)) ~ log(tot_votes)", df),
             lm_eqn(ff = "log(abs(rho_voter)) ~ log(tot_votes)", filter(df, rho_voter_positive)),
             lm_eqn(ff = "log(abs(rho_voter)) ~ log(tot_votes)", filter(df, !rho_voter_positive)),
-            lm_eqn("log(abs(rho_vep)) ~ log(vep)", df),
+            lm_eqn(ff = "log(abs(rho_vep)) ~ log(vep)", df),
             lm_eqn(ff = "log(abs(rho_vep)) ~ log(vep)", filter(df, rho_vep_positive)),
             lm_eqn(ff = "log(abs(rho_vep)) ~ log(vep)", filter(df, !rho_vep_positive))
 )
@@ -59,11 +59,8 @@ gg0 <- ggplot(df, aes(label = st, color = color)) +
   geom_point() +
   scale_color_manual(values = colorvec)  +
   geom_text_repel(alpha = 0.5) +
-  # coord_equal() +
   theme_bw() +
   guides(color = FALSE)
-
-
 
 
 gg0 + 
@@ -102,6 +99,7 @@ gg0 +
 ggsave("figures/rho_vep_separated.pdf", width = fig.w, height = fig.h)
 
 
+# Histogram ---
 
 ggplot(df, aes(x = rho_voter)) + 
   labs(x = expression(rho), y = "Count") +
@@ -113,8 +111,10 @@ ggplot(df, aes(x = rho_vep)) +
   geom_histogram(bins = 25) + theme_bw()
 ggsave("figures/rho_vep_hist.pdf", width = fig.w, height = fig.h)
 
-
-
+ggplot(df, aes(x = cv_turnout_wgt)) + 
+  labs(x = "Coefficient of Variation of Turnout Adjustment Weights at state-level", y = "Count") +
+  geom_histogram(bins = 25) + theme_bw()
+ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
 
 
 
