@@ -148,15 +148,15 @@ Setup plot...
 As points
 
 ``` r
-gg0 + aes(x = cces_pct_hrc_voters, size = cces_n_voters) +
-  xlab("Turnout-adjusted CCES Pre-election Survey Clinton Support")
+ggpres + aes(x = cces_pct_hrc_voters, size = vap) +
+  xlab("Turnout-adjusted Poll Estimate, Clinton Support")
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
 ``` r
-gg0 + aes(x = cces_pct_hrc_raw, size = cces_n_raw) +
-  xlab("Raw CCES Pre-election Survey Clinton Suport")
+ggpres + aes(x = cces_pct_hrc_raw, size = vap) +
+  xlab("Raw Poll Estimate, Clinton Suport")
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
