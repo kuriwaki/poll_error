@@ -46,8 +46,8 @@ slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", df),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, rc_vep_pos)),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, !rc_vep_pos)),
-            lm_eqn(ff = "log(abs(rho_djt_vot)) ~ log(tot_votes)", df),
-            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", df)
+            lm_eqn(ff = "log(abs(rho_djt_vot)) ~ log(tot_votes)", filter(df, !rt_vot_pos)),
+            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", filter(df, !rt_vep_pos))
 )
 
 sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
@@ -120,8 +120,10 @@ gg_vot +
   labs(y = expression(log(abs(rho)))) +
   geom_label(data = filter(sdf, race == "djt", est == "rho_vot", pooled), 
              aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE)
-ggsave("figures/rho_djt_vot_pooled.pdf", width = fig.w, height = fig.h)
+             inherit.aes = FALSE) +
+  labs(caption = "Excludes one observation (DC) that did not underestimate Trump vote") +
+  theme(plot.caption = element_text(size = 8))
+ggsave("figures/rho_djt_vot.pdf", width = fig.w, height = fig.h)
 
 
 gg_vep + 
@@ -129,8 +131,10 @@ gg_vep +
   labs(y = expression(log(abs(rho)))) +
   geom_label(data = filter(sdf, race == "djt", est == "rho_vep", pooled), 
              aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE)
-ggsave("figures/rho_djt_vep_pooled.pdf", width = fig.w, height = fig.h)
+             inherit.aes = FALSE) +
+  labs(caption = "Excludes one observation (DC) that did not underestimate Trump vote") +
+  theme(plot.caption = element_text(size = 8))
+ggsave("figures/rho_djt_vep.pdf", width = fig.w, height = fig.h)
 
 
 rm(gg0)
