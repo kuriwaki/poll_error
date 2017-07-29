@@ -11,8 +11,8 @@ cc <- readRDS("data/output/cc_tabulation_state.rds")
 df_joined <-  inner_join(mm, dw, by = "state") %>%
   inner_join(cc, by = "state") %>% 
   inner_join(yg, by = "state")
-  
-  
+
+
 # select ----
 df <- df_joined %>% 
   mutate(pct_hrc_vep = votes_hrc / vep,
@@ -56,28 +56,38 @@ rho_estimate <- function(data = df, N, mu, muhat, n, cv = NULL) {
     A <- sqrt(1 + (cv^2 / one_minus_f))
     one_over_A <- 1 /A
   }
-
+  
   
   ## estimate of rho
   if (!is.null(cv))
     return(one_over_A* one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat))
   
   if (is.null(cv))
-     return(one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat))
+    return(one_over_sqrtN * diff_mu / sqrt((one_minus_f / n) * s2hat))
 }
 
+df <- df %>% 
+  mutate(rho_hrc_vot = rho_estimate(N = "tot_votes",
+                                    mu = "pct_hrc_voters",
+                                    muhat = "cces_pct_hrc_voters",
+                                    n = "cces_n_voters",
+                                    cv = "cv_turnout_wgt"),
+         rho_hrc_vep = rho_estimate(N = "vep",
+                                    mu = "pct_hrc_voters",
+                                    muhat = "cces_pct_hrc_raw",
+                                    n = "cces_n_raw"),
+         rho_djt_vot = rho_estimate(N = "tot_votes",
+                                    mu = "pct_djt_voters",
+                                    muhat = "cces_pct_djt_voters",
+                                    n = "cces_n_voters",
+                                    cv = "cv_turnout_wgt"),
+         rho_djt_vep = rho_estimate(N = "vep",
+                                    mu = "pct_djt_voters",
+                                    muhat = "cces_pct_djt_raw",
+                                    n = "cces_n_raw")
+  )
 
 
-df$rho_voter <- rho_estimate(N = "tot_votes",
-                             mu = "pct_hrc_voters",
-                             muhat = "cces_pct_hrc_voters",
-                             n = "cces_n_voters",
-                             cv = "cv_turnout_wgt")
-
-df$rho_vep <- rho_estimate(N = "vep",
-                             mu = "pct_hrc_voters",
-                             muhat = "cces_pct_hrc_raw",
-                             n = "cces_n_raw")
 
 
 # Save ----
