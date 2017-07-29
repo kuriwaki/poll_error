@@ -139,7 +139,7 @@ ggsave("figures/rho_djt_vep.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
 
-# Histogram ---
+# Histogram ----
 
 gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   labs(y = "Count") +
@@ -160,8 +160,10 @@ gg0 + aes(x = rho_djt_vep) + labs(x = expression(rho)) +
   ggsave("figures/rho_djt_vep_hist.pdf", width = fig.w, height = fig.h)
 
 
-gg0 + aes(x = cv_turnout_wgt) + 
-  labs(x = "Coefficient of Variation of Turnout Adjustment Weights at state-level", y = "Count") +
+ggplot(df, aes(x = cv_turnout_wgt)) +
+  labs(y = "Count") +
+  geom_histogram(bins = 25) + theme_bw() +
+  labs(x = "Coefficient of Variation of Turnout Adjustment Weights at state-level", y = "Count")
 ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
