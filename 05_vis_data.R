@@ -4,6 +4,7 @@ library(scales)
 library(readr)
 library(ggrepel)
 library(dplyr)
+library(tibble)
 
 fig.w <- 6
 fig.h <- 4
@@ -46,8 +47,8 @@ slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", df),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, rc_vep_pos)),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, !rc_vep_pos)),
-            lm_eqn(ff = "log(abs(rho_djt_vot)) ~ log(tot_votes)", filter(df, !rt_vot_pos)),
-            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", filter(df, !rt_vep_pos))
+            lm_eqn(ff = "log(abs(rho_djt_vot)) ~ log(tot_votes)", df),
+            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", df)
 )
 
 sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
@@ -64,7 +65,7 @@ sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
                    pooled = c(TRUE, TRUE))) %>%
   add_column(slopes = slopes)
 
-
+# template
 gg0 <- ggplot(df, aes(label = st, color = color)) +
   geom_smooth(method = "lm", se = FALSE, color = "gray") +
   geom_point() +
@@ -79,6 +80,8 @@ gg_vot <- gg0 + aes(x = log(tot_votes)) +
 gg_vep <- gg0 + aes(x = log(tot_votes)) +
   labs(x = "log(Total Voting Eligible Population)")
 
+
+# start to save figures
 gg_vot + 
   aes(y = log(abs(rho_hrc_vot))) +
   labs(y = expression(log(abs(rho)))) +
@@ -120,9 +123,7 @@ gg_vot +
   labs(y = expression(log(abs(rho)))) +
   geom_label(data = filter(sdf, race == "djt", est == "rho_vot", pooled), 
              aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE) +
-  labs(caption = "Excludes one observation (DC) that did not underestimate Trump vote") +
-  theme(plot.caption = element_text(size = 8))
+             inherit.aes = FALSE)
 ggsave("figures/rho_djt_vot.pdf", width = fig.w, height = fig.h)
 
 
@@ -131,9 +132,7 @@ gg_vep +
   labs(y = expression(log(abs(rho)))) +
   geom_label(data = filter(sdf, race == "djt", est == "rho_vep", pooled), 
              aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE) +
-  labs(caption = "Excludes one observation (DC) that did not underestimate Trump vote") +
-  theme(plot.caption = element_text(size = 8))
+             inherit.aes = FALSE)
 ggsave("figures/rho_djt_vep.pdf", width = fig.w, height = fig.h)
 
 
