@@ -15,11 +15,16 @@ tab_cc <- cc_raw %>%
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_tothrc_raw = sum(vote_hrc, na.rm = TRUE),
             cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE),
+            cces_totdjt_raw = sum(vote_djt, na.rm = TRUE),
+            cces_totdjt_adj_trn = sum(vote_djt*turnout_wgt, na.rm = TRUE),
             sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
             cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt)) %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
          cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
-         cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters)
+         cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters,
+         cces_pct_djt_raw = cces_totdjt_raw / cces_n_raw,
+         cces_pct_djt_vep = cces_totdjt_adj_trn / cces_n_raw,
+         cces_pct_djt_voters = cces_totdjt_adj_trn / cces_n_voters)
 
 
 tab_cc

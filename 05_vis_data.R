@@ -117,7 +117,7 @@ ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
 
 
 # Scatter ------
-gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color)) +
+gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color, size = vap)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   scale_x_continuous(limits = c(0, 1), label = percent) +
   scale_y_continuous(limits = c(0, 1), label = percent) +
@@ -130,18 +130,36 @@ gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color
   labs(caption = "Source: CCES.\nSized proportional to population.\n States colored by R (red) or D (blue) or swing (green).")
 
 
-ggpres <- gg0 +
+# Hillary
+gg_hrc <- gg0 +
   annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
   annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
   labs(y = "Final Clinton Popular Vote Share")
 
-ggpres + aes(x = cces_pct_hrc_voters, size = vap) +
+gg_hrc + aes(x = cces_pct_hrc_voters) +
   xlab("Turnout-adjusted Poll Estimate, Clinton Support")
-ggsave("figures/scatter_turnout_adj.pdf", h = fig.h, w = 0.8*fig.w)
+ggsave("figures/scatter_hrc_turnout_adj.pdf", h = fig.h, w = 0.8*fig.w)
 
-ggpres + aes(x = cces_pct_hrc_raw, size = vap) +
+gg_hrc + aes(x = cces_pct_hrc_raw) +
   xlab("Raw Poll Estimate, Clinton Suport")
-ggsave("figures/scatter_raw.pdf", h = fig.h, w = 0.8*fig.w)
+ggsave("figures/scatter_hrc_raw.pdf", h = fig.h, w = 0.8*fig.w)
+
+
+# Trump
+gg_djt <- gg0 + aes(y = pct_djt_voters) +
+  annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
+  annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
+  labs(y = "Final Trump Popular Vote Share")
+
+gg_djt + aes(x = cces_pct_djt_voters) +
+  xlab("Turnout-adjusted Poll Estimate, Trump Support")
+ggsave("figures/scatter_djt_turnout_adj.pdf", h = fig.h, w = 0.8*fig.w)
+
+gg_djt + aes(x = cces_pct_djt_raw) +
+  xlab("Raw Poll Estimate, Trump Suport")
+ggsave("figures/scatter_djt_raw.pdf", h = fig.h, w = 0.8*fig.w)
+
+
 
 gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
   annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nturnout", color = "darkgray") +
@@ -149,5 +167,5 @@ gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
   xlab("Turnout-Adjusted Poll Estimate of Turnout") +
   ylab("Final Turnout\n(% of Voting Eligible Population)") +
   labs(caption = "Source: CCES.\nStates colored by R (red) or D (blue) or swing (green).")
-ggsave("figures/scatter_estimate_turnout.pdf", h = fig.h, w = 0.8*fig.w)
+ggsave("figures/scatter_turnout_accuracy.pdf", h = fig.h, w = 0.8*fig.w)
 

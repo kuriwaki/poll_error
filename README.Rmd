@@ -34,9 +34,12 @@ Outcomes (including estimates of VAP/VEP)
 * `vap`: Estimated Voting Age Population (see below for definition)
 * `vep`: Estimated Voting Eligible Population (see below for definition)
 * `votes_hrc`: Votes for Clinton
+* `votes_djt`: Votes for Trump
 * `tot_votes`: Ballots cast for the Office of President.
 * `pct_hrc_voters`: Election Outcome. Hillary Clinton's Vote as a Percentage of Ballots Cast for President. Computed by `votes_hrc / tot_votes`
+* `pct_djt_voters`: Same but with Trump
 * `pct_hrc_vep`: Hillary Clinton's Vote as a Percentage of Ballots (estimated) eligible population. Computed by `votes_hrc / vep`
+* `pct_djt_vep`: Same but with Trump
 
 Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
@@ -47,10 +50,12 @@ Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 * `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters adjusting for turnout (`cces_tothrc_adj_trn/ cces_n_voters`) 
 * `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (`cces_tothrc_adj_trn / cces_n_raw`) 
 * `cces_pct_hrc_raw`: CCES estimated percent of Clinton votes without any adjustment (`cces_tothrc_raw/ cces_n_raw`)
+* `cces_*djt*`: All same as above but with Trump
 * `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate. 
 
 
 * `yougov_pct_hrc`: YouGov estimated of Clinton votes among voters
+* `yougov_pct_djt`: Same but with Trump
 * `yougov_n`: YouGov poll sample size
 
 

@@ -44,15 +44,16 @@ dw <-  dw_gs %>%
   filter(!is.na(votes_hrc)) %>% 
   filter(!grepl("States|Total", state)) %>%
   mutate(state = gsub("\\*", "", state),
-         pct_hrc_voters = votes_hrc / tot_votes) %>%
-  select(state, pct_hrc_voters, votes_hrc, tot_votes, everything()) %>%
+         pct_hrc_voters = votes_hrc / tot_votes,
+         pct_djt_voters = votes_djt / tot_votes) %>%
+  select(state, pct_hrc_voters, pct_djt_voters, votes_hrc, votes_djt, tot_votes, everything()) %>%
   inner_join(color)
 
 
 
 
 
-d# Poll prediction -----
+# Poll prediction -----
 # CCES Release by YouGov Numbers
 # Copied from  https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016
 # https://docs.google.com/spreadsheets/d/1pJLEHfvCN-eX1mBfe6sgs0dwF2oq9G1FcUhKFk0Pe8g/edit#gid=0
