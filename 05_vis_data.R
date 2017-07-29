@@ -47,6 +47,22 @@ lim_lpp <- range(log(all_pops))
 ylim_hist <- c(0, 12.5)
 
 
+# labels ---
+# log absolute value expressions 
+lar_exp <- 
+  list(hrc_vot = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")))
+
+# normal stuff
+rho_exp <- 
+  list(hrc_vot = expression(Clinton~~italic(widehat(italic(rho))[N[avp]])),
+       hrc_vep = expression(Clinton~~italic(widehat(italic(rho))[N[vep]])),
+       djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
+       djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])))
+
+
 
 
 # plots for rho ---------
@@ -81,6 +97,8 @@ sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
   add_column(slopes = slopes)
 
 
+
+
 # template
 gg0 <- ggplot(df, aes(label = st, color = color)) +
   geom_smooth(method = "lm", se = FALSE, color = "gray") +
@@ -89,6 +107,8 @@ gg0 <- ggplot(df, aes(label = st, color = color)) +
   geom_text_repel(alpha = 0.5) +
   theme_bw() +
   coord_cartesian(ylim = lim_lro, xlim = lim_lpp) +
+  scale_x_continuous(minor_breaks = NULL) +
+  scale_y_continuous(minor_breaks = NULL) +
   guides(color = FALSE)
 
 gg_vot <- gg0 + aes(x = log(tot_votes)) +
@@ -100,16 +120,14 @@ gg_vep <- gg0 + aes(x = log(tot_votes)) +
 
 # start to save figures
 gg_vot + 
-  aes(y = log(abs(rho_hrc_vot))) +
-  labs(y = expression(log(abs(rho[N[avp]])))) +
+  aes(y = log(abs(rho_hrc_vot))) +  labs(y = lar_exp[["hrc_vot"]]) +
   geom_label(data = filter(sdf, race == "hrc", est == "rho_vot", pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
 ggsave("figures/rho_hrc_vot_pooled.pdf", width = fig.w, height = fig.h)
 
 gg_vot + 
-  aes(y = log(abs(rho_hrc_vot))) +
-  labs(y = expression(log(abs(rho[N[avp]])))) +
+  aes(y = log(abs(rho_hrc_vot))) +  labs(y = lar_exp[["hrc_vot"]]) +
   facet_grid( ~ rc_vot_pos, labeller = labeller(rc_vot_pos = rho_pos_labs)) +
   geom_label(data = filter(sdf, race == "hrc", est == "rho_vot", !pooled), 
             aes(x = x, y = y, label = slopes), 
@@ -118,16 +136,14 @@ ggsave("figures/rho_hrc_vot_separated.pdf", width = fig.w, height = fig.h)
 
   
 gg_vep + 
-  aes(y = log(abs(rho_hrc_vep))) +
-  labs(y = expression(log(abs(rho[N[vep]])))) +
+  aes(y = log(abs(rho_hrc_vep))) +  labs(y = lar_exp[["hrc_vep"]]) +
   geom_label(data = filter(sdf, race == "hrc", est == "rho_vep", pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
 ggsave("figures/rho_hrc_vep_pooled.pdf", width = fig.w, height = fig.h)
 
 gg_vep + 
-  aes(y = log(abs(rho_hrc_vep))) +
-  labs(y = expression(log(abs(rho[N[vep]])))) +
+  aes(y = log(abs(rho_hrc_vep))) +  labs(y = lar_exp[["hrc_vep"]]) +
   facet_grid( ~ rc_vep_pos, labeller = labeller(rc_vep_pos = rho_pos_labs)) +
   geom_label(data = filter(sdf, race == "hrc", est == "rho_vep", !pooled), 
             aes(x = x, y = y, label = slopes), 
@@ -136,8 +152,7 @@ ggsave("figures/rho_hrc_vep_separated.pdf", width = fig.w, height = fig.h)
 
 # now TRUMP
 gg_vot + 
-  aes(y = log(abs(rho_djt_vot))) +
-  labs(y = expression(log(abs(rho[N[avp]])))) +
+  aes(y = log(abs(rho_djt_vot))) +  labs(y = lar_exp[["djt_vot"]]) +
   geom_label(data = filter(sdf, race == "djt", est == "rho_vot", pooled), 
              aes(x = x, y = y, label = slopes), 
              inherit.aes = FALSE)
@@ -145,8 +160,7 @@ ggsave("figures/rho_djt_vot.pdf", width = fig.w, height = fig.h)
 
 
 gg_vep + 
-  aes(y = log(abs(rho_djt_vep))) +
-  labs(y = expression(log(abs(rho[N[avp]])))) +
+  aes(y = log(abs(rho_djt_vep))) +  labs(y = lar_exp[["djt_vep"]]) +
   geom_label(data = filter(sdf, race == "djt", est == "rho_vep", pooled), 
              aes(x = x, y = y, label = slopes), 
              inherit.aes = FALSE)
@@ -170,23 +184,23 @@ gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   geom_histogram(binwidth = 0.001) + theme_bw()
   
 
-gg0 + aes(x = rho_hrc_vot) + labs(x = expression(rho[N[avp]]))
+gg0 + aes(x = rho_hrc_vot) + labs(x = rho_exp[["hrc_vot"]])
 ggsave("figures/rho_hrc_vot_hist.pdf", width = fig.w, height = fig.h)
 
-gg0 + aes(x = rho_hrc_vep) + labs(x = expression(rho[N[vep]])) +
+gg0 + aes(x = rho_hrc_vep) + labs(x = rho_exp[["hrc_vep"]]) +
 ggsave("figures/rho_hrc_vep_hist.pdf", width = fig.w, height = fig.h)
 
 
-gg0 + aes(x = rho_djt_vot) + labs(x = expression(rho[N[avp]]))
+gg0 + aes(x = rho_djt_vot) + labs(x = rho_exp[["djt_vot"]])
 ggsave("figures/rho_djt_vot_hist.pdf", width = fig.w, height = fig.h)
 
-gg0 + aes(x = rho_djt_vep) + labs(x = expression(rho[N[vep]])) +
+gg0 + aes(x = rho_djt_vep) + labs(x = rho_exp[["djt_vep"]])
   ggsave("figures/rho_djt_vep_hist.pdf", width = fig.w, height = fig.h)
 
 
 ggplot(df, aes(x = cv_turnout_wgt)) +
   geom_histogram(bins = 25) + theme_bw() +
-  labs(x = "Coefficient of Variation of Turnout Adjustment Weights at state-level", y = "Count")
+  labs(x = "Coefficient of Variation of Turnout Adjustment Weights", y = "Count")
 ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
@@ -211,13 +225,13 @@ ycap <- "log(abs(.))"
 # four things
 log_trans_list <- list(
   gg0 + aes(x = rho_hrc_vot, y = log(abs(rho_hrc_vot))) +
-    labs(x = expression(Clinton~rho[N[avp]]), y = ycap),
+    labs(x = rho_exp[["hrc_vot"]], y = ycap),
   gg0 + aes(x = rho_djt_vot, y = log(abs(rho_djt_vot))) +
-    labs(x = expression(Trump~rho[N[avp]]), y = ycap),
+    labs(x = rho_exp[["djt_vot"]], y = ycap),
   gg0 + aes(x = rho_hrc_vep, y = log(abs(rho_hrc_vep))) + 
-    labs(x = expression(Clinton~rho[N[vep]]), y = ycap),
+    labs(x = rho_exp[["hrc_vep"]], y = ycap),
   gg0 + aes(x = rho_djt_vep, y = log(abs(rho_djt_vep))) +
-    labs(x = expression(Trump~rho[N[vep]]), y = ycap)
+    labs(x = rho_exp[["djt_vep"]], y = ycap)
     )
 
 
