@@ -94,7 +94,35 @@ df <- df %>%
 # Save ----
 write_csv(df, "data/output/pres16_state.csv")
 
-
+# totals
 colSums(select(df, vap, vep, matches("votes"), matches("cces_tot"),  matches("cces_n_"))) %>% 
   t() %>% as.data.frame() %>%
   write_csv("data/output/pres16_US.csv")
+
+
+# summary stats
+my_qtl <- function(vec, vecname) {
+  this_mean <- mean(vec)
+  this_length <- length(vec)
+  this_sd <- sd(vec)
+  
+  quantile(vec, probs = c(0.1, 0.25, 0.5, 0.75, 0.9)) %>%
+    t() %>%
+    as.data.frame() %>% 
+    add_column("length" = this_length, .after = 5) %>%
+    add_column("std_deviation" = this_sd, .after = 5) %>%
+    add_column("mean" = this_mean, .after = 2) %>%
+    as.data.frame(row.names = vecname) %>% 
+    t()
+}
+
+rhos <- 
+  cbind(my_qtl(df$rho_hrc_vep, "rho_hrc_vep"),
+        my_qtl(df$rho_hrc_vep, "rho_hrc_vep"),
+        my_qtl(df$rho_djt_vot[df$rho_djt_vot < 0], "rho_djt_avp"),
+        my_qtl(df$rho_djt_vep[df$rho_djt_vep < 0], "rho_djt_vep"))  
+
+rhos <- cbind("statistic" = rownames(rhos), rhos) %>%
+  as.data.frame()
+
+write_csv(rhos, "data/output/rho_sum_stats.csv")
