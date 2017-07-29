@@ -52,7 +52,7 @@ slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
 
 sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
               race = "hrc",
-              x = rep(c(16.2, 16.75), each = 3),
+              x = rep(c(16.2, 16), each = 3),
               y = rep(c(-9.5, -9), each = 3),
               pooled = rep(c(TRUE, FALSE, FALSE), 2),
               rc_vot_pos = c(NA, TRUE, FALSE, rep(NA, 3)),
@@ -161,7 +161,6 @@ gg0 + aes(x = rho_djt_vep) + labs(x = expression(rho)) +
 
 
 ggplot(df, aes(x = cv_turnout_wgt)) +
-  labs(y = "Count") +
   geom_histogram(bins = 25) + theme_bw() +
   labs(x = "Coefficient of Variation of Turnout Adjustment Weights at state-level", y = "Count")
 ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
