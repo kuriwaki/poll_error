@@ -1,4 +1,5 @@
 rm(list = ls())
+library(cowplot)
 library(ggplot2)
 library(scales)
 library(readr)
@@ -9,27 +10,15 @@ library(tibble)
 fig.w <- 6*0.80
 fig.h <- 4*0.751
 
+
+# labels -----
 colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')
-
-
-# plots for rho ----------
-# data and vars
-df <- read_csv("data/output/pres16_state.csv") %>%
-  mutate(rc_vot_pos = rho_hrc_vot > 0,
-         rc_vep_pos = rho_hrc_vep > 0,
-         rt_vot_pos = rho_djt_vot > 0,
-         rt_vep_pos = rho_djt_vep > 0)
-
-
 rho_pos_labs <- c(`TRUE` = "rho > 0 (Overestimated Clinton)",
                   `FALSE` = "rho < 0 (Underestimated Clinton)")
 
-# https://stackoverflow.com/a/7549819/5525412
+# conveinence functions
 lm_eqn <- function(ff, dat = df){
-  # ff needs to be univariate regression
-  m <- lm(as.formula(ff), dat)
-  
-  # slope 
+  m <- lm(as.formula(ff), dat) 
   coef <- sprintf("%.2f", coef(m)[2])
   se <- sprintf("%.2f", summary(m)$coef[2, 2])
   
@@ -37,10 +26,36 @@ lm_eqn <- function(ff, dat = df){
 }
 
 
+# data and vars -----
+df <- read_csv("data/output/pres16_state.csv") %>%
+  mutate(rc_vot_pos = rho_hrc_vot > 0,
+         rc_vep_pos = rho_hrc_vep > 0,
+         rt_vot_pos = rho_djt_vot > 0,
+         rt_vep_pos = rho_djt_vep > 0)
+
+# limit parameters ---
+# y-axislimit
+all_rhos <- unlist(select(df, matches("rho")), use.names = FALSE)
+all_pops <- unlist(select(df, vep, tot_votes), use.names = FALSE)
+
+# ranges
+lim_rho <- range(all_rhos)
+lim_lro <- range(log(abs(all_rhos)))
+lim_lpp <- range(log(all_pops))
+
+# for hist
+ylim_hist <- c(0, 12.5)
+
+
+
+
+# plots for rho ---------
+
 # can't run a regression with only one data point
 stopifnot(sum(df$rt_vep_pos == TRUE) <= 1)
 stopifnot(sum(df$rt_vot_pos == TRUE) <= 1)
 
+# collect slopes
 slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
             lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", filter(df, rc_vot_pos)),
             lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", filter(df, !rc_vot_pos)),
@@ -65,16 +80,6 @@ sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
                    pooled = c(TRUE, TRUE))) %>%
   add_column(slopes = slopes)
 
-# y-axislimit
-all_rhos <- unlist(select(df, matches("rho")), use.names = FALSE)
-all_pops <- unlist(select(df, vep, tot_votes), use.names = FALSE)
-
-
-
-# ranges
-lim_rho <- range(all_rhos)
-lim_lro <- range(log(abs(all_rhos)))
-lim_lpp <- range(log(all_pops))
 
 # template
 gg0 <- ggplot(df, aes(label = st, color = color)) +
@@ -150,8 +155,12 @@ ggsave("figures/rho_djt_vep.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
 
+
+
+
+
 # Histogram ----
-ylim_hist <- c(0, 12.5)
+
 
 gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   labs(y = "Count") +
@@ -182,6 +191,40 @@ ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
 
+
+
+
+# what log transforms look like ----
+gg0 <- df %>% 
+  ggplot(aes(col = color, label = st)) +
+  coord_cartesian(xlim = lim_rho, ylim = lim_lro) + 
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(alpha = 0.8) +
+  scale_color_manual(values = colorvec) +
+  theme_bw() +
+  scale_x_continuous(minor_breaks = FALSE) +
+  scale_y_continuous(minor_breaks = FALSE) +
+  guides(color = FALSE)
+
+ycap <- "log(abs(.))"
+
+# four things
+log_trans_list <- list(
+  gg0 + aes(x = rho_hrc_vot, y = log(abs(rho_hrc_vot))) +
+    labs(x = expression(Clinton~rho[N[AVP]]), y = ycap),
+  gg0 + aes(x = rho_djt_vot, y = log(abs(rho_djt_vot))) +
+    labs(x = expression(Trump~rho[N[VEP]]), y = ycap),
+  gg0 + aes(x = rho_hrc_vep, y = log(abs(rho_hrc_vep))) + 
+    labs(x = expression(Clinton~rho[N[AVP]]), y = ycap),
+  gg0 + aes(x = rho_djt_vep, y = log(abs(rho_djt_vep))) +
+    labs(x = expression(Trump~rho[N[VEP]]), y = ycap)
+    )
+
+
+plot_grid(plotlist = log_trans_list)
+ggsave("figures/rho_logabsrho_transformation.pdf", w = fig.w, h = fig.h)
+
+rm(gg0)
 # Scatter ------
 captext <- "Source: CCES 2016 Common Content." #\nSized proportional to population.\n States colored by R (red) or D (blue) or swing (green)."
 fig.w <- 1.2*fig.w*0.8
