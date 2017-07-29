@@ -211,13 +211,13 @@ ycap <- "log(abs(.))"
 # four things
 log_trans_list <- list(
   gg0 + aes(x = rho_hrc_vot, y = log(abs(rho_hrc_vot))) +
-    labs(x = expression(Clinton~rho[N[AVP]]), y = ycap),
+    labs(x = expression(Clinton~rho[N[avp]]), y = ycap),
   gg0 + aes(x = rho_djt_vot, y = log(abs(rho_djt_vot))) +
-    labs(x = expression(Trump~rho[N[VEP]]), y = ycap),
+    labs(x = expression(Trump~rho[N[avp]]), y = ycap),
   gg0 + aes(x = rho_hrc_vep, y = log(abs(rho_hrc_vep))) + 
-    labs(x = expression(Clinton~rho[N[AVP]]), y = ycap),
+    labs(x = expression(Clinton~rho[N[vep]]), y = ycap),
   gg0 + aes(x = rho_djt_vep, y = log(abs(rho_djt_vep))) +
-    labs(x = expression(Trump~rho[N[VEP]]), y = ycap)
+    labs(x = expression(Trump~rho[N[vep]]), y = ycap)
     )
 
 
