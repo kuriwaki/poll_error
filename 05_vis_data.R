@@ -59,8 +59,8 @@ sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
               rc_vep_pos = c(rep(NA, 3), NA, TRUE, FALSE)) %>% 
   bind_rows(tibble(est = c("rho_vot", "rho_vep"),
                    race = "djt",
-                   x = rep(c(16, 16), 1),
-                   y = rep(c(-6.75, -5), 1),
+                   x = rep(c(16, 16.2), 1),
+                   y = rep(c(-6.7, -5.8), 1),
                    pooled = c(TRUE, TRUE))) %>%
   add_column(slopes = slopes)
 
@@ -137,20 +137,20 @@ rm(gg0)
 
 # Histogram ---
 
-gg0 <- ggplot(df) +
+gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   labs(y = "Count") +
   geom_histogram(bins = 25) + theme_bw()
   
 
 gg0 + aes(x = rho_hrc_vot) + labs(x = expression(rho))
-ggsave("figures/rho_hrc_voter_hist.pdf", width = fig.w, height = fig.h)
+ggsave("figures/rho_hrc_vot_hist.pdf", width = fig.w, height = fig.h)
 
 gg0 + aes(x = rho_hrc_vep) + labs(x = expression(rho)) +
 ggsave("figures/rho_hrc_vep_hist.pdf", width = fig.w, height = fig.h)
 
 
 gg0 + aes(x = rho_djt_vot) + labs(x = expression(rho))
-ggsave("figures/rho_djt_voter_hist.pdf", width = fig.w, height = fig.h)
+ggsave("figures/rho_djt_vot_hist.pdf", width = fig.w, height = fig.h)
 
 gg0 + aes(x = rho_djt_vep) + labs(x = expression(rho)) +
   ggsave("figures/rho_djt_vep_hist.pdf", width = fig.w, height = fig.h)

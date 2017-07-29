@@ -61,8 +61,11 @@ Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
 Parameter Estimates
 
-* `rho_voter`: The $\rho$ parameter with _voters_ as the target population
-* `rho_vep`: The $\rho$ parameter with _eligible population_ as the target population
+* `rho_hrc_vot`: The $\rho$ parameter with Clinton support as the quantity of interest and _voters_ as the target population
+* `rho_hrc_vep`: The $\rho$ parameter with Clinton support as the quantity of interest and _eligible population_ as the target population
+* `rho_hrc_vot`: The $\rho$ parameter with Trump support as the quantity of interest and _voters_ as the target population
+* `rho_hrc_vep`: The $\rho$ parameter with Trump support as the quantity of interest and _eligible population_ as the target population
+
 
 
 # Data Sources 
@@ -124,11 +127,16 @@ tab_cc <- cc_raw %>%
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_tothrc_raw = sum(vote_hrc, na.rm = TRUE),
             cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE),
+            cces_totdjt_raw = sum(vote_djt, na.rm = TRUE),
+            cces_totdjt_adj_trn = sum(vote_djt*turnout_wgt, na.rm = TRUE),
             sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
             cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt)) %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
          cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
-         cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters)
+         cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters,
+         cces_pct_djt_raw = cces_totdjt_raw / cces_n_raw,
+         cces_pct_djt_vep = cces_totdjt_adj_trn / cces_n_raw,
+         cces_pct_djt_voters = cces_totdjt_adj_trn / cces_n_voters)
 
 ```
 
@@ -145,8 +153,7 @@ Read the press release and guides (e.g. for 2014: [dataverse](https://dataverse.
 
 
 
-# Comparisons
-Setup plot...
+# Poll Estimates
 ```{r, message=FALSE, echo = FALSE}
 library(ggplot2)
 library(ggrepel)
@@ -157,7 +164,7 @@ df <- read_csv("data/output/pres16_state.csv")
 
 colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')
 
-gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color)) +
+gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color, size = vap)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   scale_x_continuous(limits = c(0, 1), label = percent) +
   scale_y_continuous(limits = c(0, 1), label = percent) +
@@ -170,24 +177,42 @@ gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color
   labs(caption = "Source: CCES.\nSized proportional to population.\n States colored by R (red) or D (blue) or swing (green).")
 
 
-ggpres <- gg0 +
+gg_hrc <- gg0 +
   annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
   annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
   labs(y = "Final Clinton Popular Vote Share")
+gg_djt <- gg0 + aes(y = pct_djt_voters) +
+  annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
+  annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
+  labs(y = "Final Trump Popular Vote Share")
+
 ```
 
 
-As points 
+## Estimating Clinton Support
 ```{r}
-ggpres + aes(x = cces_pct_hrc_voters, size = vap) +
+gg_hrc + aes(x = cces_pct_hrc_voters) +
   xlab("Turnout-adjusted Poll Estimate, Clinton Support")
 ```
 
-
 ```{r}
-ggpres + aes(x = cces_pct_hrc_raw, size = vap) +
+gg_hrc + aes(x = cces_pct_hrc_raw) +
   xlab("Raw Poll Estimate, Clinton Suport")
 ```
+
+
+## Estimating Trump Support
+```{r}
+gg_djt + aes(x = cces_pct_djt_voters) +
+  xlab("Turnout-adjusted Poll Estimate, Trump Support")
+```
+
+```{r}
+gg_djt + aes(x = cces_pct_djt_raw) +
+  xlab("Raw Poll Estimate, Trump Suport")
+
+```
+
 
 
 
@@ -228,20 +253,18 @@ rho_estimate <- function(data = df, N, mu, muhat, n, cv = NULL) {
 We present two versions of this estimate based on the sampling
 
 ## Based on voters
-For $\rho_{voter}$, we use
+For $\rho_{HRC, voter}$, we use
 
 ```{r, eval = FALSE}
-df$rho_voter <- rho_estimate(N = "tot_votes",
-                             mu = "pct_hrc_voters",
-                             muhat = "cces_pct_hrc_voters",
-                             n = "cces_n_voters",
-                             cv = "cv_turnout_wgt")
+df$rho_vot <- rho_estimate(N = "tot_votes",
+                           mu = "pct_hrc_voters",
+                           muhat = "cces_pct_hrc_voters",
+                           n = "cces_n_voters",
+                           cv = "cv_turnout_wgt")
 ```
 
-
-
 ## Based on voting eligible population
-For $\rho_{vep}$, we use
+For $\rho_{HRC, vep}$, we use
 ```{r, eval = FALSE}
 df$rho_vep <- rho_estimate(N = "vep",
                            mu = "pct_hrc_voters",
@@ -249,6 +272,8 @@ df$rho_vep <- rho_estimate(N = "vep",
                            n = "cces_n_raw")
 ```
 
+
+I did the same for Trump voters ( $\rho_{DJT, voter}$,  $\rho_{DJT, voter}$), where all estimates of Clinton were replaced with their Trump equivalents.
 
 Figures as PDFs are in `figures`.
 

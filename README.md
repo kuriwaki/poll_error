@@ -12,7 +12,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 28
+    ## # A tibble: 51 x 30
     ##                   state    st color      vap      vep votes_hrc tot_votes
     ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL     R  3770142  3601361    729547   2123372
@@ -25,7 +25,7 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE     D   749872   689125    235603    441590
     ##  9 District of Columbia    DC     D   562329   511463    282830    311268
     ## 10              Florida    FL swing 16565588 14572210   4504975   9420039
-    ## # ... with 41 more rows, and 21 more variables: pct_hrc_vep <dbl>,
+    ## # ... with 41 more rows, and 23 more variables: pct_hrc_vep <dbl>,
     ## #   pct_hrc_voters <dbl>, pct_djt_vep <dbl>, pct_djt_voters <dbl>,
     ## #   cces_n_voters <dbl>, cces_n_raw <int>, cces_tothrc_adj_trn <dbl>,
     ## #   cces_tothrc_raw <int>, cces_pct_hrc_voters <dbl>,
@@ -33,7 +33,8 @@ read_csv("data/output/pres16_state.csv")
     ## #   cces_pct_djt_voters <dbl>, cces_pct_djt_vep <dbl>,
     ## #   cces_pct_djt_raw <dbl>, cv_turnout_wgt <dbl>, yougov_pct_hrc <dbl>,
     ## #   yougov_pct_djt <dbl>, yougov_n <dbl>, `State Results Website` <chr>,
-    ## #   rho_voter <dbl>, rho_vep <dbl>
+    ## #   rho_hrc_vot <dbl>, rho_hrc_vep <dbl>, rho_djt_vot <dbl>,
+    ## #   rho_djt_vep <dbl>
 
 The main columns are
 
@@ -73,8 +74,10 @@ Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
 Parameter Estimates
 
--   `rho_voter`: The *ρ* parameter with *voters* as the target population
--   `rho_vep`: The *ρ* parameter with *eligible population* as the target population
+-   `rho_hrc_vot`: The *ρ* parameter with Clinton support as the quantity of interest and *voters* as the target population
+-   `rho_hrc_vep`: The *ρ* parameter with Clinton support as the quantity of interest and *eligible population* as the target population
+-   `rho_hrc_vot`: The *ρ* parameter with Trump support as the quantity of interest and *voters* as the target population
+-   `rho_hrc_vep`: The *ρ* parameter with Trump support as the quantity of interest and *eligible population* as the target population
 
 Data Sources
 ============
@@ -134,11 +137,16 @@ tab_cc <- cc_raw %>%
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_tothrc_raw = sum(vote_hrc, na.rm = TRUE),
             cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE),
+            cces_totdjt_raw = sum(vote_djt, na.rm = TRUE),
+            cces_totdjt_adj_trn = sum(vote_djt*turnout_wgt, na.rm = TRUE),
             sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
             cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt)) %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
          cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
-         cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters)
+         cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters,
+         cces_pct_djt_raw = cces_totdjt_raw / cces_n_raw,
+         cces_pct_djt_vep = cces_totdjt_adj_trn / cces_n_raw,
+         cces_pct_djt_voters = cces_totdjt_adj_trn / cces_n_voters)
 ```
 
 **YouGov Release**
@@ -147,26 +155,42 @@ YouGov runs the CCES survey and generates their estimates with their algorithm. 
 
 Read the press release and guides (e.g. for 2014: [dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=2794577&version=RELEASED&version=.0)) for more details on implementation.
 
-Comparisons
-===========
+Poll Estimates
+==============
 
-Setup plot...
-
-As points
+Estimating Clinton Support
+--------------------------
 
 ``` r
-ggpres + aes(x = cces_pct_hrc_voters, size = vap) +
+gg_hrc + aes(x = cces_pct_hrc_voters) +
   xlab("Turnout-adjusted Poll Estimate, Clinton Support")
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
 ``` r
-ggpres + aes(x = cces_pct_hrc_raw, size = vap) +
+gg_hrc + aes(x = cces_pct_hrc_raw) +
   xlab("Raw Poll Estimate, Clinton Suport")
 ```
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
+
+Estimating Trump Support
+------------------------
+
+``` r
+gg_djt + aes(x = cces_pct_djt_voters) +
+  xlab("Turnout-adjusted Poll Estimate, Trump Support")
+```
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+
+``` r
+gg_djt + aes(x = cces_pct_djt_raw) +
+  xlab("Raw Poll Estimate, Trump Suport")
+```
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
 
 Estimates of *ρ*
 ================
@@ -209,20 +233,20 @@ We present two versions of this estimate based on the sampling
 Based on voters
 ---------------
 
-For *ρ*<sub>*v**o**t**e**r*</sub>, we use
+For *ρ*<sub>*H**R**C*, *v**o**t**e**r*</sub>, we use
 
 ``` r
-df$rho_voter <- rho_estimate(N = "tot_votes",
-                             mu = "pct_hrc_voters",
-                             muhat = "cces_pct_hrc_voters",
-                             n = "cces_n_voters",
-                             cv = "cv_turnout_wgt")
+df$rho_vot <- rho_estimate(N = "tot_votes",
+                           mu = "pct_hrc_voters",
+                           muhat = "cces_pct_hrc_voters",
+                           n = "cces_n_voters",
+                           cv = "cv_turnout_wgt")
 ```
 
 Based on voting eligible population
 -----------------------------------
 
-For *ρ*<sub>*v**e**p*</sub>, we use
+For *ρ*<sub>*H**R**C*, *v**e**p*</sub>, we use
 
 ``` r
 df$rho_vep <- rho_estimate(N = "vep",
@@ -230,6 +254,8 @@ df$rho_vep <- rho_estimate(N = "vep",
                            muhat = "cces_pct_hrc_raw",
                            n = "cces_n_raw")
 ```
+
+I did the same for Trump voters ( *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>), where all estimates of Clinton were replaced with their Trump equivalents.
 
 Figures as PDFs are in `figures`.
 
