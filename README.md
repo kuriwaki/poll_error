@@ -115,13 +115,30 @@ The column `votes_hrc` refers to the column `Clinton (D)` in the above-linked sp
 Poll Prediction
 ===============
 
-**CCES**
+The main poll we use is the CCES, which is one of the few polls that has raw data available in accessible form.
+
+CCES
+----
 
 The Cooperative Congressional Election Study (CCES) is one of the largest pre-election studies conducted in the 2016 election. The CCES is conducted online for the several weeks before the election.
 
-The target population is registered voters. Sampling is continuously adjusted to obtain a representative sample. Multi-level models and other weighting schemes contribute to final state-level estimates.
+The target population is the national adult population. Sampling is continuously adjusted in a two-step process to obtain a representative sample. "Sample matching", Multi-level models and other weighting schemes contribute to the retained sample and computed weights. Quoting their guide:
 
-I estimated state-level predictions without adjusting for sampling or any other covariate adjustment weights.
+> Sample matching is a methodology for selection of representative samples from non-randomly selected pools of respondents. It is ideally suited for Web access panels, but could also be used for other types of surveys, such as phone surveys. Sample matching starts with an enumeration of the target population. For general population studies, the target population is all adults, and can be enumerated through the use of the decennial Census or a high quality survey, such as the American Community Survey. In other contexts, this is known as the sampling frame, though, unlike conventional sampling, the sample is not drawn from the frame. Traditional sampling, then, selects individuals from the sampling frame at random for participation in the study. This may not be feasible or economical as the contact information, especially email addresses, is not available for all individuals in the frame and refusals to participate increase the costs of sampling in this way.
+
+> Sample selection using the matching methodology is a two-stage process. First, a random sample is drawn from the target population. We call this sample the target sample. Details on how the target sample is drawn are provided below, but the essential idea is that this sample is a true probability sample and thus representative of the frame from which it was drawn.
+
+> Second, for each member of the target sample, we select one or more matching members from our pool of opt-in respondents. This is called the matched sample. Matching is accomplished using a large set of variables that are available in consumer and voter databases for both the target population and the opt-in panel.
+
+> The purpose of matching is to find an available respondent who is as similar as possible to the selected member of the target sample. The result is a sample of respondents who have the same measured characteristics as the target sample. Under certain conditions, described below, the matched sample will have similar properties to a true random sample. That is, the matched sample mimics the characteristics of the target sample. It is, as far as we can tell, representative of the target population (because it is similar to the target sample).
+
+Using this methodology, YouGov created a target population from past ACS data. Then, they recruited online samples:
+
+> The sample drawn for the CCES were chosen from the YouGov Panel, along with the MyPoints, Research Now, and SSI panels using a five-way cross- classification (age x gender x race x education x state). All respondents who completed the pre-election survey were re-invited to the post-election survey. The final set of completed pre-election interviews (numbering approximately 87,389, after quality controls were applied) were then matched to the target frame, using a weighted Euclidean distances metric.
+
+The final (after sample matching) number of respondents in the [dataverse release](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi%3A10.7910/DVN/GDF6Z0) is 64,600. This differs from the 117,316 or the 84,292 numbers in the [pre-election press release](https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016) because, among other reasons, in the interim the sample was culled of incomplete or bad-quality responses. There may have been adjustments to the case selection in order to achieve the qualities quoted above.
+
+For the purposes of this project, I estimated state-level predictions without adjusting for sampling or any other covariate adjustment weights.
 
 I did estimate voters and adjust for estimated turnout in variables `pct_hrc_voters` and `cces_n_voters`. These give a rough proxy for turnout by the coarse weights from the vote intent question. The weights are as specified in the CCES press release:
 
@@ -150,7 +167,8 @@ tab_cc <- cc_raw %>%
          cces_pct_djt_voters = cces_totdjt_adj_trn / cces_n_voters)
 ```
 
-**YouGov Release**
+YouGov Release
+--------------
 
 YouGov runs the CCES survey and generates their estimates with their algorithm. I took estimates from their November 16, 2016 press release [here](https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016). A Google Sheets version of the same table in the release is [here](https://docs.google.com/spreadsheets/d/1pJLEHfvCN-eX1mBfe6sgs0dwF2oq9G1FcUhKFk0Pe8g).
 
@@ -158,6 +176,8 @@ Read the press release and guides (e.g. for 2014: [dataverse](https://dataverse.
 
 Poll Estimates
 ==============
+
+How do our simple state-level estimates from the CCES compare to some actual election returns?
 
 Estimating Clinton Support
 --------------------------
@@ -263,6 +283,7 @@ Figures as PDFs are in `figures`.
 References
 ==========
 
--   McDonald, Michael P. 2017. "2016 November General Election" *United States Elections Project.* Accessed July 23, 2017.
+-   McDonald, Michael P. 2017. "2016 November General Election" *United States Elections Project.* Accessed July 23, 2017.<http://www.electproject.org/home/voter-turnout/voter-turnout-data>
 -   CCES. 2016. Press Release. <https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016>
+-   CCES. 2016. Data Release. <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi%3A10.7910/DVN/GDF6Z0>
 -   Cook Political Report. 2017. <http://cookpolitical.com/story/10174>
