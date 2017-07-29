@@ -14,8 +14,10 @@ colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')
 # plots for rho ----------
 # data and vars
 df <- read_csv("data/output/pres16_state.csv") %>%
-  mutate(rho_vep_positive = rho_vep > 0,
-         rho_voter_positive = rho_voter > 0)
+  mutate(rc_vot_pos = rho_hrc_vot > 0,
+         rc_vep_pos = rho_hrc_vep > 0,
+         rt_vot_pos = rho_djt_vot > 0,
+         rt_vep_pos = rho_djt_vep > 0)
 
 
 rho_pos_labs <- c(`TRUE` = "rho > 0 (Overestimated Clinton)",
@@ -34,22 +36,34 @@ lm_eqn <- function(ff, dat = df){
 }
 
 
+# can't run a regression with only one data point
+stopifnot(sum(df$rt_vep_pos == TRUE) <= 1)
+stopifnot(sum(df$rt_vot_pos == TRUE) <= 1)
 
-slopes <- c(lm_eqn(ff = "log(abs(rho_voter)) ~ log(tot_votes)", df),
-            lm_eqn(ff = "log(abs(rho_voter)) ~ log(tot_votes)", filter(df, rho_voter_positive)),
-            lm_eqn(ff = "log(abs(rho_voter)) ~ log(tot_votes)", filter(df, !rho_voter_positive)),
-            lm_eqn(ff = "log(abs(rho_vep)) ~ log(vep)", df),
-            lm_eqn(ff = "log(abs(rho_vep)) ~ log(vep)", filter(df, rho_vep_positive)),
-            lm_eqn(ff = "log(abs(rho_vep)) ~ log(vep)", filter(df, !rho_vep_positive))
+slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
+            lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", filter(df, rc_vot_pos)),
+            lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", filter(df, !rc_vot_pos)),
+            lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", df),
+            lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, rc_vep_pos)),
+            lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, !rc_vep_pos)),
+            lm_eqn(ff = "log(abs(rho_djt_vot)) ~ log(tot_votes)", df),
+            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", df)
 )
 
-sdf <- tibble(est = rep(c("rho_voter", "rho_vep"), each = 3),
+sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
+              race = "hrc",
               x = rep(c(16.2, 16.75), each = 3),
               y = rep(c(-9.5, -9), each = 3),
               pooled = rep(c(TRUE, FALSE, FALSE), 2),
-              rho_voter_positive = c(NA, TRUE, FALSE, rep(NA, 3)),
-              rho_vep_positive = c(rep(NA, 3), NA, TRUE, FALSE),
-              slopes = slopes)
+              rc_vot_pos = c(NA, TRUE, FALSE, rep(NA, 3)),
+              rc_vep_pos = c(rep(NA, 3), NA, TRUE, FALSE)) %>% 
+  bind_rows(tibble(est = c("rho_vot", "rho_vep"),
+                   race = "djt",
+                   x = rep(c(16, 16), 1),
+                   y = rep(c(-6.75, -5), 1),
+                   pooled = c(TRUE, TRUE))) %>%
+  add_column(slopes = slopes)
+
 
 gg0 <- ggplot(df, aes(label = st, color = color)) +
   geom_smooth(method = "lm", se = FALSE, color = "gray") +
@@ -59,62 +73,94 @@ gg0 <- ggplot(df, aes(label = st, color = color)) +
   theme_bw() +
   guides(color = FALSE)
 
+gg_vot <- gg0 + aes(x = log(tot_votes)) +
+  labs(x = "log(Total Voters)")
 
-gg0 + 
-  aes(x = log(tot_votes), y = log(abs(rho_voter))) +
-  labs(x = "log(Total Voters)", y = expression(log(abs(rho)))) +
-  geom_label(data = filter(sdf, est == "rho_voter", pooled), 
+gg_vep <- gg0 + aes(x = log(tot_votes)) +
+  labs(x = "log(Total Voting Eligible Population)")
+
+gg_vot + 
+  aes(y = log(abs(rho_hrc_vot))) +
+  labs(y = expression(log(abs(rho)))) +
+  geom_label(data = filter(sdf, race == "hrc", est == "rho_vot", pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
-ggsave("figures/rho_voter_pooled.pdf", width = fig.w, height = fig.h)
+ggsave("figures/rho_hrc_vot_pooled.pdf", width = fig.w, height = fig.h)
 
-gg0 + 
-  aes(x = log(tot_votes), y = log(abs(rho_voter))) +
-  labs(x = "log(Total Voters)", y = expression(log(abs(rho)))) +
-  facet_grid( ~ rho_voter_positive, labeller = labeller(rho_voter_positive = rho_pos_labs)) +
-  geom_label(data = filter(sdf, est == "rho_voter", !pooled), 
+gg_vot + 
+  aes(y = log(abs(rho_hrc_vot))) +
+  labs(y = expression(log(abs(rho)))) +
+  facet_grid( ~ rc_vot_pos, labeller = labeller(rc_vot_pos = rho_pos_labs)) +
+  geom_label(data = filter(sdf, race == "hrc", est == "rho_vot", !pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
-ggsave("figures/rho_voter_separated.pdf", width = fig.w, height = fig.h)
+ggsave("figures/rho_hrc_vot_separated.pdf", width = fig.w, height = fig.h)
 
   
-gg0 + 
-  aes(x = log(vep), y = log(abs(rho_vep))) +
-  labs(x = "log(Total Voting Eligible Population)", y = expression(log(abs(rho)))) +
-  geom_label(data = filter(sdf, est == "rho_vep", pooled), 
+gg_vep + 
+  aes(y = log(abs(rho_hrc_vep))) +
+  labs(y = expression(log(abs(rho)))) +
+  geom_label(data = filter(sdf, race == "hrc", est == "rho_vep", pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
-ggsave("figures/rho_vep_pooled.pdf", width = fig.w, height = fig.h)
+ggsave("figures/rho_hrc_vep_pooled.pdf", width = fig.w, height = fig.h)
 
-gg0 + 
-  aes(x = log(vep), y = log(abs(rho_vep))) +
-  labs(x = "log(Total Voting Eligible Population)", y = expression(log(abs(rho)))) +
-  facet_grid( ~ rho_vep_positive, labeller = labeller(rho_vep_positive = rho_pos_labs)) +
-  geom_label(data = filter(sdf, est == "rho_vep", !pooled), 
+gg_vep + 
+  aes(y = log(abs(rho_hrc_vep))) +
+  labs(y = expression(log(abs(rho)))) +
+  facet_grid( ~ rc_vep_pos, labeller = labeller(rc_vep_pos = rho_pos_labs)) +
+  geom_label(data = filter(sdf, race == "hrc", est == "rho_vep", !pooled), 
             aes(x = x, y = y, label = slopes), 
             inherit.aes = FALSE)
-ggsave("figures/rho_vep_separated.pdf", width = fig.w, height = fig.h)
+ggsave("figures/rho_hrc_vep_separated.pdf", width = fig.w, height = fig.h)
+
+# now TRUMP
+gg_vot + 
+  aes(y = log(abs(rho_djt_vot))) +
+  labs(y = expression(log(abs(rho)))) +
+  geom_label(data = filter(sdf, race == "djt", est == "rho_vot", pooled), 
+             aes(x = x, y = y, label = slopes), 
+             inherit.aes = FALSE)
+ggsave("figures/rho_djt_vot_pooled.pdf", width = fig.w, height = fig.h)
+
+
+gg_vep + 
+  aes(y = log(abs(rho_djt_vep))) +
+  labs(y = expression(log(abs(rho)))) +
+  geom_label(data = filter(sdf, race == "djt", est == "rho_vep", pooled), 
+             aes(x = x, y = y, label = slopes), 
+             inherit.aes = FALSE)
+ggsave("figures/rho_djt_vep_pooled.pdf", width = fig.w, height = fig.h)
+
 
 rm(gg0)
 
 # Histogram ---
 
-ggplot(df, aes(x = rho_voter)) + 
-  labs(x = expression(rho), y = "Count") +
+gg0 <- ggplot(df) +
+  labs(y = "Count") +
   geom_histogram(bins = 25) + theme_bw()
-ggsave("figures/rho_voter_hist.pdf", width = fig.w, height = fig.h)
+  
 
-ggplot(df, aes(x = rho_vep)) + 
-  labs(x = expression(rho), y = "Count") +
-  geom_histogram(bins = 25) + theme_bw()
-ggsave("figures/rho_vep_hist.pdf", width = fig.w, height = fig.h)
+gg0 + aes(x = rho_hrc_vot) + labs(x = expression(rho))
+ggsave("figures/rho_hrc_voter_hist.pdf", width = fig.w, height = fig.h)
 
-ggplot(df, aes(x = cv_turnout_wgt)) + 
+gg0 + aes(x = rho_hrc_vep) + labs(x = expression(rho)) +
+ggsave("figures/rho_hrc_vep_hist.pdf", width = fig.w, height = fig.h)
+
+
+gg0 + aes(x = rho_djt_vot) + labs(x = expression(rho))
+ggsave("figures/rho_djt_voter_hist.pdf", width = fig.w, height = fig.h)
+
+gg0 + aes(x = rho_djt_vep) + labs(x = expression(rho)) +
+  ggsave("figures/rho_djt_vep_hist.pdf", width = fig.w, height = fig.h)
+
+
+gg0 + aes(x = cv_turnout_wgt) + 
   labs(x = "Coefficient of Variation of Turnout Adjustment Weights at state-level", y = "Count") +
-  geom_histogram(bins = 25) + theme_bw()
 ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
 
-
+rm(gg0)
 
 # Scatter ------
 gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color, size = vap)) +
