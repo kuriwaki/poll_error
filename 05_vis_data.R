@@ -26,8 +26,15 @@ lm_eqn <- function(ff, dat = df){
 }
 
 
+# percent function
+make_pct <- function(dbl, add_mark = FALSE) {
+  paste0(round(dbl, 2), ifelse(add_mark, "%", ""))
+}
+
+
 # data and vars -----
-df <- read_csv("data/output/pres16_state.csv") %>%
+df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
+df <- df_raw %>%
   mutate(rc_vot_pos = rho_hrc_vot > 0,
          rc_vep_pos = rho_hrc_vep > 0,
          rt_vot_pos = rho_djt_vot > 0,
@@ -62,12 +69,18 @@ rho_exp <-
        djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
        djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])))
 
+# titles
+map_t <- list(
+  hrc_vot = expression(Percent~loss~italic(n):~Clinton~widehat(mu)[avp]),
+  hrc_vep = expression(Percent~loss~italic(n):~Clinton~widehat(mu)[vep]),
+  djt_vot = expression(Percent~loss~italic(n):~Trump~widehat(mu)[avp]),
+  djt_vot = expression(Percent~loss~italic(n):~Trump~widehat(mu)[vep])
+)
 
 
-# percent function
-make_pct <- function(dbl, add_mark = FALSE) {
-  paste0(round(dbl, 2), ifelse(add_mark, "%", ""))
-}
+
+
+
 
 
 # plots for rho ---------
@@ -302,14 +315,17 @@ ggsave("figures/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
 
 rm(gg0)
 
+
+
 # Map -----
+
 source("data/input/state_coords.R")
 df_map <- left_join(df, st)
 
 gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) + 
   geom_tile(alpha = 0) +
-  geom_tile(color = "white", alpha = 0.75, size = 2) +
-  geom_text(color = "black", size = 3) +
+  geom_tile(color = "white", alpha = 0.5, size = 1) +
+  geom_text(color = "black", size = 2.75) +
   scale_fill_manual(values = colorvec) +
   scale_y_reverse() +
   coord_equal() +
@@ -323,14 +339,20 @@ gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) +
   guides(fill = FALSE, alpha = FALSE)
 
 
-gg0 + aes(label = make_pct(loss_hrc_vot), alpha = I(loss_hrc_vot^6))
-ggsave("figures/map_hrc_vot.pdf", h = fig.h, w = fig.w)
+mfig.w <- 0.9*fig.w
 
-gg0 + aes(label = make_pct(loss_hrc_vep), alpha = I(loss_hrc_vep^6))
-ggsave("figures/map_hrc_vep.pdf", h = fig.h, w = fig.w)
+gg0 + aes(label = make_pct(loss_hrc_vot), alpha = I(loss_hrc_vot)) +
+  labs(title = map_t[["hrc_vot"]])
+ggsave("figures/map_hrc_vot.pdf", h = fig.h, w = mfig.w)
 
-gg0 + aes(label = make_pct(loss_djt_vot), alpha = I(loss_djt_vot^4))
-ggsave("figures/map_djt_vot.pdf", h = fig.h, w = fig.w)
+gg0 + aes(label = make_pct(loss_hrc_vep), alpha = I(loss_hrc_vep)) +
+  labs(title = map_t[["hrc_vep"]])
+ggsave("figures/map_hrc_vep.pdf", h = fig.h, w = mfig.w)
 
-gg0 + aes(label = make_pct(loss_djt_vep), alpha = I(loss_djt_vep^4))
-ggsave("figures/map_djt_vep.pdf", h = fig.h, w = fig.w)
+gg0 + aes(label = make_pct(loss_djt_vot), alpha = I(loss_djt_vot)) +
+  labs(title = map_t[["djt_vot"]])
+ggsave("figures/map_djt_vot.pdf", h = fig.h, w = mfig.w)
+
+gg0 + aes(label = make_pct(loss_djt_vep), alpha = I(loss_djt_vep)) +
+  labs(title = map_t[["djt_vep"]])
+ggsave("figures/map_djt_vep.pdf", h = fig.h, w = mfig.w)
