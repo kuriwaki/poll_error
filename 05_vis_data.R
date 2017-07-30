@@ -64,6 +64,11 @@ rho_exp <-
 
 
 
+# percent function
+make_pct <- function(dbl, add_mark = FALSE) {
+  paste0(round(dbl, 2), ifelse(add_mark, "%", ""))
+}
+
 
 # plots for rho ---------
 
@@ -302,9 +307,9 @@ source("data/input/state_coords.R")
 df_map <- left_join(df, st)
 
 gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) + 
-  geom_tile(alpha = 0.1) +
-  geom_tile(color = "white", alpha = 0.9, size = 2) +
-  geom_text(color = "white", size = 3) +
+  geom_tile(alpha = 0) +
+  geom_tile(color = "white", alpha = 0.75, size = 2) +
+  geom_text(color = "black", size = 3) +
   scale_fill_manual(values = colorvec) +
   scale_y_reverse() +
   coord_equal() +
@@ -315,6 +320,17 @@ gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) +
   theme(axis.ticks = element_blank()) +
   theme(axis.text = element_blank()) +
   labs(x = NULL, y = NULL, title = NULL) +
-  guides(fill = FALSE)
+  guides(fill = FALSE, alpha = FALSE)
 
-gg0 + aes(label = cces_n_raw)
+
+gg0 + aes(label = make_pct(loss_hrc_vot), alpha = I(loss_hrc_vot^6))
+ggsave("figures/map_hrc_vot.pdf", h = fig.h, w = fig.w)
+
+gg0 + aes(label = make_pct(loss_hrc_vep), alpha = I(loss_hrc_vep^6))
+ggsave("figures/map_hrc_vep.pdf", h = fig.h, w = fig.w)
+
+gg0 + aes(label = make_pct(loss_djt_vot), alpha = I(loss_djt_vot^4))
+ggsave("figures/map_djt_vot.pdf", h = fig.h, w = fig.w)
+
+gg0 + aes(label = make_pct(loss_djt_vep), alpha = I(loss_djt_vep^4))
+ggsave("figures/map_djt_vep.pdf", h = fig.h, w = fig.w)
