@@ -89,6 +89,55 @@ df <- df %>%
   )
 
 
+# Estimate n_eff ----
+eff_estimate <- function(data = df, rho, n, N) {
+  N <- data[[N]]
+  n <- data[[n]]
+  rho <- data[[rho]]
+  
+  f <- n/N
+  one_minus_f <- 1 - f
+  
+  rho^{-2} * (f / one_minus_f)
+}
+
+df <- df %>% 
+  mutate(neff_hrc_vot = eff_estimate(rho = "rho_hrc_vot",
+                                     N = "tot_votes",
+                                     n = "cces_n_voters"),
+         neff_hrc_vep = eff_estimate(rho = "rho_hrc_vep", 
+                                     N = "vep",
+                                     n = "cces_n_raw"),
+         neff_djt_vot = eff_estimate(rho = "rho_djt_vot",
+                                     N = "tot_votes",
+                                     n = "cces_n_voters"),
+         neff_djt_vep = eff_estimate(rho = "rho_djt_vep", 
+                                     N = "vep",
+                                     n = "cces_n_raw")
+  )
+
+# estimate drop ---
+loss_estimate <- function(data = df, n, neff) {
+  n <- data[[n]]
+  neff <- data[[neff]]
+  
+  neff_over_n <- neff/n
+  
+  1 - neff_over_n
+}
+
+
+df <- df %>% 
+  mutate(loss_hrc_vot = loss_estimate(neff = "neff_hrc_vot",
+                                     n = "cces_n_voters"),
+         loss_hrc_vep = loss_estimate(neff = "neff_hrc_vep",
+                                     n = "cces_n_raw"),
+         loss_djt_vot = loss_estimate(neff = "neff_djt_vot",
+                                     n = "cces_n_voters"),
+         loss_djt_vep = loss_estimate(neff = "neff_djt_vep",
+                                     n = "cces_n_raw")
+  )
+
 
 
 # Save ----
@@ -100,7 +149,7 @@ colSums(select(df, vap, vep, matches("votes"), matches("cces_tot"),  matches("cc
   write_csv("data/output/pres16_US.csv")
 
 
-# summary stats
+# summary stats ------
 my_qtl <- function(vec, vecname) {
   this_mean <- mean(vec)
   this_length <- length(vec)
