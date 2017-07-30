@@ -287,8 +287,6 @@ gg_djt + aes(x = cces_pct_djt_raw) +
   xlab("Raw Poll Estimate, Trump Suport")
 ggsave("figures/scatter_djt_raw.pdf", h = fig.h, w = fig.w)
 
-
-
 gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
   annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nturnout", color = "darkgray") +
   annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nturnout", color = "darkgray") +
@@ -297,3 +295,26 @@ gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
   labs(caption = captext)
 ggsave("figures/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
 
+rm(gg0)
+
+# Map -----
+source("data/input/state_coords.R")
+df_map <- left_join(df, st)
+
+gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) + 
+  geom_tile(alpha = 0.1) +
+  geom_tile(color = "white", alpha = 0.9, size = 2) +
+  geom_text(color = "white", size = 3) +
+  scale_fill_manual(values = colorvec) +
+  scale_y_reverse() +
+  coord_equal() +
+  theme_minimal() +
+  theme(panel.border = element_blank()) +
+  theme(panel.grid = element_blank()) +  
+  theme(panel.background = element_blank()) +
+  theme(axis.ticks = element_blank()) +
+  theme(axis.text = element_blank()) +
+  labs(x = NULL, y = NULL, title = NULL) +
+  guides(fill = FALSE)
+
+gg0 + aes(label = cces_n_raw)
