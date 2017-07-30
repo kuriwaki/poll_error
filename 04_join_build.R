@@ -100,7 +100,7 @@ eff_estimate <- function(data = df, rho, n, N) {
   
   neff_raw <- rho^{-2} * (f / one_minus_f)
   
-  ifelse(neff_raw > n, 0 , neff_raw) # if too large, assign 0
+  ifelse(neff_raw > n, n , neff_raw) # if too large, assign up to the given sample
 }
 
 df <- df %>% 
