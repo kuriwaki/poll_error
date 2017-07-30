@@ -1,5 +1,6 @@
 library(dplyr)
 library(readr)
+library(tibble)
 
 mm <- readRDS("data/output/mm_popultn_state.rds")
 dw <- readRDS("data/output/dw_results_state.rds")
@@ -27,14 +28,7 @@ df <- df_joined %>%
          cces_totdjt_adj_trn, cces_totdjt_raw, 
          cces_pct_djt_voters, cces_pct_djt_vep, cces_pct_djt_raw,
          cv_turnout_wgt,
-         yougov_pct_hrc, yougov_pct_djt, yougov_n,
-         `State Results Website`)
-
-
-# categorize swing state, red, blue
-# https://docs.google.com/spreadsheets/d/133Eb4qQmOxNvtesw2hdVns073R68EZx4SfCnP4IGQf8/edit#gid=19
-
-
+         yougov_pct_hrc, yougov_pct_djt, yougov_n)
 
 
 # estimate rho ----
