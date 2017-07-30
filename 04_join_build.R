@@ -98,7 +98,9 @@ eff_estimate <- function(data = df, rho, n, N) {
   f <- n/N
   one_minus_f <- 1 - f
   
-  rho^{-2} * (f / one_minus_f)
+  neff_raw <- rho^{-2} * (f / one_minus_f)
+  
+  ifelse(neff_raw > n, 0 , neff_raw) # if too large, assign 0
 }
 
 df <- df %>% 
