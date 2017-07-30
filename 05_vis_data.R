@@ -74,7 +74,7 @@ map_t <- list(
   hrc_vot = expression(Percent~loss~italic(n):~Clinton~widehat(mu)[avp]),
   hrc_vep = expression(Percent~loss~italic(n):~Clinton~widehat(mu)[vep]),
   djt_vot = expression(Percent~loss~italic(n):~Trump~widehat(mu)[avp]),
-  djt_vot = expression(Percent~loss~italic(n):~Trump~widehat(mu)[vep])
+  djt_vep = expression(Percent~loss~italic(n):~Trump~widehat(mu)[vep])
 )
 
 
@@ -341,18 +341,18 @@ gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) +
 
 mfig.w <- 0.9*fig.w
 
-gg0 + aes(label = make_pct(loss_hrc_vot), alpha = I(loss_hrc_vot)) +
+gg0 + aes(label = make_pct(loss_hrc_vot)) +
   labs(title = map_t[["hrc_vot"]])
 ggsave("figures/map_hrc_vot.pdf", h = fig.h, w = mfig.w)
 
-gg0 + aes(label = make_pct(loss_hrc_vep), alpha = I(loss_hrc_vep)) +
+gg0 + aes(label = make_pct(loss_hrc_vep)) +
   labs(title = map_t[["hrc_vep"]])
 ggsave("figures/map_hrc_vep.pdf", h = fig.h, w = mfig.w)
 
-gg0 + aes(label = make_pct(loss_djt_vot), alpha = I(loss_djt_vot)) +
+gg0 + aes(label = make_pct(loss_djt_vot)) +
   labs(title = map_t[["djt_vot"]])
 ggsave("figures/map_djt_vot.pdf", h = fig.h, w = mfig.w)
 
-gg0 + aes(label = make_pct(loss_djt_vep), alpha = I(loss_djt_vep)) +
+gg0 + aes(label = make_pct(loss_djt_vep)) +
   labs(title = map_t[["djt_vep"]])
 ggsave("figures/map_djt_vep.pdf", h = fig.h, w = mfig.w)
