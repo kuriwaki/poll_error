@@ -1,6 +1,7 @@
 library(dplyr)
 library(readr)
 library(tibble)
+library(data.table)
 
 mm <- readRDS("data/output/mm_popultn_state.rds")
 dw <- readRDS("data/output/dw_results_state.rds")
@@ -88,20 +89,22 @@ eff_estimate <- function(data = df, rho, n, N, color = "color", avg_by_color = T
   N <- data[[N]]
   n <- data[[n]]
   color <- data[[color]]
-  
   rho <- data[[rho]]
-  if (avg_by_color) {
-    rho_means <- tapply(X = rho, INDEX = color, FUN = mean) 
-    rho <- rho_means[color]
-  }
   
+  ## we may take the average of groups of rho
+  one_over_rhosq <- rho^{-2}
+  
+  if (avg_by_color) {
+    rho_means <- tapply(X = one_over_rhosq, INDEX = color, FUN = mean) 
+    one_over_rhosq <- rho_means[color]
+  }
   
   f <- n/N
   one_minus_f <- 1 - f
   
-  neff_raw <- rho^{-2} * (f / one_minus_f)
+  neff_raw <- one_over_rhosq * (f / one_minus_f)
   
-  ifelse(neff_raw > n, n , neff_raw) # if too large, assign up to the given sample
+  neff_raw
 }
 
 df <- df %>% 
@@ -119,25 +122,23 @@ df <- df %>%
                                      n = "cces_n_raw")
   )
 
-# estimate drop ---
-loss_estimate <- function(data = df, n, neff) {
+# estimate ratio of neff over n ---
+eff_ratio_estimate <- function(data = df, n, neff) {
   n <- data[[n]]
   neff <- data[[neff]]
   
-  neff_over_n <- neff/n
-  
-  1 - neff_over_n
+  neff/n
 }
 
 
 df <- df %>% 
-  mutate(loss_hrc_vot = loss_estimate(neff = "neff_hrc_vot",
+  mutate(effratio_hrc_vot = eff_ratio_estimate(neff = "neff_hrc_vot",
                                      n = "cces_n_voters"),
-         loss_hrc_vep = loss_estimate(neff = "neff_hrc_vep",
+         effratio_hrc_vep = eff_ratio_estimate(neff = "neff_hrc_vep",
                                      n = "cces_n_raw"),
-         loss_djt_vot = loss_estimate(neff = "neff_djt_vot",
+         effratio_djt_vot = eff_ratio_estimate(neff = "neff_djt_vot",
                                      n = "cces_n_voters"),
-         loss_djt_vep = loss_estimate(neff = "neff_djt_vep",
+         effratio_djt_vep = eff_ratio_estimate(neff = "neff_djt_vep",
                                      n = "cces_n_raw")
   )
 
@@ -183,9 +184,29 @@ all_rho_sums <- cbind(
   four_rhos_sum(filter(df, color == "D"), "Dstates"),
   four_rhos_sum(filter(df, color == "swing"), "swingstates"))
 
-
-
 all_rho_sums <- cbind("statistic" = rownames(all_rho_sums), all_rho_sums) %>%
   as.data.frame()
 
-write_csv(rhos, "data/output/rho_sum_stats.csv")
+write_csv(all_rho_sums, "data/output/rho_sum_stats.csv")
+
+
+# rhosq
+rho_long <- melt(as.data.table(df), 
+                 id.vars = c("st", "color"), 
+                 variable.factor = FALSE,
+                 measure.vars = patterns("rho_"),
+                 value.name = "rho") %>% 
+  tbl_df() %>% 
+  mutate(rho_sq = rho^2)
+
+# with color and all states ----
+rho_long <- bind_rows(rho_long, mutate(rho_long, color = "all"))
+
+
+rho_means <- rho_long %>% 
+  group_by(variable, color) %>% 
+  summarize(average_of_rho_sq = formatC(mean(rho_sq), digits = 12, format = "f"),
+            one_over_avg_rho_sq = 1 / mean(rho_sq),
+            number_of_states = n())
+
+write_csv(rho_means, "data/output/rho_sq_state_averages.csv")
