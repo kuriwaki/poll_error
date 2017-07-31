@@ -84,10 +84,17 @@ df <- df %>%
 
 
 # Estimate n_eff ----
-eff_estimate <- function(data = df, rho, n, N) {
+eff_estimate <- function(data = df, rho, n, N, color = "color", avg_by_color = TRUE) {
   N <- data[[N]]
   n <- data[[n]]
+  color <- data[[color]]
+  
   rho <- data[[rho]]
+  if (avg_by_color) {
+    rho_means <- tapply(X = rho, INDEX = color, FUN = mean) 
+    rho <- rho_means[color]
+  }
+  
   
   f <- n/N
   one_minus_f <- 1 - f
@@ -161,13 +168,24 @@ my_qtl <- function(vec, vecname) {
     t()
 }
 
-rhos <- 
-  cbind(my_qtl(df$rho_hrc_vep, "rho_hrc_vep"),
-        my_qtl(df$rho_hrc_vep, "rho_hrc_vep"),
-        my_qtl(df$rho_djt_vot[df$rho_djt_vot < 0], "rho_djt_avp"),
-        my_qtl(df$rho_djt_vep[df$rho_djt_vep < 0], "rho_djt_vep"))  
+four_rhos_sum <- function(data = df, suffix) {
+  dframe <-  cbind(my_qtl(data$rho_hrc_vot, "rho_hrc_vot"),
+                   my_qtl(data$rho_hrc_vep, "rho_hrc_vep"),
+                   my_qtl(data$rho_djt_vot[data$rho_djt_vot < 0], "rho_djt_avp"),
+                   my_qtl(data$rho_djt_vep[data$rho_djt_vep < 0], "rho_djt_vep"))  
+  colnames(dframe) <- paste0(colnames(dframe), "_", suffix)
+  dframe
+}
 
-rhos <- cbind("statistic" = rownames(rhos), rhos) %>%
+all_rho_sums <- cbind(
+  four_rhos_sum(df, "allstates"),
+  four_rhos_sum(filter(df, color == "R"), "Rstates"),
+  four_rhos_sum(filter(df, color == "D"), "Dstates"),
+  four_rhos_sum(filter(df, color == "swing"), "swingstates"))
+
+
+
+all_rho_sums <- cbind("statistic" = rownames(all_rho_sums), all_rho_sums) %>%
   as.data.frame()
 
 write_csv(rhos, "data/output/rho_sum_stats.csv")
