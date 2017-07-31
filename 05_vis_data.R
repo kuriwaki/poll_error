@@ -9,6 +9,8 @@ library(tibble)
 
 fig.w <- 6*0.80
 fig.h <- 4*0.751
+mfig.w <- fig.w
+
 
 
 # labels -----
@@ -27,8 +29,12 @@ lm_eqn <- function(ff, dat = df){
 
 
 # percent function
-make_pct <- function(dbl, add_mark = FALSE) {
-  paste0(round(dbl, 2), ifelse(add_mark, "%", ""))
+make_pct <- function(dbl, points = FALSE) {
+  if (points) 
+    return(paste0(round(dbl*100), "%"))
+
+    if (!points) 
+    return(paste0(round(dbl, 2)))
 }
 
 
@@ -70,7 +76,7 @@ rho_exp <-
        djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])))
 
 # titles
-map_t <- list(
+loss_t <- list(
   hrc_vot = expression(Percent~loss~italic(n):~Clinton~widehat(mu)[avp]),
   hrc_vep = expression(Percent~loss~italic(n):~Clinton~widehat(mu)[vep]),
   djt_vot = expression(Percent~loss~italic(n):~Trump~widehat(mu)[avp]),
@@ -339,20 +345,57 @@ gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) +
   guides(fill = FALSE, alpha = FALSE)
 
 
-mfig.w <- 0.9*fig.w
 
 gg0 + aes(label = make_pct(loss_hrc_vot)) +
-  labs(title = map_t[["hrc_vot"]])
+  labs(title = loss_t[["hrc_vot"]])
 ggsave("figures/map_hrc_vot.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(label = make_pct(loss_hrc_vep)) +
-  labs(title = map_t[["hrc_vep"]])
+  labs(title = loss_t[["hrc_vep"]])
 ggsave("figures/map_hrc_vep.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(label = make_pct(loss_djt_vot)) +
-  labs(title = map_t[["djt_vot"]])
+  labs(title = loss_t[["djt_vot"]])
 ggsave("figures/map_djt_vot.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(label = make_pct(loss_djt_vep)) +
-  labs(title = map_t[["djt_vep"]])
+  labs(title = loss_t[["djt_vep"]])
 ggsave("figures/map_djt_vep.pdf", h = fig.h, w = mfig.w)
+
+rm(gg0)
+
+# the percentages as a dot/barplot --
+
+# arrange
+df_dot <-  df %>% 
+  arrange(desc(pct_hrc_voters)) %>%
+  mutate(st = forcats::as_factor(st))
+
+
+gg0 <-  ggplot(df_dot, aes(x = st, y = loss_hrc_vot, fill = color)) + 
+  scale_y_continuous(name = NULL, label = percent, expand = c(0, 0)) +
+  scale_fill_manual(values = colorvec) +
+  geom_col(alpha = 0.8) +
+  theme_bw() +
+  theme(axis.text.x  = element_text(angle = 90, vjust = 0.5, size = 6),
+        panel.grid.major.x = element_blank()) +
+  guides(fill = FALSE)  +
+  labs(x = "")
+
+
+gg0 + aes(y = loss_hrc_vot) +
+  labs(title = loss_t[["hrc_vot"]])
+ggsave("figures/bars_hrc_vot.pdf", h = fig.h, w = mfig.w)
+
+gg0 + aes(y = loss_hrc_vep) +
+  labs(title = loss_t[["hrc_vep"]])
+ggsave("figures/bars_hrc_vep.pdf", h = fig.h, w = mfig.w)
+
+gg0 + aes(y = loss_djt_vot) +
+  labs(title = loss_t[["djt_vot"]])
+ggsave("figures/bars_djt_vot.pdf", h = fig.h, w = mfig.w)
+
+gg0 + aes(y = loss_djt_vep) +
+  labs(title = loss_t[["djt_vep"]])
+ggsave("figures/bars_djt_vep.pdf", h = fig.h, w = mfig.w)
+
