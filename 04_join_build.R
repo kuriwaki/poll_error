@@ -199,6 +199,8 @@ rho_long <- melt(as.data.table(df),
   tbl_df() %>% 
   mutate(rho_sq = rho^2)
 
+
+
 # with color and all states ----
 rho_long <- bind_rows(rho_long, mutate(rho_long, color = "all"))
 
@@ -208,5 +210,23 @@ rho_means <- rho_long %>%
   summarize(average_of_rho_sq = formatC(mean(rho_sq), digits = 12, format = "f"),
             one_over_avg_rho_sq = 1 / mean(rho_sq),
             number_of_states = n())
-
 write_csv(rho_means, "data/output/rho_sq_state_averages.csv")
+
+
+# get f for all four estimators
+f_long <- df %>% 
+  mutate(f_vot = cces_n_voters / tot_votes,
+         f_vep = cces_n_raw / vep)  %>% 
+  select(st, matches("^f_"))
+
+range(f_long$f_vot)
+range(f_long$f_vep)
+
+
+
+
+
+
+
+
+

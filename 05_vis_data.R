@@ -320,6 +320,31 @@ ggsave("figures/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
 rm(gg0)
 
 
+# more summary stats
+df_diff <- df %>% 
+  mutate(mudiff_hrc_vot = cces_pct_hrc_voters - pct_hrc_voters,
+         mudiff_djt_vot = cces_pct_djt_voters - pct_djt_voters)
+
+
+summary(df_diff$mudiff_djt_vot)
+summary(df_diff$mudiff_hrc_vot)
+
+cor(df_diff$mudiff_djt_vot, df_diff$mudiff_hrc_vot)
+
+ggplot(df_diff, aes(x = mudiff_hrc_vot, y = mudiff_djt_vot, color = color, size = vap)) +
+  geom_point(alpha = 0.8) +
+  theme_bw() +
+  scale_color_manual(values = colorvec) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_abline(intercept = 0, slope = -1) +
+  coord_equal() +
+  labs(y = expression(widehat(mu[Trump]) - mu[Trump]),
+       x = expression(widehat(mu[Clinton]) - mu[Clinton])) +
+  guides(color = FALSE, size = FALSE)
+ggsave("figures/scatter_error_vs_error.pdf", h = fig.h, w = fig.w)
+
+
 
 # Map -----
 
@@ -376,6 +401,7 @@ gg0 <-  ggplot(df_dot, aes(x = st, y = effratio_hrc_vot, fill = color)) +
   geom_col(alpha = 0.8) +
   theme_bw() +
   theme(axis.text.x  = element_text(angle = 90, vjust = 0.5, size = 6),
+        axis.text.y = element_text(size = 13),
         panel.grid.major.x = element_blank()) +
   guides(fill = FALSE)  +
   labs(x = "")
@@ -390,10 +416,12 @@ gg0 + aes(y = effratio_hrc_vep) +
 ggsave("figures/bars_hrc_vep.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(y = effratio_djt_vot) +
+  scale_y_continuous(name = NULL, label = percent, expand = c(0, 0), limit = c(0, 1)) +
   labs(title = eff_t[["djt_vot"]])
 ggsave("figures/bars_djt_vot.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(y = effratio_djt_vep) +
+  scale_y_continuous(name = NULL, label = percent, expand = c(0, 0), limit = c(0, 1)) +
   labs(title = eff_t[["djt_vep"]])
 ggsave("figures/bars_djt_vep.pdf", h = fig.h, w = mfig.w)
 
