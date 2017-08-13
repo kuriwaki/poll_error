@@ -294,6 +294,10 @@ gg_hrc + aes(x = cces_pct_hrc_raw) +
   xlab("Raw Poll Estimate, Clinton Suport")
 ggsave("figures/scatter_hrc_raw.pdf", h = fig.h, w = fig.w)
 
+gg_hrc + aes(x = cces_pct_hrc_vv) +
+  xlab("Poll Estimate among Validated Voters, Clinton Suport")
+ggsave("figures/scatter_hrc_vv.pdf", h = fig.h, w = fig.w)
+
 
 # Trump
 gg_djt <- gg0 + aes(y = pct_djt_voters) +
@@ -309,6 +313,13 @@ gg_djt + aes(x = cces_pct_djt_raw) +
   xlab("Raw Poll Estimate, Trump Suport")
 ggsave("figures/scatter_djt_raw.pdf", h = fig.h, w = fig.w)
 
+gg_djt + aes(x = cces_pct_djt_vv) +
+  xlab("Poll Estimate among Validated Voters, Trump Suport")
+ggsave("figures/scatter_djt_vv.pdf", h = fig.h, w = fig.w)
+
+
+
+# Turnout
 gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
   annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nturnout", color = "darkgray") +
   annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nturnout", color = "darkgray") +
