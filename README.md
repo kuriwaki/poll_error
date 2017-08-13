@@ -12,7 +12,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 33
+    ## # A tibble: 51 x 45
     ##                   state    st color      vap      vep votes_hrc votes_djt
     ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL     R  3770142  3601361    729547   1318255
@@ -25,17 +25,21 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE     D   749872   689125    235603    185127
     ##  9 District of Columbia    DC     D   562329   511463    282830     12723
     ## 10              Florida    FL swing 16565588 14572210   4504975   4617886
-    ## # ... with 41 more rows, and 26 more variables: tot_votes <int>,
+    ## # ... with 41 more rows, and 38 more variables: tot_votes <int>,
     ## #   pct_hrc_vep <dbl>, pct_hrc_voters <dbl>, pct_djt_vep <dbl>,
-    ## #   pct_djt_voters <dbl>, cces_n_voters <dbl>, cces_n_raw <int>,
-    ## #   cces_tothrc_adj_trn <dbl>, cces_tothrc_raw <int>,
-    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrc_vep <dbl>,
-    ## #   cces_pct_hrc_raw <dbl>, cces_totdjt_adj_trn <dbl>,
-    ## #   cces_totdjt_raw <int>, cces_pct_djt_voters <dbl>,
-    ## #   cces_pct_djt_vep <dbl>, cces_pct_djt_raw <dbl>, cv_turnout_wgt <dbl>,
-    ## #   yougov_pct_hrc <dbl>, yougov_pct_djt <dbl>, yougov_n <dbl>, `State
-    ## #   Results Website` <chr>, rho_hrc_vot <dbl>, rho_hrc_vep <dbl>,
-    ## #   rho_djt_vot <dbl>, rho_djt_vep <dbl>
+    ## #   pct_djt_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
+    ## #   cces_n_vv <int>, cces_tothrc_raw <int>, cces_tothrc_adj_trn <dbl>,
+    ## #   cces_tothrc_vv <int>, cces_pct_hrc_raw <dbl>, cces_pct_hrc_vep <dbl>,
+    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrc_vv <dbl>,
+    ## #   cces_totdjt_raw <int>, cces_totdjt_adj_trn <dbl>,
+    ## #   cces_totdjt_vv <int>, cces_pct_djt_raw <dbl>, cces_pct_djt_vep <dbl>,
+    ## #   cces_pct_djt_voters <dbl>, cces_pct_djt_vv <dbl>,
+    ## #   cv_turnout_wgt <dbl>, yougov_pct_hrc <dbl>, yougov_pct_djt <dbl>,
+    ## #   yougov_n <dbl>, rho_hrc_vot <dbl>, rho_hrc_vep <dbl>,
+    ## #   rho_djt_vot <dbl>, rho_djt_vep <dbl>, neff_hrc_vot <dbl>,
+    ## #   neff_hrc_vep <dbl>, neff_djt_vot <dbl>, neff_djt_vep <dbl>,
+    ## #   effratio_hrc_vot <dbl>, effratio_hrc_vep <dbl>,
+    ## #   effratio_djt_vot <dbl>, effratio_djt_vep <dbl>
 
 The main columns are
 
@@ -61,11 +65,14 @@ Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
 -   `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity
 -   `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population
+-   `cces_n_vv`: CCES number of respondents who matched to the 2016 voter file. This serves as the "true" voters (those who turned out) within the sample.
 -   `cces_tothrc_adj_trn`: CCES estimated Clinton votes
 -   `cces_tothrc_raw`: CCES unadjusted total Clinton votes
+-   `cces_tothrc_vv`: CCES total Clinton support among validated voters.
 -   `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters adjusting for turnout (`cces_tothrc_adj_trn/ cces_n_voters`)
 -   `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (`cces_tothrc_adj_trn / cces_n_raw`)
 -   `cces_pct_hrc_raw`: CCES estimated percent of Clinton votes without any adjustment (`cces_tothrc_raw/ cces_n_raw`)
+-   `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`)
 -   `cces_*djt*`: All same as above but with Trump
 -   `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate.
 
@@ -196,6 +203,13 @@ gg_hrc + aes(x = cces_pct_hrc_raw) +
 
 ![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
+``` r
+gg_hrc + aes(x = cces_pct_hrc_vv) +
+  xlab("Poll Estimate among Validated Voters, Clinton Suport")
+```
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+
 Estimating Trump Support
 ------------------------
 
@@ -204,14 +218,21 @@ gg_djt + aes(x = cces_pct_djt_voters) +
   xlab("Turnout-adjusted Poll Estimate, Trump Support")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
 
 ``` r
 gg_djt + aes(x = cces_pct_djt_raw) +
   xlab("Raw Poll Estimate, Trump Suport")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
+
+``` r
+gg_djt + aes(x = cces_pct_djt_vv) +
+  xlab("Poll Estimate among Validated Voters, Trump Suport")
+```
+
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-9-1.png)
 
 Estimates of *ρ*
 ================
