@@ -65,11 +65,25 @@ Outcomes (including estimates of VAP/VEP)
 
 Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
-Denominator of sample mean \* `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity \* `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population \* `cces_n_vv`: CCES number of respondents who matched to the 2016 voter file. This serves as the "true" voters (those who turned out) within the sample.
+Denominator of sample mean
 
-Numerator of sample mean \* `cces_tothrc_adj_trn`: CCES estimated Clinton votes \* `cces_tothrc_raw`: CCES unadjusted total Clinton votes \* `cces_tothrc_vv`: CCES total Clinton support among validated voters.
+-   `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity
+-   `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population
+-   `cces_n_vv`: CCES number of respondents who matched to the 2016 voter file. This serves as the "true" voters (those who turned out) within the sample.
 
-Sample mean estimates \* `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters adjusting for turnout (`cces_tothrc_adj_trn/ cces_n_voters`) \* `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (`cces_tothrc_adj_trn / cces_n_raw`) \* `cces_pct_hrc_raw`: CCES estimated percent of Clinton votes without any adjustment (`cces_tothrc_raw/ cces_n_raw`) \* `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`) \* `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate.
+Numerator of sample mean
+
+-   `cces_tothrc_adj_trn`: CCES estimated Clinton votes
+-   `cces_tothrc_raw`: CCES unadjusted total Clinton votes
+-   `cces_tothrc_vv`: CCES total Clinton support among validated voters.
+
+Sample mean estimates
+
+-   `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters adjusting for turnout (`cces_tothrc_adj_trn/ cces_n_voters`)
+-   `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (`cces_tothrc_adj_trn / cces_n_raw`)
+-   `cces_pct_hrc_raw`: CCES estimated percent of Clinton votes without any adjustment (`cces_tothrc_raw/ cces_n_raw`)
+-   `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`)
+-   `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate.
 
 -   `cces_*djt*`: All same as above but with Trump
 
