@@ -43,19 +43,24 @@ Outcomes (including estimates of VAP/VEP)
 
 Poll estimates. Construction detailed below and in `03_tabulate_polls.R`
 
+Denominator of sample mean
 * `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity
 * `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population
 * `cces_n_vv`: CCES number of respondents who matched to the 2016 voter file. This serves as the "true" voters (those who turned out) within the sample. 
+
+Numerator of sample mean
 * `cces_tothrc_adj_trn`: CCES estimated Clinton votes 
 * `cces_tothrc_raw`: CCES unadjusted total Clinton votes
 * `cces_tothrc_vv`: CCES total Clinton support among validated voters.
+
+Sample mean estimates
 * `cces_pct_hrc_voters`: CCES estimated percent of Clinton votes among voters adjusting for turnout (`cces_tothrc_adj_trn/ cces_n_voters`) 
 * `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (`cces_tothrc_adj_trn / cces_n_raw`) 
 * `cces_pct_hrc_raw`: CCES estimated percent of Clinton votes without any adjustment (`cces_tothrc_raw/ cces_n_raw`)
 * `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`)
-* `cces_*djt*`: All same as above but with Trump
 * `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate. 
 
+* `cces_*djt*`: All same as above but with Trump
 
 * `yougov_pct_hrc`: YouGov estimated of Clinton votes among voters
 * `yougov_pct_djt`: Same but with Trump
@@ -66,10 +71,8 @@ Parameter Estimates
 
 * `rho_hrc_vot`: The $\rho$ parameter with Clinton support as the quantity of interest and _voters_ as the target population
 * `rho_hrc_vep`: The $\rho$ parameter with Clinton support as the quantity of interest and _eligible population_ as the target population
-* `rho_hrc_vot`: The $\rho$ parameter with Trump support as the quantity of interest and _voters_ as the target population
-* `rho_hrc_vep`: The $\rho$ parameter with Trump support as the quantity of interest and _eligible population_ as the target population
-
-
+* `rho_hrc_vvt`: The $\rho$ parameter with Clinton support as the quantity of interest and _voters_ as the target population, using validated voters only.
+* `rho_*djt*`: The same $\rho$ as above but for Trump.
 
 # Data Sources 
 
@@ -138,25 +141,22 @@ I did estimate voters and adjust for estimated turnout  in  variables `pct_hrc_v
 I coded other responses (No, Skipped, Missing).. to 0.
 
 
-The code is in `03_tabulate_polls.R`,
+The code is in `03_tabulate_polls.R`. For simplicity I only show the estimates for the sample size and Clinton; estimates for Trump are symmetrical. 
 ```{r, eval = FALSE}
 tab_cc <- cc_raw %>% 
   group_by(state) %>% 
   summarize(cces_n_raw = n(),
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
-            cces_tothrc_raw = sum(vote_hrc, na.rm = TRUE),
-            cces_tothrc_adj_trn = sum(vote_hrc*turnout_wgt, na.rm = TRUE),
-            cces_totdjt_raw = sum(vote_djt, na.rm = TRUE),
-            cces_totdjt_adj_trn = sum(vote_djt*turnout_wgt, na.rm = TRUE),
+            cces_n_vv = sum(vv_turnout, na.rm = TRUE),
+            cces_tothrc_raw = sum(vote_hrc_pre, na.rm = TRUE),
+            cces_tothrc_adj_trn = sum(vote_hrc_pre*turnout_wgt, na.rm = TRUE),
+            cces_tothrc_vv = sum(vote_hrc_pre*vv_turnout, na.rm = TRUE),
             sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
             cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt)) %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
          cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
          cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters,
-         cces_pct_djt_raw = cces_totdjt_raw / cces_n_raw,
-         cces_pct_djt_vep = cces_totdjt_adj_trn / cces_n_raw,
-         cces_pct_djt_voters = cces_totdjt_adj_trn / cces_n_voters)
-
+         cces_pct_hrc_vv = cces_tothrc_vv / cces_n_vv)
 ```
 
 
@@ -301,8 +301,18 @@ df$rho_vep <- rho_estimate(N = "vep",
                            n = "cces_n_raw")
 ```
 
+## Based on data from validated voters
+For $\rho_{HRC, vvt}$ we use
+```{r, eval = FALSE}
+df$rho_vvt <- rho_estimate(N = "tot_votes",
+                           mu = "pct_hrc_voters",
+                           muhat = "cces_pct_hrc_vv",
+                           n = "cces_n_vv")
+```
 
-I did the same for Trump voters ( $\rho_{DJT, voter}$,  $\rho_{DJT, voter}$), where all estimates of Clinton were replaced with their Trump equivalents.
+
+
+I did the same for Trump voters ( $\rho_{DJT, voter}$,  $\rho_{DJT, voter}$, $\rho_{DJT, vv}$), where all estimates of Clinton were replaced with their Trump equivalents.
 
 Figures as PDFs are in `figures`.
 
