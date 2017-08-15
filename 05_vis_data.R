@@ -40,11 +40,19 @@ make_pct <- function(dbl, points = FALSE) {
 
 # data and vars -----
 df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
+
+# quick test -- swap
+# df_raw <- df_raw %>% 
+#   mutate(rho_hrc_vot = rho_hrc_vv,
+#          rho_djt_vot = rho_djt_vv)
+
 df <- df_raw %>%
   mutate(rc_vot_pos = rho_hrc_vot > 0,
          rc_vep_pos = rho_hrc_vep > 0,
+         rc_vvt_pos = rho_hrc_vvt > 0,
          rt_vot_pos = rho_djt_vot > 0,
-         rt_vep_pos = rho_djt_vep > 0)
+         rt_vep_pos = rho_djt_vep > 0,
+         rt_vvt_pos = rho_djt_vvt > 0)
 
 # limit parameters ---
 # y-axislimit
@@ -65,22 +73,28 @@ ylim_hist <- c(0, 12.5)
 lar_exp <- 
   list(hrc_vot = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")),
        hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       hrc_vvt = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
        djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")),
-       djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")))
+       djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")))
 
 # normal stuff
 rho_exp <- 
   list(hrc_vot = expression(Clinton~~italic(widehat(italic(rho))[N[avp]])),
        hrc_vep = expression(Clinton~~italic(widehat(italic(rho))[N[vep]])),
+       hrc_vvt = expression(Clinton~~italic(widehat(italic(rho))[N[vv]])),
        djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
-       djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])))
+       djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])),
+       djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N[vv]])))
 
 # titles
 eff_t <- list(
   hrc_vot = expression(frac(n[eff], n):~Clinton~widehat(mu)[avp]),
   hrc_vep = expression(frac(n[eff], n):~Clinton~widehat(mu)[vep]),
+  hrc_vvt = expression(frac(n[eff], n):~Clinton~widehat(mu)[vvt]),
   djt_vot = expression(frac(n[eff], n):~Trump~widehat(mu)[avp]),
-  djt_vep = expression(frac(n[eff], n):~Trump~widehat(mu)[vep])
+  djt_vep = expression(frac(n[eff], n):~Trump~widehat(mu)[vep]),
+  djt_vvt = expression(frac(n[eff], n):~Trump~widehat(mu)[vv])
 )
 
 
@@ -100,25 +114,28 @@ slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", df),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, rc_vep_pos)),
             lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, !rc_vep_pos)),
+            lm_eqn(ff = "log(abs(rho_hrc_vvt)) ~ log(tot_votes)", df),
+            lm_eqn(ff = "log(abs(rho_hrc_vvt)) ~ log(tot_votes)", filter(df, rc_vvt_pos)),
+            lm_eqn(ff = "log(abs(rho_hrc_vvt)) ~ log(tot_votes)", filter(df, !rc_vvt_pos)),
             lm_eqn(ff = "log(abs(rho_djt_vot)) ~ log(tot_votes)", df),
-            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", df)
+            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", df),
+            lm_eqn(ff = "log(abs(rho_djt_vvt)) ~ log(tot_votes)", df)
 )
 
-sdf <- tibble(est = rep(c("rho_vot", "rho_vep"), each = 3),
+sdf <- tibble(est = rep(c("rho_vot", "rho_vep", "rho_vvt"), each = 3),
               race = "hrc",
-              x = rep(c(16.75, 16.75), each = 3),
-              y = rep(c(-9.5, -9.5), each = 3),
-              pooled = rep(c(TRUE, FALSE, FALSE), 2),
-              rc_vot_pos = c(NA, TRUE, FALSE, rep(NA, 3)),
-              rc_vep_pos = c(rep(NA, 3), NA, TRUE, FALSE)) %>% 
-  bind_rows(tibble(est = c("rho_vot", "rho_vep"),
+              x = rep(c(16.75, 16.75, 16.75), each = 3),
+              y = rep(c(-9.5, -9.5, -9.5), each = 3),
+              pooled = rep(c(TRUE, FALSE, FALSE), 3),
+              rc_vot_pos = c(c(NA, TRUE, FALSE), rep(NA, 3), rep(NA, 3)),
+              rc_vep_pos = c(rep(NA, 3), c(NA, TRUE, FALSE), rep(NA, 3)),
+              rc_vvt_pos = c(rep(NA, 3), rep(NA, 3), c(NA, TRUE, FALSE))) %>% 
+  bind_rows(tibble(est = c("rho_vot", "rho_vep", "rho_vvt"),
                    race = "djt",
-                   x = rep(c(16.75, 16.75), 1),
-                   y = rep(c(-9.5, -9.5), 1),
-                   pooled = c(TRUE, TRUE))) %>%
+                   x = rep(c(16.75, 16.75, 16.75), 1),
+                   y = rep(c(-9.5, -9.5, -9.5), 1),
+                   pooled = c(TRUE, TRUE, TRUE))) %>%
   add_column(slopes = slopes)
-
-
 
 
 # template
@@ -156,7 +173,7 @@ gg_vot +
             inherit.aes = FALSE)
 ggsave("figures/rho_hrc_vot_separated.pdf", width = fig.w, height = fig.h)
 
-  
+# vep
 gg_vep + 
   aes(y = log(abs(rho_hrc_vep))) +  labs(y = lar_exp[["hrc_vep"]]) +
   geom_label(data = filter(sdf, race == "hrc", est == "rho_vep", pooled), 
@@ -172,7 +189,24 @@ gg_vep +
             inherit.aes = FALSE)
 ggsave("figures/rho_hrc_vep_separated.pdf", width = fig.w, height = fig.h)
 
-# now TRUMP
+# vvt
+gg_vot + 
+  aes(y = log(abs(rho_hrc_vvt))) +  labs(y = lar_exp[["hrc_vvt"]]) +
+  geom_label(data = filter(sdf, race == "hrc", est == "rho_vvt", pooled), 
+             aes(x = x, y = y, label = slopes), 
+             inherit.aes = FALSE)
+ggsave("figures/rho_hrc_vvt_pooled.pdf", width = fig.w, height = fig.h)
+
+gg_vot + 
+  aes(y = log(abs(rho_hrc_vvt))) +  labs(y = lar_exp[["hrc_vvt"]]) +
+  facet_grid( ~ rc_vot_pos, labeller = labeller(rc_vot_pos = rho_pos_labs)) +
+  geom_label(data = filter(sdf, race == "hrc", est == "rho_vvt", !pooled), 
+             aes(x = x, y = y, label = slopes), 
+             inherit.aes = FALSE)
+ggsave("figures/rho_hrc_vvt_separated.pdf", width = fig.w, height = fig.h)
+
+
+# now TRUMP -----
 gg_vot + 
   aes(y = log(abs(rho_djt_vot))) +  labs(y = lar_exp[["djt_vot"]]) +
   geom_label(data = filter(sdf, race == "djt", est == "rho_vot", pooled), 
@@ -187,6 +221,14 @@ gg_vep +
              aes(x = x, y = y, label = slopes), 
              inherit.aes = FALSE)
 ggsave("figures/rho_djt_vep.pdf", width = fig.w, height = fig.h)
+
+
+gg_vot + 
+  aes(y = log(abs(rho_djt_vvt))) +  labs(y = lar_exp[["djt_vvt"]]) +
+  geom_label(data = filter(sdf, race == "djt", est == "rho_vvt", pooled), 
+             aes(x = x, y = y, label = slopes), 
+             inherit.aes = FALSE)
+ggsave("figures/rho_djt_vvt.pdf", width = fig.w, height = fig.h)
 
 
 rm(gg0)
@@ -207,23 +249,29 @@ gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   
 
 gg0 + aes(x = rho_hrc_vot) + labs(x = rho_exp[["hrc_vot"]])
-ggsave("figures/rho_hrc_vot_hist.pdf", width = fig.w, height = fig.h)
+ggsave("figures/hist_rho_hrc_vot.pdf", width = fig.w, height = fig.h)
 
 gg0 + aes(x = rho_hrc_vep) + labs(x = rho_exp[["hrc_vep"]]) +
-ggsave("figures/rho_hrc_vep_hist.pdf", width = fig.w, height = fig.h)
+ggsave("figures/hist_rho_hrc_vep.pdf", width = fig.w, height = fig.h)
+
+gg0 + aes(x = rho_hrc_vvt) + labs(x = rho_exp[["hrc_vvt"]]) +
+  ggsave("figures/hist_rho_hrc_vvt.pdf", width = fig.w, height = fig.h)
 
 
 gg0 + aes(x = rho_djt_vot) + labs(x = rho_exp[["djt_vot"]])
-ggsave("figures/rho_djt_vot_hist.pdf", width = fig.w, height = fig.h)
+ggsave("figures/hist_rho_djt_vot.pdf", width = fig.w, height = fig.h)
 
 gg0 + aes(x = rho_djt_vep) + labs(x = rho_exp[["djt_vep"]])
-  ggsave("figures/rho_djt_vep_hist.pdf", width = fig.w, height = fig.h)
+ggsave("figures/hist_rho_djt_vep.pdf", width = fig.w, height = fig.h)
 
-
+gg0 + aes(x = rho_djt_vvt) + labs(x = rho_exp[["djt_vvt"]])
+ggsave("figures/hist_rho_djt_vvt.pdf", width = fig.w, height = fig.h)
+  
+  
 ggplot(df, aes(x = cv_turnout_wgt)) +
   geom_histogram(bins = 25) + theme_bw() +
   labs(x = "Coefficient of Variation of Turnout Adjustment Weights", y = "Count")
-ggsave("figures/cv_turnout_hist.pdf", width = fig.w, height = fig.h)
+ggsave("figures/hist_cv_turnout.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
 
@@ -261,6 +309,7 @@ plot_grid(plotlist = log_trans_list)
 ggsave("figures/rho_logabsrho_transformation.pdf", w = fig.w, h = fig.h)
 
 rm(gg0)
+
 # Scatter ------
 captext <- "Source: CCES 2016 Common Content." #\nSized proportional to population.\n States colored by R (red) or D (blue) or swing (green)."
 fig.w <- 1.2*fig.w*0.8
