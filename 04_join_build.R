@@ -72,6 +72,10 @@ df <- df %>%
                                     mu = "pct_hrc_voters",
                                     muhat = "cces_pct_hrc_raw",
                                     n = "cces_n_raw"),
+         rho_hrc_vvt = rho_estimate(N = "tot_votes",
+                                   mu = "pct_hrc_voters",
+                                   muhat = "cces_pct_hrc_vv",
+                                   n = "cces_n_vv"),
          rho_djt_vot = rho_estimate(N = "tot_votes",
                                     mu = "pct_djt_voters",
                                     muhat = "cces_pct_djt_voters",
@@ -80,7 +84,11 @@ df <- df %>%
          rho_djt_vep = rho_estimate(N = "vep",
                                     mu = "pct_djt_voters",
                                     muhat = "cces_pct_djt_raw",
-                                    n = "cces_n_raw")
+                                    n = "cces_n_raw"),
+         rho_djt_vvt = rho_estimate(N = "tot_votes",
+                                   mu = "pct_djt_voters",
+                                   muhat = "cces_pct_djt_vv",
+                                   n = "cces_n_vv")
   )
 
 
@@ -114,12 +122,18 @@ df <- df %>%
          neff_hrc_vep = eff_estimate(rho = "rho_hrc_vep", 
                                      N = "vep",
                                      n = "cces_n_raw"),
+         neff_hrc_vvt = eff_estimate(rho = "rho_hrc_vvt", 
+                                     N = "tot_votes",
+                                     n = "cces_n_vv"),
          neff_djt_vot = eff_estimate(rho = "rho_djt_vot",
                                      N = "tot_votes",
                                      n = "cces_n_voters"),
          neff_djt_vep = eff_estimate(rho = "rho_djt_vep", 
                                      N = "vep",
-                                     n = "cces_n_raw")
+                                     n = "cces_n_raw"),
+         neff_djt_vvt = eff_estimate(rho = "rho_djt_vvt", 
+                                    N = "tot_votes",
+                                    n = "cces_n_vv")
   )
 
 # estimate ratio of neff over n ---
@@ -133,13 +147,17 @@ eff_ratio_estimate <- function(data = df, n, neff) {
 
 df <- df %>% 
   mutate(effratio_hrc_vot = eff_ratio_estimate(neff = "neff_hrc_vot",
-                                     n = "cces_n_voters"),
+                                               n = "cces_n_voters"),
          effratio_hrc_vep = eff_ratio_estimate(neff = "neff_hrc_vep",
-                                     n = "cces_n_raw"),
+                                               n = "cces_n_raw"),
+         effratio_hrc_vvt = eff_ratio_estimate(neff = "neff_hrc_vvt",
+                                               n = "cces_n_vv"),
          effratio_djt_vot = eff_ratio_estimate(neff = "neff_djt_vot",
-                                     n = "cces_n_voters"),
+                                               n = "cces_n_voters"),
          effratio_djt_vep = eff_ratio_estimate(neff = "neff_djt_vep",
-                                     n = "cces_n_raw")
+                                               n = "cces_n_raw"),
+         effratio_djt_vvt = eff_ratio_estimate(neff = "neff_djt_vvt",
+                                               n = "cces_n_vv")
   )
 
 
@@ -169,20 +187,22 @@ my_qtl <- function(vec, vecname) {
     t()
 }
 
-four_rhos_sum <- function(data = df, suffix) {
+rhos_sum <- function(data = df, suffix) {
   dframe <-  cbind(my_qtl(data$rho_hrc_vot, "rho_hrc_vot"),
                    my_qtl(data$rho_hrc_vep, "rho_hrc_vep"),
+                   my_qtl(data$rho_hrc_vvt, "rho_hrc_vvt"),
                    my_qtl(data$rho_djt_vot[data$rho_djt_vot < 0], "rho_djt_avp"),
-                   my_qtl(data$rho_djt_vep[data$rho_djt_vep < 0], "rho_djt_vep"))  
+                   my_qtl(data$rho_djt_vep[data$rho_djt_vep < 0], "rho_djt_vep"),  
+                   my_qtl(data$rho_djt_vvt[data$rho_djt_vvt < 0], "rho_djt_vvt"))  
   colnames(dframe) <- paste0(colnames(dframe), "_", suffix)
   dframe
 }
 
 all_rho_sums <- cbind(
-  four_rhos_sum(df, "allstates"),
-  four_rhos_sum(filter(df, color == "R"), "Rstates"),
-  four_rhos_sum(filter(df, color == "D"), "Dstates"),
-  four_rhos_sum(filter(df, color == "swing"), "swingstates"))
+  rhos_sum(df, "allstates"),
+  rhos_sum(filter(df, color == "R"), "Rstates"),
+  rhos_sum(filter(df, color == "D"), "Dstates"),
+  rhos_sum(filter(df, color == "swing"), "swingstates"))
 
 all_rho_sums <- cbind("statistic" = rownames(all_rho_sums), all_rho_sums) %>%
   as.data.frame()
