@@ -199,7 +199,7 @@ ggsave("figures/rho_hrc_vvt_pooled.pdf", width = fig.w, height = fig.h)
 
 gg_vot + 
   aes(y = log(abs(rho_hrc_vvt))) +  labs(y = lar_exp[["hrc_vvt"]]) +
-  facet_grid( ~ rc_vot_pos, labeller = labeller(rc_vot_pos = rho_pos_labs)) +
+  facet_grid( ~ rc_vvt_pos, labeller = labeller(rc_vvt_pos = rho_pos_labs)) +
   geom_label(data = filter(sdf, race == "hrc", est == "rho_vvt", !pooled), 
              aes(x = x, y = y, label = slopes), 
              inherit.aes = FALSE)
