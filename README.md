@@ -83,9 +83,11 @@ Sample mean estimates
 -   `cces_pct_hrc_vep`: CCES estimated percent of Clinton votes among voting eligible population (`cces_tothrc_adj_trn / cces_n_raw`)
 -   `cces_pct_hrc_raw`: CCES estimated percent of Clinton votes without any adjustment (`cces_tothrc_raw/ cces_n_raw`)
 -   `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`)
+-   `cces_*djt*`: All same as above but with Trump
+
 -   `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate.
 
--   `cces_*djt*`: All same as above but with Trump
+Other poll
 
 -   `yougov_pct_hrc`: YouGov estimated of Clinton votes among voters
 -   `yougov_pct_djt`: Same but with Trump
@@ -97,6 +99,10 @@ Parameter Estimates
 -   `rho_hrc_vep`: The *ρ* parameter with Clinton support as the quantity of interest and *eligible population* as the target population
 -   `rho_hrc_vvt`: The *ρ* parameter with Clinton support as the quantity of interest and *voters* as the target population, using validated voters only.
 -   `rho_*djt*`: The same *ρ* as above but for Trump.
+
+-   `neff_hrc_*` is the estimated effective sample size for the appropriate sample size *n* using the specified estimator. For example, `neff_hrc_vot` is the effective sample size of `cces_n_voters` when we estimate `rho_hrc_vot`
+-   `effratio_hrc_*` is the ratio of the estimated effective sample size (`neff`) over the original sample size. For example, `effratio_hrc_vot` is given by `neff_hrc_vot/cces_n_voters`
+-   `neff_djt_*` and `effratio_djt*` do the same, but for Trump.
 
 Data Sources
 ============
@@ -318,7 +324,7 @@ df$rho_vvt <- rho_estimate(N = "tot_votes",
                            n = "cces_n_vv")
 ```
 
-I did the same for Trump voters ( *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**v*</sub>), where all estimates of Clinton were replaced with their Trump equivalents.
+I did the same for Trump voters ( *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**v**t*</sub>), where all estimates of Clinton were replaced with their Trump equivalents.
 
 Figures as PDFs are in `figures`.
 

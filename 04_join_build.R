@@ -160,10 +160,12 @@ df <- df %>%
                                                n = "cces_n_vv")
   )
 
-
-
 # Save ----
 write_csv(df, "data/output/pres16_state.csv")
+
+
+
+
 
 # totals
 colSums(select(df, vap, vep, matches("votes"), matches("cces_tot"),  matches("cces_n_"))) %>% 

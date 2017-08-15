@@ -306,7 +306,7 @@ log_trans_list <- list(
 
 
 plot_grid(plotlist = log_trans_list)
-ggsave("figures/rho_logabsrho_transformation.pdf", w = fig.w, h = fig.h)
+ggsave("figures/logabsrho_transformation.pdf", w = fig.w, h = fig.h)
 
 rm(gg0)
 
