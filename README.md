@@ -3,8 +3,8 @@ Poll Predictions and Errors
 
 This data combines three state-level datasets on the 2016 Presidential Election.
 
-Output
-======
+Output - State Estimates
+========================
 
 The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 
@@ -103,6 +103,25 @@ Parameter Estimates
 -   `neff_hrc_*` is the estimated effective sample size for the appropriate sample size *n* using the specified estimator. For example, `neff_hrc_vot` is the effective sample size of `cces_n_voters` when we estimate `rho_hrc_vot`
 -   `effratio_hrc_*` is the ratio of the estimated effective sample size (`neff`) over the original sample size. For example, `effratio_hrc_vot` is given by `neff_hrc_vot/cces_n_voters`
 -   `neff_djt_*` and `effratio_djt*` do the same, but for Trump.
+
+Output - Other Estimates
+========================
+
+The following tables have summary statistics and counts not incuded in the state-level dataset.
+
+-   `pres16_US.csv` has total counts of some of the population turnout and voting data in the U.S. population.
+-   `rho_sum_stats.csv` has summary statistics of the *ρ* estimates. Each column is an estimate of a type of rho for a particular type of state (or all states). Each row is a summary statistic, such as 10 percent, 90 percent quantiles, and means.
+
+Figures
+=======
+
+Figures are named according to the following convention
+
+-   `rho_*` is a scatter plot of a `rho` estimate on the y-axis and the target *N* on the x-axis. We take logs. `_separated` indicates facetting out cases for which `rho` is positive vs. `rho` is negative. This is an important distinction because we take the absolute value of `rho` before taking the log. `_pooled` prefix indicates that both positive and negative values are pooled. having neither of these prefixes means that they are pooled. For DJT, there was only one positive `rho`, so we remove that observation (D.C.) and show pooled.
+-   `hist_*` is a histogram of state-level parameters. Mostly these are `rho`
+-   `scatter_*` is a figure that has state-level estimates of a quantity ($\\widehat{\\mu}$) on the x-axis and the observed quantity (*μ*) on the y-axis.
+-   `map_*` shows a quantity of interest in a simplified map (cartogram)
+-   `bars_*` shows a quantity of interest in a barplot.
 
 Data Sources
 ============
