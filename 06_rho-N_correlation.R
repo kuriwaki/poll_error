@@ -16,22 +16,35 @@ lm_store <- function(cand_text, subset, rho_type, N_text) {
   if (subset == "neg") dfreg <- filter(df, .data[[rho_text]] < 0)
   
   ## run model
-  if (nrow(dfreg) > 1) {
+  if (nrow(dfreg) > 3) {
     mod <- lm(as.formula(ff), dfreg)
     coef <- sprintf("%.2f", coef(mod)[2])
     se <- sprintf("%.2f", summary(mod)$coef[2, 2])
     lab <- glue("{coef}\n ({se})")
+    
+    # update with precise values
+    coef <- coef(mod)[2]
+    se <- summary(mod)$coef[2, 2]
+    
   } else {
-    lab <- NA
+    coef <- se <- lab <- NA
   }
   
-  tibble(cand = cand_text,
+  # short description
+  descrip <- paste0(gsub("_", "-", rho_text), "_", "states-", subset)
+  descrip <- gsub("^rho-", "", descrip)
+  
+  
+  tibble(descrip = descrip,
+         cand = cand_text,
          subset = subset,
          rho_type = rho_type,
          rho_text = as.character(rho_text),
          N_text = N_text,
          nstates = nrow(dfreg),
          lm_form = as.character(ff),
+         coef = coef,
+         se = se,
          lab = as.character(lab))
 }
 
@@ -55,4 +68,8 @@ lm_stored <-  foreach(i = 1:nrow(reg_specs), .combine = "bind_rows") %do% {
 }
 
 
+# save data
 saveRDS(lm_stored, "data/output/rho-N_lm-output.rds")
+
+
+
