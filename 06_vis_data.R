@@ -140,8 +140,8 @@ sdf <- tibble(est = rep(c("rho_vot", "rho_vep", "rho_vvt"), each = 3),
                    race = "djt",
                    x = rep(c(16.75, 16.75, 16.75), 1),
                    y = rep(c(-9.5, -9.5, -9.5), 1),
-                   pooled =  vc(TRUE, TRUE, TRUE))) %>%
-  add_column(slope_key = c(""))
+                   pooled =  c(TRUE, TRUE, TRUE))) %>%
+  add_column(slopes = slopes)
 
 
 # template
@@ -359,6 +359,11 @@ gg_hrc + aes(x = cces_pct_hrc_vv) +
   xlab("Poll Estimate among Validated Voters, Clinton Suport")
 ggsave("figures/scatter_hrc_vv.pdf", h = fig.h, w = fig.w)
 
+gg_hrc + aes(x = cces_pct_hrc_voters_post) +
+  xlab("Poll Estimate from Post-Election wave, Clinton Suport")
+ggsave("figures/scatter_hrc_post.pdf", h = fig.h, w = fig.w)
+
+
 
 # Trump
 gg_djt <- gg0 + aes(y = pct_djt_voters) +
@@ -377,6 +382,11 @@ ggsave("figures/scatter_djt_raw.pdf", h = fig.h, w = fig.w)
 gg_djt + aes(x = cces_pct_djt_vv) +
   xlab("Poll Estimate among Validated Voters, Trump Suport")
 ggsave("figures/scatter_djt_vv.pdf", h = fig.h, w = fig.w)
+
+gg_djt + aes(x = cces_pct_djt_voters_post) +
+  xlab("Poll Estimate from Post-Election wave, Trump Suport")
+ggsave("figures/scatter_djt_post.pdf", h = fig.h, w = fig.w)
+
 
 
 
