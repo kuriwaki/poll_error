@@ -28,12 +28,12 @@ tab_cc <- cc_raw %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
          cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
          cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters,
-         cces_pct_hrc_voters_post = cces_tothrc_adj_trn / cces_n_voters,
+         cces_pct_hrc_voters_post = cces_tothrc_raw_post / cces_n_voters,
          cces_pct_hrc_vv = cces_tothrc_vv / cces_n_vv,
          cces_pct_djt_raw = cces_totdjt_raw / cces_n_raw,
          cces_pct_djt_vep = cces_totdjt_adj_trn / cces_n_raw,
          cces_pct_djt_voters = cces_totdjt_adj_trn / cces_n_voters,
-         cces_pct_djt_voters_post = cces_totdjt_adj_trn / cces_n_voters,
+         cces_pct_djt_voters_post = cces_totdjt_raw_post / cces_n_voters,
          cces_pct_djt_vv = cces_totdjt_vv / cces_n_vv)
 tab_cc
 
