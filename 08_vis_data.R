@@ -7,26 +7,21 @@ library(ggrepel)
 library(dplyr)
 library(tibble)
 
+
 fig.w <- 6*0.80
 fig.h <- 4*0.751
 mfig.w <- fig.w
 
+
+# clear ----
+fig_pdfs <- list.files("figures", pattern = "pdf$", full.names = TRUE)
+file.remove(fig_pdfs)
 
 
 # labels -----
 colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')
 rho_pos_labs <- c(`TRUE` = "rho > 0 (Overestimated Clinton)",
                   `FALSE` = "rho < 0 (Underestimated Clinton)")
-
-# conveinence functions
-lm_eqn <- function(ff, dat = df){
-  m <- lm(as.formula(ff), dat) 
-  coef <- sprintf("%.2f", coef(m)[2])
-  se <- sprintf("%.2f", summary(m)$coef[2, 2])
-  
-  glue::glue("{coef}\n ({se})")
-}
-
 
 # percent function
 make_pct <- function(dbl, points = FALSE) {
@@ -40,12 +35,6 @@ make_pct <- function(dbl, points = FALSE) {
 
 # data and vars -----
 df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
-
-# quick test -- swap
-# df_raw <- df_raw %>% 
-#   mutate(rho_hrc_vot = rho_hrc_vv,
-#          rho_djt_vot = rho_djt_vv)
-
 df <- df_raw %>%
   mutate(rc_vot_pos = rho_hrc_vot > 0,
          rc_vep_pos = rho_hrc_vep > 0,
@@ -53,6 +42,10 @@ df <- df_raw %>%
          rt_vot_pos = rho_djt_vot > 0,
          rt_vep_pos = rho_djt_vep > 0,
          rt_vvt_pos = rho_djt_vvt > 0)
+
+
+slopes <- readRDS("data/output/rho-N_lm-output.rds")
+
 
 # limit parameters ---
 # y-axislimit
@@ -111,140 +104,81 @@ eff_t <- list(
 stopifnot(sum(df$rt_vep_pos == TRUE) <= 1)
 stopifnot(sum(df$rt_vot_pos == TRUE) <= 1)
 
-# collect slopes
-slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
-            lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", filter(df, rc_vot_pos)),
-            lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", filter(df, !rc_vot_pos)),
-            lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", df),
-            lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, rc_vep_pos)),
-            lm_eqn(ff = "log(abs(rho_hrc_vep)) ~ log(vep)", filter(df, !rc_vep_pos)),
-            lm_eqn(ff = "log(abs(rho_hrc_vvt)) ~ log(tot_votes)", df),
-            lm_eqn(ff = "log(abs(rho_hrc_vvt)) ~ log(tot_votes)", filter(df, rc_vvt_pos)),
-            lm_eqn(ff = "log(abs(rho_hrc_vvt)) ~ log(tot_votes)", filter(df, !rc_vvt_pos)),
-            lm_eqn(ff = "log(abs(rho_djt_vot)) ~ log(tot_votes)", df),
-            lm_eqn(ff = "log(abs(rho_djt_vep)) ~ log(vep)", df),
-            lm_eqn(ff = "log(abs(rho_djt_vvt)) ~ log(tot_votes)", df)
-)
+plot_corr <- function(dat = df, slp = slopes, lmrow) {
+  
+  slope_i <- slp[lmrow, ]
+  cand <- slope_i$cand
+  subset <- slope_i$subset
+  rho_type <- slope_i$rho_type
+  rho_text <- slope_i$rho_text
+  N_text <- slope_i$N_text
+  lab <- slope_i$lab
+  
+  # pretty labels 
+  if (N_text == "tot_votes") xlab_text <- "log(Total Voters)"
+  if (N_text == "vep") xlab_text <- "log(Voting Eligible Population)"
+  lar_code <- gsub("rho_", "", rho_text)
+  
+  # update lab by adding state subset info
+  if (subset == "R") stlab <- "Red states"
+  if (subset == "D") stlab <- "Blue states"
+  if (subset == "swing") stlab <- "Swing states"
+  if (subset == "pos") stlab <- "States where rho > 0" 
+  if (subset == "neg") stlab <- "States where rho < 0"
+  if (subset == "all") stlab <- "All states"
+  lab <- paste0("Slope Coefficient =   ", lab)
 
-# need to merge safely with sdf.
-
-sdf <- tibble(est = rep(c("rho_vot", "rho_vep", "rho_vvt"), each = 3),
-              race = "hrc",
-              x = rep(c(16.75, 16.75, 16.75), each = 3),
-              y = rep(c(-9.5, -9.5, -9.5), each = 3),
-              pooled = rep(c(TRUE, FALSE, FALSE), 3),
-              rc_vot_pos = c(c(NA, TRUE, FALSE), rep(NA, 3), rep(NA, 3)),
-              rc_vep_pos = c(rep(NA, 3), c(NA, TRUE, FALSE), rep(NA, 3)),
-              rc_vvt_pos = c(rep(NA, 3), rep(NA, 3), c(NA, TRUE, FALSE))) %>% 
-  bind_rows(tibble(est = c("rho_vot", "rho_vep", "rho_vvt"),
-                   race = "djt",
-                   x = rep(c(16.75, 16.75, 16.75), 1),
-                   y = rep(c(-9.5, -9.5, -9.5), 1),
-                   pooled =  c(TRUE, TRUE, TRUE))) %>%
-  add_column(slopes = slopes)
-
-
-# template
-gg0 <- ggplot(df, aes(label = st, color = color)) +
-  geom_smooth(method = "lm", se = FALSE, color = "gray") +
-  geom_point() +
-  scale_color_manual(values = colorvec)  +
-  geom_text_repel(alpha = 0.5) +
-  theme_bw() +
-  coord_cartesian(ylim = lim_lro, xlim = lim_lpp) +
-  scale_x_continuous(minor_breaks = NULL) +
-  scale_y_continuous(minor_breaks = NULL) +
-  guides(color = FALSE)
-
-gg_vot <- gg0 + aes(x = log(tot_votes)) +
-  labs(x = "log(Total Voters)")
-
-gg_vep <- gg0 + aes(x = log(tot_votes)) +
-  labs(x = "log(Total Voting Eligible Population)")
-
-
-# start to save figures
-gg_vot + 
-  aes(y = log(abs(rho_hrc_vot))) +  labs(y = lar_exp[["hrc_vot"]]) +
-  geom_label(data = filter(sdf, race == "hrc", est == "rho_vot", pooled), 
-            aes(x = x, y = y, label = slopes), 
-            inherit.aes = FALSE)
-ggsave("figures/rho_hrc_vot_pooled.pdf", width = fig.w, height = fig.h)
-
-gg_vot + 
-  aes(y = log(abs(rho_hrc_vot))) +  labs(y = lar_exp[["hrc_vot"]]) +
-  facet_grid( ~ rc_vot_pos, labeller = labeller(rc_vot_pos = rho_pos_labs)) +
-  geom_label(data = filter(sdf, race == "hrc", est == "rho_vot", !pooled), 
-            aes(x = x, y = y, label = slopes), 
-            inherit.aes = FALSE)
-ggsave("figures/rho_hrc_vot_separated.pdf", width = fig.w, height = fig.h)
-
-# vep
-gg_vep + 
-  aes(y = log(abs(rho_hrc_vep))) +  labs(y = lar_exp[["hrc_vep"]]) +
-  geom_label(data = filter(sdf, race == "hrc", est == "rho_vep", pooled), 
-            aes(x = x, y = y, label = slopes), 
-            inherit.aes = FALSE)
-ggsave("figures/rho_hrc_vep_pooled.pdf", width = fig.w, height = fig.h)
-
-gg_vep + 
-  aes(y = log(abs(rho_hrc_vep))) +  labs(y = lar_exp[["hrc_vep"]]) +
-  facet_grid( ~ rc_vep_pos, labeller = labeller(rc_vep_pos = rho_pos_labs)) +
-  geom_label(data = filter(sdf, race == "hrc", est == "rho_vep", !pooled), 
-            aes(x = x, y = y, label = slopes), 
-            inherit.aes = FALSE)
-ggsave("figures/rho_hrc_vep_separated.pdf", width = fig.w, height = fig.h)
-
-# vvt
-gg_vot + 
-  aes(y = log(abs(rho_hrc_vvt))) +  labs(y = lar_exp[["hrc_vvt"]]) +
-  geom_label(data = filter(sdf, race == "hrc", est == "rho_vvt", pooled), 
-             aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE)
-ggsave("figures/rho_hrc_vvt_pooled.pdf", width = fig.w, height = fig.h)
-
-gg_vot + 
-  aes(y = log(abs(rho_hrc_vvt))) +  labs(y = lar_exp[["hrc_vvt"]]) +
-  facet_grid( ~ rc_vvt_pos, labeller = labeller(rc_vvt_pos = rho_pos_labs)) +
-  geom_label(data = filter(sdf, race == "hrc", est == "rho_vvt", !pooled), 
-             aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE)
-ggsave("figures/rho_hrc_vvt_separated.pdf", width = fig.w, height = fig.h)
+    
+  # repel text labels?
+  
+  # subset data frame
+  if (subset %in% c("R", "D", "swing")) df_plot <- filter(dat, color == subset)
+  if (subset == "pos") df_plot <- filter(dat, .data[[rho_text]] > 0)
+  if (subset == "neg") df_plot <- filter(dat, .data[[rho_text]] < 0)
+  if (subset == "all") df_plot <- dat
+  
+  # get yvar
+  df_plot <- df_plot %>%
+    mutate(rhovar = .data[[rho_text]])
+  
+  # add log version of x and y variable
+  df_plot <- df_plot %>%
+    mutate(log_abs_rho = log(abs(rhovar)),
+           log_N = log(.data[[N_text]]))
+  
+  # gen file name
+  filename <- paste0(gsub("_", "-", rho_text), "_", "states-", subset, ".pdf")
+  
+  
+  # skeleton
+  gg0 <- ggplot(df_plot, aes(label = st, color = color)) +
+    aes(x = log_N, y = log_abs_rho) +
+    geom_smooth(method = "lm", se = FALSE, color = "gray") +
+    geom_point() +
+    scale_color_manual(values = colorvec)  +
+    theme_bw() +
+    coord_cartesian(ylim = lim_lro, xlim = lim_lpp) +
+    scale_x_continuous(minor_breaks = NULL) +
+    scale_y_continuous(minor_breaks = NULL) +
+    guides(color = FALSE) +
+    labs(y = lar_exp[[lar_code]],
+         x = xlab_text,
+         subtitle = stlab,
+         caption = lab)
+  
+  cat(filename, "\n")
+  ggsave(file.path("figures", filename), gg0, width = fig.w, height = fig.h)
+}
 
 
-# now TRUMP -----
-gg_vot + 
-  aes(y = log(abs(rho_djt_vot))) +  labs(y = lar_exp[["djt_vot"]]) +
-  geom_label(data = filter(sdf, race == "djt", est == "rho_vot", pooled), 
-             aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE)
-ggsave("figures/rho_djt_vot.pdf", width = fig.w, height = fig.h)
-
-
-gg_vep + 
-  aes(y = log(abs(rho_djt_vep))) +  labs(y = lar_exp[["djt_vep"]]) +
-  geom_label(data = filter(sdf, race == "djt", est == "rho_vep", pooled), 
-             aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE)
-ggsave("figures/rho_djt_vep.pdf", width = fig.w, height = fig.h)
-
-
-gg_vot + 
-  aes(y = log(abs(rho_djt_vvt))) +  labs(y = lar_exp[["djt_vvt"]]) +
-  geom_label(data = filter(sdf, race == "djt", est == "rho_vvt", pooled), 
-             aes(x = x, y = y, label = slopes), 
-             inherit.aes = FALSE)
-ggsave("figures/rho_djt_vvt.pdf", width = fig.w, height = fig.h)
-
-
-rm(gg0)
-
-
+# run through all of them
+for (i in which(!is.na(slopes$lab))) {
+  plot_corr(lmrow = i)
+}
 
 
 
 # Histogram of rho ----
-
 
 gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   labs(y = "Count") +
