@@ -73,7 +73,7 @@ Denominator of sample mean
 -   `cces_n_voters`: CCES sample size adjusted for estimated turnout propensity
 -   `cces_n_raw`: CCES raw number of respondents, or unadjusted proxy estimate of eligible population
 -   `cces_n_vv`: CCES number of respondents who matched to the 2016 voter file. This serves as the "true" voters (those who turned out) within the sample.
--   `cces_n_post_voters`: CCES number of respondents who respondend to the post-election survey *and* reported having voted in the 2016 presidential.
+-   `cces_n_post_voters`: CCES number of respondents who responded to the post-election survey *and* reported having voted in the 2016 presidential.
 
 Numerator of sample mean
 
@@ -113,7 +113,7 @@ Parameter Estimates
 Output - Other Estimates
 ========================
 
-The following tables have summary statistics and counts not incuded in the state-level dataset.
+The following tables have summary statistics and counts not included in the state-level dataset.
 
 -   `pres16_US.csv` has total counts of some of the population turnout and voting data in the U.S. population.
 -   `rho_sum_stats.csv` has summary statistics of the *ρ* estimates. Each column is an estimate of a type of rho for a particular type of state (or all states). Each row is a summary statistic, such as 10 percent, 90 percent quantiles, and means.
@@ -123,7 +123,9 @@ Figures
 
 Figures are named according to the following convention
 
--   `rho_*` is a scatter plot of a `rho` estimate on the y-axis and the target *N* on the x-axis. We take logs. `_separated` indicates facetting out cases for which `rho` is positive vs. `rho` is negative. This is an important distinction because we take the absolute value of `rho` before taking the log. `_pooled` prefix indicates that both positive and negative values are pooled. having neither of these prefixes means that they are pooled. For DJT, there was only one positive `rho`, so we remove that observation (D.C.) and show pooled.
+-   `rho-*` is a scatter plot of a `rho` estimate on the y-axis and the target *N* on the x-axis. We take logs, and the OLS slope coefficient is printed in the bottom-right.
+    -   The first part of the filename indicates the estimated *ρ* of interest and takes a `rho`-`[candidate]`-`[specification]` format. For example, `rho-hrc-vot` is the parameter for responding to vote for Hilary Clinton, where the target population is the actual voting population.
+    -   The second part of the filename indicates the subset of observations we look at. `states-D`, `states-R`, `states-swing` indicate that we limit our scatter and coefficients to Blue, Red, and swing states, respectively. `states-pos` and `states-neg` indicate that we limit our scatter and coefficients to states that have positive or negative rho, respectively. This is an important distinction because we take the absolute value of `rho` before taking the log. `states-all` uses all states.
 -   `hist_*` is a histogram of state-level parameters. Mostly these are `rho`
 -   `scatter_*` is a figure that has state-level estimates of a quantity ($\\widehat{\\mu}$) on the x-axis and the observed quantity (*μ*) on the y-axis.
 -   `map_*` shows a quantity of interest in a simplified map (cartogram)
@@ -349,9 +351,19 @@ df$rho_vvt <- rho_estimate(N = "tot_votes",
                            n = "cces_n_vv")
 ```
 
-I did the same for Trump voters ( *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**v**t*</sub>), where all estimates of Clinton were replaced with their Trump equivalents.
+Based on data from post-election survey
+---------------------------------------
 
-Figures as PDFs are in `figures`.
+For *ρ*<sub>*H**R**C*, *p**o**s**t*</sub> we use
+
+``` r
+rho_hrc_pst = rho_estimate(N = "tot_votes",
+                           mu = "pct_hrc_voters",
+                           muhat = "cces_pct_hrc_voters_post",
+                           n = "cces_n_post_voters")
+```
+
+I did the same for Trump voters ( *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**v**t*</sub>, *ρ*<sub>*D**J**T*, *p**o**s**t*</sub>), where all estimates of Clinton were replaced with their Trump equivalents.
 
 References
 ==========
