@@ -14,6 +14,7 @@ tab_cc <- cc_raw %>%
   summarize(cces_n_raw = n(),
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_n_vv = sum(vv_turnout, na.rm = TRUE),
+            cces_n_post_voters = sum(post_turnout, na.rm = TRUE),
             cces_tothrc_raw = sum(vote_hrc_pre, na.rm = TRUE),
             cces_totdjt_raw = sum(vote_djt_pre, na.rm = TRUE),
             cces_tothrc_raw_post = sum(vote_hrc_post, na.rm = TRUE),
