@@ -38,18 +38,3 @@ tab_cc
 
 saveRDS(tab_cc, "data/output/cc_tabulation_state.rds")
   
-
-
-
-# post survey results
-cc_raw %>% 
-  filter(combined_pres_pre == 5, tookpost == 1, voted_pres_16 != 99) %>% 
-  group_by(combined_pres_pre) %>%
-  summarize(djt_among_undecided = mean(vote_djt_post, na.rm = TRUE),
-            hrc_among_undecided = mean(vote_hrc_post, na.rm = TRUE),
-            n = n())
-
-cc_raw %>% 
-  filter(tookpost == 1) %>% 
-  group_by(combined_pres_pre) %>%
-  summarize(n = n())
