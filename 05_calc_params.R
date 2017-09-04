@@ -52,6 +52,10 @@ df <- df %>%
                                     mu = "pct_hrc_voters",
                                     muhat = "cces_pct_hrc_vv",
                                     n = "cces_n_vv"),
+         rho_hrc_pst = rho_estimate(N = "tot_votes",
+                                    mu = "pct_hrc_voters",
+                                    muhat = "cces_pct_hrc_voters_post",
+                                    n = "cces_n_post_voters"),
          rho_djt_vot = rho_estimate(N = "tot_votes",
                                     mu = "pct_djt_voters",
                                     muhat = "cces_pct_djt_voters",
@@ -64,7 +68,11 @@ df <- df %>%
          rho_djt_vvt = rho_estimate(N = "tot_votes",
                                     mu = "pct_djt_voters",
                                     muhat = "cces_pct_djt_vv",
-                                    n = "cces_n_vv")
+                                    n = "cces_n_vv"),
+         rho_djt_pst = rho_estimate(N = "tot_votes",
+                                    mu = "pct_djt_voters",
+                                    muhat = "cces_pct_djt_voters_post",
+                                    n = "cces_n_post_voters")
   )
 
 

@@ -1,2 +1,2 @@
-vap,vep,votes_hrc,votes_djt,tot_votes,cces_tothrc_raw,cces_tothrc_adj_trn,cces_tothrc_vv,cces_totdjt_raw,cces_totdjt_adj_trn,cces_totdjt_vv,cces_n_raw,cces_n_voters,cces_n_vv
-250055733,226076954,65853516,62984824,136639786,28333,23123.7,15809,19705,16114.2,11826,64600,48106.2,34156
+vap,vep,votes_hrc,votes_djt,tot_votes,cces_tothrc_raw,cces_tothrc_raw_post,cces_tothrc_adj_trn,cces_tothrc_vv,cces_totdjt_raw,cces_totdjt_raw_post,cces_totdjt_adj_trn,cces_totdjt_vv,cces_n_raw,cces_n_voters,cces_n_vv,cces_n_post_voters
+250055733,226076954,65853516,62984824,136639786,28333,22136,23123.7,15809,19705,18755,16114.2,11826,64600,48106.2,34156,45292

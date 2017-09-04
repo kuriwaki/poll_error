@@ -74,18 +74,22 @@ lar_exp <-
   list(hrc_vot = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")),
        hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
        hrc_vvt = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       hrc_pst = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[post]])), ")")),
        djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")),
        djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")))
+       djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       djt_pst = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")))
 
 # normal stuff
 rho_exp <- 
   list(hrc_vot = expression(Clinton~~italic(widehat(italic(rho))[N[avp]])),
        hrc_vep = expression(Clinton~~italic(widehat(italic(rho))[N[vep]])),
        hrc_vvt = expression(Clinton~~italic(widehat(italic(rho))[N[vv]])),
+       hrc_pst = expression(Clinton~~italic(widehat(italic(rho))[N[post]])),
        djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
        djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])),
-       djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N[vv]])))
+       djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N[vv]])),
+       djt_pst = expression(Trump~~italic(widehat(italic(rho))[N[post]])))
 
 # titles
 eff_t <- list(
@@ -101,7 +105,7 @@ eff_t <- list(
 
 
 
-# plots for rho ---------
+# plots for rho vs. N ---------
 
 # can't run a regression with only one data point
 stopifnot(sum(df$rt_vep_pos == TRUE) <= 1)
@@ -122,6 +126,8 @@ slopes <- c(lm_eqn(ff = "log(abs(rho_hrc_vot)) ~ log(tot_votes)", df),
             lm_eqn(ff = "log(abs(rho_djt_vvt)) ~ log(tot_votes)", df)
 )
 
+# need to merge safely with sdf.
+
 sdf <- tibble(est = rep(c("rho_vot", "rho_vep", "rho_vvt"), each = 3),
               race = "hrc",
               x = rep(c(16.75, 16.75, 16.75), each = 3),
@@ -134,8 +140,8 @@ sdf <- tibble(est = rep(c("rho_vot", "rho_vep", "rho_vvt"), each = 3),
                    race = "djt",
                    x = rep(c(16.75, 16.75, 16.75), 1),
                    y = rep(c(-9.5, -9.5, -9.5), 1),
-                   pooled = c(TRUE, TRUE, TRUE))) %>%
-  add_column(slopes = slopes)
+                   pooled =  vc(TRUE, TRUE, TRUE))) %>%
+  add_column(slope_key = c(""))
 
 
 # template
@@ -237,7 +243,7 @@ rm(gg0)
 
 
 
-# Histogram ----
+# Histogram of rho ----
 
 
 gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
@@ -251,12 +257,14 @@ gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
 gg0 + aes(x = rho_hrc_vot) + labs(x = rho_exp[["hrc_vot"]])
 ggsave("figures/hist_rho_hrc_vot.pdf", width = fig.w, height = fig.h)
 
-gg0 + aes(x = rho_hrc_vep) + labs(x = rho_exp[["hrc_vep"]]) +
+gg0 + aes(x = rho_hrc_vep) + labs(x = rho_exp[["hrc_vep"]])
 ggsave("figures/hist_rho_hrc_vep.pdf", width = fig.w, height = fig.h)
 
-gg0 + aes(x = rho_hrc_vvt) + labs(x = rho_exp[["hrc_vvt"]]) +
-  ggsave("figures/hist_rho_hrc_vvt.pdf", width = fig.w, height = fig.h)
+gg0 + aes(x = rho_hrc_vvt) + labs(x = rho_exp[["hrc_vvt"]])
+ggsave("figures/hist_rho_hrc_vvt.pdf", width = fig.w, height = fig.h)
 
+gg0 + aes(x = rho_hrc_pst) + labs(x = rho_exp[["hrc_pst"]])
+ggsave("figures/hist_rho_hrc_post.pdf", width = fig.w, height = fig.h)
 
 gg0 + aes(x = rho_djt_vot) + labs(x = rho_exp[["djt_vot"]])
 ggsave("figures/hist_rho_djt_vot.pdf", width = fig.w, height = fig.h)
@@ -267,7 +275,11 @@ ggsave("figures/hist_rho_djt_vep.pdf", width = fig.w, height = fig.h)
 gg0 + aes(x = rho_djt_vvt) + labs(x = rho_exp[["djt_vvt"]])
 ggsave("figures/hist_rho_djt_vvt.pdf", width = fig.w, height = fig.h)
   
+
+gg0 + aes(x = rho_djt_pst) + labs(x = rho_exp[["djt_pst"]])
+ggsave("figures/hist_rho_djt_post.pdf", width = fig.w, height = fig.h)
   
+# Histogram of cv_turnout
 ggplot(df, aes(x = cv_turnout_wgt)) +
   geom_histogram(bins = 25) + theme_bw() +
   labs(x = "Coefficient of Variation of Turnout Adjustment Weights", y = "Count")
