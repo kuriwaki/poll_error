@@ -13,9 +13,6 @@ fig.h <- 4*0.751
 mfig.w <- fig.w
 
 
-# clear ----
-fig_pdfs <- list.files("figures", pattern = "pdf$", full.names = TRUE)
-file.remove(fig_pdfs)
 
 
 # labels -----
@@ -95,6 +92,9 @@ eff_t <- list(
 )
 
 
+# clear ----
+fig_pdfs <- list.files("figures", pattern = "pdf$", full.names = TRUE)
+file.remove(fig_pdfs)
 
 
 
@@ -112,6 +112,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   rho_type <- slope_i$rho_type
   rho_text <- slope_i$rho_text
   N_text <- slope_i$N_text
+  filename <- paste0("rho-", slope_i$id_descrip, ".pdf")
   lab <- slope_i$lab
   
   # pretty labels 
@@ -146,8 +147,6 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     mutate(log_abs_rho = log(abs(rhovar)),
            log_N = log(.data[[N_text]]))
   
-  # gen file name
-  filename <- paste0(gsub("_", "-", rho_text), "_", "states-", subset, ".pdf")
   
   
   # skeleton
@@ -176,6 +175,28 @@ for (i in which(!is.na(slopes$lab))) {
   plot_corr(lmrow = i)
 }
 
+
+# show distribution of slopes -----
+coef_plot <- slopes %>% 
+  arrange(coef) %>% 
+  mutate(descrip = forcats::as_factor(gsub("(hrc|djt)-", "", descrip)),
+         ymin = coef - qnorm(0.975)*se,
+         ymax = coef + qnorm(0.975)*se) 
+
+candlab <- c("hrc" = "Clinton Support Responses",
+             "djt" = "Trump Support Responses")
+
+ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax)) +
+  facet_grid(~cand, labeller = labeller(cand = candlab)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_pointrange(shape = 18) +
+  coord_flip() +
+  theme_bw() +
+  labs(x = "Specifications of rho",
+       y = "Slope coefficient from log(abs(rho)) regressed on log(N), with 95 percent CI",
+       caption = "Specifications roughly ordered by magnitude of coefficient.
+       Missing values occur when there were\n too few observations (3 or less) to calculate a slope.")
+ggsave("figures/corr-rho-N_intervals.pdf", w = 1.5*fig.w, h = 1.5*fig.h)
 
 
 # Histogram of rho ----
