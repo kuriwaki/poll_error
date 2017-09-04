@@ -27,3 +27,6 @@ vignettes/*.pdf
 .DS_Store
 data/.DS_Store
 data/input/.DS_Store
+
+# let's not store figures
+figures/*pdf
