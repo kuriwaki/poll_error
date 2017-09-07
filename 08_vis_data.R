@@ -112,7 +112,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   rho_type <- slope_i$rho_type
   rho_text <- slope_i$rho_text
   N_text <- slope_i$N_text
-  filename <- paste0("rho-", slope_i$id_descrip, ".pdf")
+  filename <- paste0("rho-", slope_i$descrip, ".pdf")
   lab <- slope_i$lab
   
   # pretty labels 
@@ -186,8 +186,9 @@ coef_plot <- slopes %>%
 candlab <- c("hrc" = "Clinton Support Responses",
              "djt" = "Trump Support Responses")
 
-ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax)) +
+ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = subset)) +
   facet_grid(~cand, labeller = labeller(cand = candlab)) +
+  scale_color_manual(values = c(colorvec, "all" = "black", "pos" = "gray", "neg" = "darkgray")) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_pointrange(shape = 18) +
   coord_flip() +
