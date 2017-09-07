@@ -65,10 +65,13 @@ lar_exp <-
        hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
        hrc_vvt = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
        hrc_pst = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[post]])), ")")),
+       hcu_vot = expression(log~bgroup("(", abs(~Clinton+Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
        djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")),
        djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
        djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")),
-       djt_pst = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")))
+       djt_pst = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")),
+       dtu_vot = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[avp]])), ")"))
+  )
 
 # normal stuff
 rho_exp <- 
@@ -179,25 +182,48 @@ for (i in which(!is.na(slopes$lab))) {
 # show distribution of slopes -----
 coef_plot <- slopes %>% 
   arrange(coef) %>% 
-  mutate(descrip = forcats::as_factor(gsub("(hrc|djt)-", "", descrip)),
+  mutate(descrip = forcats::as_factor(gsub("(hrc|djt|hcu|dtu)-", "", descrip)),
+         descrip = forcats::as_factor(gsub("_states-", "; ", descrip)),
+         cand = factor(cand, levels = c("hrc", "djt", "hcu", "dtu")),
+         emph = case_when(subset == "all" ~ "1", subset != "all" ~ "0"),
          ymin = coef - qnorm(0.975)*se,
          ymax = coef + qnorm(0.975)*se) 
 
 candlab <- c("hrc" = "Clinton Support Responses",
-             "djt" = "Trump Support Responses")
+             "djt" = "Trump Support Responses",
+             "hcu" = "Clinton + Undecideds Responses",
+             "dtu" = "Trump + Undecideds Response")
 
-ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = subset)) +
-  facet_grid(~cand, labeller = labeller(cand = candlab)) +
-  scale_color_manual(values = c(colorvec, "all" = "black", "pos" = "gray", "neg" = "darkgray")) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
+colorvec_pn <- c(colorvec, 
+                 "all" = "black",
+                 "pos" = "#ff7f00",
+                 "neg" = "#6a3d9a")
+
+labvec <- c("D" = "Blue states",
+            "R" = "Red states", 
+            "swing" = "Swing states", 
+            "all" = "All states",
+            "pos" = "rho > 0 (overestimates)",
+            "neg" = "rho < 0 (underestimates)")
+
+ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = subset, size = emph)) +
+  facet_wrap(~cand, labeller = labeller(cand = candlab), nrow = 2) +
+  theme(axis.line=element_line()) + 
+  scale_color_manual(name = "States used", values = colorvec_pn, labels = labvec) +
+  geom_hline(yintercept = 0, linetype = "solid", color = "darkgray") +
+  geom_hline(yintercept = -0.5, linetype = "dashed") +
   geom_pointrange(shape = 18) +
+  scale_y_continuous(minor_breaks = NULL) +
+  scale_size_manual(values = c("1" = 0.75, "0" = 0.5)) +
+  guides(size = FALSE, color = guide_legend(nrow = 1)) +
   coord_flip() +
   theme_bw() +
+  theme(legend.position = "bottom") +
   labs(x = "Specifications of rho",
        y = "Slope coefficient from log(abs(rho)) regressed on log(N), with 95 percent CI",
        caption = "Specifications roughly ordered by magnitude of coefficient.
-       Missing values occur when there were\n too few observations (3 or less) to calculate a slope.")
-ggsave("figures/corr-rho-N_intervals.pdf", w = 1.5*fig.w, h = 1.5*fig.h)
+       Missing values occur when there were too few observations (3 or less) to calculate a slope.")
+ggsave("figures/corr-rho-N_intervals.pdf", w = 1.9*fig.w, h = 2.1*fig.h)
 
 
 # Histogram of rho ----
@@ -300,49 +326,55 @@ gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color
 # Hillary
 gg_hrc <- gg0 +
   annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
-  annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
+  annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
   labs(y = "Final Clinton Popular Vote Share")
 
-gg_hrc + aes(x = cces_pct_hrc_voters) +
+hrc_vot <- gg_hrc + aes(x = cces_pct_hrc_voters) +
   xlab("Turnout-adjusted Poll Estimate, Clinton Support")
 ggsave("figures/scatter_hrc_turnout_adj.pdf", h = fig.h, w = fig.w)
 
-gg_hrc + aes(x = cces_pct_hrc_raw) +
+hrc_raw <- gg_hrc + aes(x = cces_pct_hrc_raw) +
   xlab("Raw Poll Estimate, Clinton Suport")
 ggsave("figures/scatter_hrc_raw.pdf", h = fig.h, w = fig.w)
 
-gg_hrc + aes(x = cces_pct_hrc_vv) +
+hrc_vvt <- gg_hrc + aes(x = cces_pct_hrc_vv) +
   xlab("Poll Estimate among Validated Voters, Clinton Suport")
 ggsave("figures/scatter_hrc_vv.pdf", h = fig.h, w = fig.w)
 
-gg_hrc + aes(x = cces_pct_hrc_voters_post) +
+hrc_pst <- gg_hrc + aes(x = cces_pct_hrc_voters_post) +
   xlab("Poll Estimate from Post-Election wave, Clinton Suport")
 ggsave("figures/scatter_hrc_post.pdf", h = fig.h, w = fig.w)
 
+hcu_vot <- gg_hrc + aes(x = cces_pct_hrcund_voters) +
+  xlab("Turnout-adjusted Poll Estimate, Clinton + Undecideds")
+ggsave("figures/scatter_hcu_turnout_adj.pdf", h = fig.h, w = fig.w)
 
 
 # Trump
 gg_djt <- gg0 + aes(y = pct_djt_voters) +
   annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
-  annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
+  annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
   labs(y = "Final Trump Popular Vote Share")
 
-gg_djt + aes(x = cces_pct_djt_voters) +
+djt_vot <- gg_djt + aes(x = cces_pct_djt_voters) +
   xlab("Turnout-adjusted Poll Estimate, Trump Support")
 ggsave("figures/scatter_djt_turnout_adj.pdf", h = fig.h, w = fig.w)
 
-gg_djt + aes(x = cces_pct_djt_raw) +
+djt_raw <- gg_djt + aes(x = cces_pct_djt_raw) +
   xlab("Raw Poll Estimate, Trump Suport")
 ggsave("figures/scatter_djt_raw.pdf", h = fig.h, w = fig.w)
 
-gg_djt + aes(x = cces_pct_djt_vv) +
+djt_vvt <- gg_djt + aes(x = cces_pct_djt_vv) +
   xlab("Poll Estimate among Validated Voters, Trump Suport")
 ggsave("figures/scatter_djt_vv.pdf", h = fig.h, w = fig.w)
 
-gg_djt + aes(x = cces_pct_djt_voters_post) +
+djt_pst <- gg_djt + aes(x = cces_pct_djt_voters_post) +
   xlab("Poll Estimate from Post-Election wave, Trump Suport")
 ggsave("figures/scatter_djt_post.pdf", h = fig.h, w = fig.w)
 
+dtu_vot <- gg_djt + aes(x = cces_pct_djtund_voters) +
+  xlab("Turnout-adjusted Poll Estimate, Trump + Undecided")
+ggsave("figures/scatter_dtu_turnout_adj.pdf", h = fig.h, w = fig.w)
 
 
 

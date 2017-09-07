@@ -20,6 +20,7 @@ cc16 <- cc16_full %>%
          combined_pres_pre = coalesce(zap_labels(intent_pres_16), zap_labels(ev_pres_16)),
          vote_hrc_pre = as.numeric(combined_pres_pre == 2),
          vote_djt_pre = as.numeric(combined_pres_pre == 1),
+         vote_und_pre = as.numeric(combined_pres_pre == 7),
          vote_hrc_post = as.numeric(voted_pres_16 == 2),
          vote_djt_post = as.numeric(voted_pres_16 == 1),
          turnout_wgt = case_when(intent_turnout == 3 ~ 1.0,
