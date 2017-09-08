@@ -331,23 +331,23 @@ gg_hrc <- gg0 +
 
 hrc_vot <- gg_hrc + aes(x = cces_pct_hrc_voters) +
   xlab("Turnout-adjusted Poll Estimate, Clinton Support")
-ggsave("figures/scatter_hrc_turnout_adj.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_hrc_turnout-adj.pdf", hrc_vot, h = fig.h, w = fig.w)
 
 hrc_raw <- gg_hrc + aes(x = cces_pct_hrc_raw) +
   xlab("Raw Poll Estimate, Clinton Suport")
-ggsave("figures/scatter_hrc_raw.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_hrc_raw.pdf", hrc_raw, h = fig.h, w = fig.w)
 
 hrc_vvt <- gg_hrc + aes(x = cces_pct_hrc_vv) +
   xlab("Poll Estimate among Validated Voters, Clinton Suport")
-ggsave("figures/scatter_hrc_vv.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_hrc_valid-vot.pdf", hrc_vvt, h = fig.h, w = fig.w)
 
 hrc_pst <- gg_hrc + aes(x = cces_pct_hrc_voters_post) +
   xlab("Poll Estimate from Post-Election wave, Clinton Suport")
-ggsave("figures/scatter_hrc_post.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_hrc_post.pdf", hrc_pst, h = fig.h, w = fig.w)
 
 hcu_vot <- gg_hrc + aes(x = cces_pct_hrcund_voters) +
   xlab("Turnout-adjusted Poll Estimate, Clinton + Undecideds")
-ggsave("figures/scatter_hcu_turnout_adj.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_hcu_turnout-adj.pdf", hcu_vot, h = fig.h, w = fig.w)
 
 
 # Trump
@@ -358,24 +358,34 @@ gg_djt <- gg0 + aes(y = pct_djt_voters) +
 
 djt_vot <- gg_djt + aes(x = cces_pct_djt_voters) +
   xlab("Turnout-adjusted Poll Estimate, Trump Support")
-ggsave("figures/scatter_djt_turnout_adj.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_djt_turnout-adj.pdf", djt_vot, h = fig.h, w = fig.w)
 
 djt_raw <- gg_djt + aes(x = cces_pct_djt_raw) +
   xlab("Raw Poll Estimate, Trump Suport")
-ggsave("figures/scatter_djt_raw.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_djt_raw.pdf", djt_raw, h = fig.h, w = fig.w)
 
 djt_vvt <- gg_djt + aes(x = cces_pct_djt_vv) +
   xlab("Poll Estimate among Validated Voters, Trump Suport")
-ggsave("figures/scatter_djt_vv.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_djt_valid-vot.pdf", djt_vvt, h = fig.h, w = fig.w)
 
 djt_pst <- gg_djt + aes(x = cces_pct_djt_voters_post) +
   xlab("Poll Estimate from Post-Election wave, Trump Suport")
-ggsave("figures/scatter_djt_post.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_djt_post.pdf", djt_pst, h = fig.h, w = fig.w)
 
 dtu_vot <- gg_djt + aes(x = cces_pct_djtund_voters) +
   xlab("Turnout-adjusted Poll Estimate, Trump + Undecided")
-ggsave("figures/scatter_dtu_turnout_adj.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter_dtu_turnout-adj.pdf", dtu_vot, h = fig.h, w = fig.w)
 
+
+votes_list <- list(hrc_vot, djt_vot,
+                   hrc_raw, djt_raw,
+                   hrc_vvt, djt_vvt,
+                   hrc_pst, djt_pst,
+                   hcu_vot, dtu_vot)
+
+
+grp <- plot_grid(plotlist = votes_list, ncol = 2)
+ggsave("figures/scatter_all.pdf", h = fig.h*4, w = fig.w*1.8)
 
 
 # Turnout
