@@ -46,7 +46,7 @@ df <- df %>%
                                     cv = "cv_turnout_wgt"),
          rho_hrc_vep = rho_estimate(N = "vep",
                                     mu = "pct_hrc_voters",
-                                    muhat = "cces_pct_hrc_raw",
+                                    muhat = "cces_pct_hrc_raw", # flag
                                     n = "cces_n_raw"),
          rho_hrc_vvt = rho_estimate(N = "tot_votes",
                                     mu = "pct_hrc_voters",
@@ -61,6 +61,17 @@ df <- df %>%
                                     muhat = "cces_pct_hrcund_voters",
                                     n = "cces_n_voters",
                                     cv = "cv_turnout_wgt"),
+         rho_hcu_vep = rho_estimate(N = "vep",
+                                    mu = "pct_hrc_voters",
+                                    muhat = "cces_pct_hrcund_raw",
+                                    n = "cces_n_raw"),
+         rho_hcu_vvt = rho_estimate(N = "tot_votes",
+                                    mu = "pct_hrc_voters",
+                                    muhat = "cces_pct_hrcund_vv",
+                                    n = "cces_n_vv")) # no post in hcu
+
+df <- df %>% 
+  mutate(
          rho_djt_vot = rho_estimate(N = "tot_votes",
                                     mu = "pct_djt_voters",
                                     muhat = "cces_pct_djt_voters",
@@ -82,8 +93,15 @@ df <- df %>%
                                     mu = "pct_djt_voters",
                                     muhat = "cces_pct_djtund_voters",
                                     n = "cces_n_voters",
-                                    cv = "cv_turnout_wgt")
-  )
+                                    cv = "cv_turnout_wgt"),
+         rho_dtu_vep = rho_estimate(N = "vep",
+                                    mu = "pct_hrc_voters",
+                                    muhat = "cces_pct_djtund_raw",
+                                    n = "cces_n_raw"),
+         rho_dtu_vvt = rho_estimate(N = "tot_votes",
+                                    mu = "pct_hrc_voters",
+                                    muhat = "cces_pct_djtund_vv",
+                                    n = "cces_n_vv"))
 
 
 # Estimate n_eff ----
