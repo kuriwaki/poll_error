@@ -181,7 +181,7 @@ for (i in which(!is.na(slopes$lab))) {
 
 # show distribution of slopes -----
 coef_plot <- slopes %>% 
-  arrange(coef) %>% 
+  arrange(rho_type, subset) %>% 
   mutate(descrip = forcats::as_factor(gsub("(hrc|djt|hcu|dtu)-", "", descrip)),
          descrip = forcats::as_factor(gsub("_states-", "; ", descrip)),
          cand = factor(cand, levels = c("hrc", "djt", "hcu", "dtu")),

@@ -53,7 +53,7 @@ reg_specs <- tibble(cand = c("hrc", "djt", "hcu", "dtu", rep(NA, 2)),
                     subset = c("all", "R", "D", "swing", "pos", "neg"),
                     rho_type = c("vot", "vep", "vvt", "pst", rep(NA, 2))) %>%
   complete(cand, subset, rho_type) %>%
-  filter(!(grepl("u", cand) & rho_type != "vot")) # these don't apply
+  filter(!(grepl("u", cand) & rho_type == "pst")) # these don't apply
 
 rho_N <- tibble(rho_type = c("vot", "vep", "vvt", "pst"),
                 N_type = c("tot_votes", "vep", "tot_votes", "tot_votes"))
