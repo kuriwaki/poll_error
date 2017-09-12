@@ -232,7 +232,7 @@ ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = s
   theme(legend.position = "bottom") +
   labs(x = "Specifications of rho",
        y = "Slope coefficient from log(abs(rho)) regressed on log(N), with 95 percent CI",
-       caption = "Specifications roughly ordered by magnitude of coefficient.
+       caption = "Points ordered by specification then by color.
        Missing values occur when there were too few observations (3 or less) to calculate a slope.")
 ggsave("figures/corr-rho-N_intervals.pdf", w = 1.9*fig.w, h = 2.1*fig.h)
 
