@@ -6,6 +6,7 @@ library(readr)
 library(ggrepel)
 library(dplyr)
 library(tibble)
+library(foreach)
 
 
 fig.w <- 6*0.80
@@ -299,11 +300,32 @@ ggsave("figures/logabsrho_transformation.pdf", w = fig.w, h = fig.h)
 rm(gg0)
 
 # Scatter ------
-captext <- "Source: CCES 2016 Common Content." #\nSized proportional to population.\n States colored by R (red) or D (blue) or swing (green)."
 fig.w <- 1.2*fig.w*0.8
 fig.h <- 1.2*fig.h
 
 
+
+muhats <- grep("cces_pct_", colnames(df), value = TRUE)
+muhats <- setdiff(muhats, grep("vep", muhats, value = TRUE))
+
+
+# make data frame for plots top print
+sct_labs <- tibble(var_name = muhats)
+sct_labs <- sct_labs %>%
+  mutate(cand = case_when(grepl("cces_pct_h", var_name) ~ "H",
+                          grepl("cces_pct_d", var_name) ~ "T")) %>%
+  mutate(est_t = case_when(grepl("raw$", var_name) ~ "Raw ",
+                           grepl("voters$", var_name) ~ "Turnout-adjusted ",
+                           grepl("vv$", var_name) ~ "Validated Voter ",
+                           grepl("post$", var_name) ~ "Post-Election Wave ")) %>%
+  mutate(cand_t = case_when(grepl("_hrc_", var_name) ~ "Clinton Support",
+                            grepl("_hrcund_", var_name) ~ "Clinton + Undecideds",
+                            grepl("_djt_", var_name) ~ "Trump Support",
+                            grepl("_djtund_", var_name) ~ "Trump + Undecideds")) %>%
+  mutate(xlab_text = paste0(est_t, "Poll Estimate, ", cand_t))
+
+
+# starting scatter
 gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color, size = vap)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   scale_x_continuous(limits = c(0, 1), label = percent, minor_breaks = NULL) +
@@ -313,74 +335,73 @@ gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color
   coord_equal() +
   theme_bw() +
   geom_point(alpha = 0.8) +
-  theme(plot.caption = element_text(size = 8)) +
-  labs(caption = captext)
+  theme(plot.caption = element_text(size = 8))
+
+# loop through and list
+sct_gglist <- foreach(i = 1:nrow(sct_labs)) %do% {
+  
+  if (sct_labs$cand[i] == "H") {
+    mu <- df$pct_hrc_voters
+    gg <- gg0 +
+      annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
+      annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
+      labs(y = "Final Clinton Popular Vote Share")
+  }
+  
+  if (sct_labs$cand[i] == "T") {
+    mu <- df$pct_djt_voters
+    gg <- gg0 + aes(y = pct_djt_voters) +
+      annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
+      annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
+      labs(y = "Final Trump Popular Vote Share")
+  }
+  
+  rmse <- sqrt(mean((mu - df[[sct_labs$var_name[i]]])^2))
+  
+  gg <- gg + aes_string(x = sct_labs$var_name[i]) +
+    xlab(sct_labs$xlab_text[i]) +
+    labs(caption = paste0("Root Mean Squared Error: ", sprintf("%3.2f", rmse)))
+  
+  return(gg)
+}
+
+names(sct_gglist) <- sct_labs$var_name
 
 
-# Hillary
-gg_hrc <- gg0 +
-  annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
-  annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
-  labs(y = "Final Clinton Popular Vote Share")
+# plot one by one
+for (fnames in names(sct_gglist)) {
+  est_name <- gsub("cces_pct_", "", fnames)
+  est_name <- gsub("voters_post", "pst", est_name)
+  est_name <- gsub("vv", "vvt", est_name)
+  est_name <- gsub("voters", "vot", est_name)
+  est_name <- gsub("hrcund", "hcu", est_name)
+  est_name <- gsub("djtund", "dtu", est_name)
+  
+  ggsave(paste0("figures/scatter_", est_name, ".pdf"), 
+         plot = sct_gglist[[fnames]],
+         h = fig.h, w = fig.w)
+}
 
-hrc_vot <- gg_hrc + aes(x = cces_pct_hrc_voters) +
-  xlab("Turnout-adjusted Poll Estimate, Clinton Support")
-ggsave("figures/scatter_hrc_turnout-adj.pdf", hrc_vot, h = fig.h, w = fig.w)
-
-hrc_raw <- gg_hrc + aes(x = cces_pct_hrc_raw) +
-  xlab("Raw Poll Estimate, Clinton Suport")
-ggsave("figures/scatter_hrc_raw.pdf", hrc_raw, h = fig.h, w = fig.w)
-
-hrc_vvt <- gg_hrc + aes(x = cces_pct_hrc_vv) +
-  xlab("Poll Estimate among Validated Voters, Clinton Suport")
-ggsave("figures/scatter_hrc_valid-vot.pdf", hrc_vvt, h = fig.h, w = fig.w)
-
-hrc_pst <- gg_hrc + aes(x = cces_pct_hrc_voters_post) +
-  xlab("Poll Estimate from Post-Election wave, Clinton Suport")
-ggsave("figures/scatter_hrc_post.pdf", hrc_pst, h = fig.h, w = fig.w)
-
-hcu_vot <- gg_hrc + aes(x = cces_pct_hrcund_voters) +
-  xlab("Turnout-adjusted Poll Estimate, Clinton + Undecideds")
-ggsave("figures/scatter_hcu_turnout-adj.pdf", hcu_vot, h = fig.h, w = fig.w)
+ord_labs <- sort(sct_labs$var_name)
+stopifnot(length(ord_labs) == 14)  # for grid
+ord_gg <- sct_gglist[ord_labs]
 
 
-# Trump
-gg_djt <- gg0 + aes(y = pct_djt_voters) +
-  annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
-  annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
-  labs(y = "Final Trump Popular Vote Share")
-
-djt_vot <- gg_djt + aes(x = cces_pct_djt_voters) +
-  xlab("Turnout-adjusted Poll Estimate, Trump Support")
-ggsave("figures/scatter_djt_turnout-adj.pdf", djt_vot, h = fig.h, w = fig.w)
-
-djt_raw <- gg_djt + aes(x = cces_pct_djt_raw) +
-  xlab("Raw Poll Estimate, Trump Suport")
-ggsave("figures/scatter_djt_raw.pdf", djt_raw, h = fig.h, w = fig.w)
-
-djt_vvt <- gg_djt + aes(x = cces_pct_djt_vv) +
-  xlab("Poll Estimate among Validated Voters, Trump Suport")
-ggsave("figures/scatter_djt_valid-vot.pdf", djt_vvt, h = fig.h, w = fig.w)
-
-djt_pst <- gg_djt + aes(x = cces_pct_djt_voters_post) +
-  xlab("Poll Estimate from Post-Election wave, Trump Suport")
-ggsave("figures/scatter_djt_post.pdf", djt_pst, h = fig.h, w = fig.w)
-
-dtu_vot <- gg_djt + aes(x = cces_pct_djtund_voters) +
-  xlab("Turnout-adjusted Poll Estimate, Trump + Undecided")
-ggsave("figures/scatter_dtu_turnout-adj.pdf", dtu_vot, h = fig.h, w = fig.w)
+ord_gg_16 <- c(ord_gg[1:6], 
+               NA, 
+               ord_gg[7], 
+               ord_gg[8:13],
+               NA,
+               ord_gg[14])
 
 
-votes_list <- list(hrc_vot, djt_vot,
-                   hrc_raw, djt_raw,
-                   hrc_vvt, djt_vvt,
-                   hrc_pst, djt_pst,
-                   hcu_vot, dtu_vot)
+gg16 <- plot_grid(ord_gg[[1]], ord_gg[[2]], ord_gg[[3]], ord_gg[[4]],
+          ord_gg[[5]], ord_gg[[6]], NULL, ord_gg[[7]],
+          ord_gg[[8]], ord_gg[[9]], ord_gg[[10]], ord_gg[[11]],
+          ord_gg[[12]], ord_gg[[13]], NULL, ord_gg[[14]],
+          nrow = 4)
 
-
-grp <- plot_grid(plotlist = votes_list, ncol = 2)
-ggsave("figures/scatter_all.pdf", h = fig.h*4, w = fig.w*1.8)
-
+save_plot("figures/scatter_all.pdf", gg16, ncol = 4, nrow = 4)
 
 # Turnout
 gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
