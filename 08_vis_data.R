@@ -66,23 +66,33 @@ lar_exp <-
        hrc_vvt = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
        hrc_pst = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[post]])), ")")),
        hcu_vot = expression(log~bgroup("(", abs(~Clinton+Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       hcu_vep = expression(log~bgroup("(", abs(~Clinton+Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       hcu_vvt = expression(log~bgroup("(", abs(~Clinton+Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
        djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")),
        djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
        djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")),
        djt_pst = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")),
-       dtu_vot = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[avp]])), ")"))
+       dtu_vot = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       dtu_vep = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       dtu_vvt = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[vv]])), ")"))
   )
 
-# normal stuff
+# normal rho
 rho_exp <- 
   list(hrc_vot = expression(Clinton~~italic(widehat(italic(rho))[N[avp]])),
        hrc_vep = expression(Clinton~~italic(widehat(italic(rho))[N[vep]])),
        hrc_vvt = expression(Clinton~~italic(widehat(italic(rho))[N[vv]])),
        hrc_pst = expression(Clinton~~italic(widehat(italic(rho))[N[post]])),
+       hcu_vot = expression(Clinton+Undecided~~italic(widehat(italic(rho))[N[avp]])),
+       hcu_vep = expression(Clinton+Undecided~~italic(widehat(italic(rho))[N[vep]])),
+       hcu_vvt = expression(Clinton+Undecided~~italic(widehat(italic(rho))[N[vv]])),
        djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
        djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])),
        djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N[vv]])),
-       djt_pst = expression(Trump~~italic(widehat(italic(rho))[N[post]])))
+       djt_pst = expression(Trump~~italic(widehat(italic(rho))[N[post]])),
+       dtu_vot = expression(Trump+Undecided~~italic(widehat(italic(rho))[N[avp]])),
+       dtu_vep = expression(Trump+Undecided~~italic(widehat(italic(rho))[N[vep]])),
+       dtu_vvt = expression(Trump+Undecided~~italic(widehat(italic(rho))[N[vv]])))
 
 # titles
 eff_t <- list(
@@ -236,31 +246,15 @@ gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   geom_histogram(binwidth = 0.001) + theme_bw()
   
 
-gg0 + aes(x = rho_hrc_vot) + labs(x = rho_exp[["hrc_vot"]])
-ggsave("figures/hist_rho_hrc_vot.pdf", width = fig.w, height = fig.h)
+rho_vec <- names(rho_exp)
 
-gg0 + aes(x = rho_hrc_vep) + labs(x = rho_exp[["hrc_vep"]])
-ggsave("figures/hist_rho_hrc_vep.pdf", width = fig.w, height = fig.h)
+for (rho_name in rho_vec) {
+  var_name <- paste0("rho_", rho_name)
+  file_name <- paste0("figures/hist_", var_name, ".pdf")
+  gg0 + aes_string(x = var_name) + labs(x = rho_exp[[rho_name]])
+  ggsave(file_name, width = fig.w, height = fig.h)
+}
 
-gg0 + aes(x = rho_hrc_vvt) + labs(x = rho_exp[["hrc_vvt"]])
-ggsave("figures/hist_rho_hrc_vvt.pdf", width = fig.w, height = fig.h)
-
-gg0 + aes(x = rho_hrc_pst) + labs(x = rho_exp[["hrc_pst"]])
-ggsave("figures/hist_rho_hrc_post.pdf", width = fig.w, height = fig.h)
-
-gg0 + aes(x = rho_djt_vot) + labs(x = rho_exp[["djt_vot"]])
-ggsave("figures/hist_rho_djt_vot.pdf", width = fig.w, height = fig.h)
-
-gg0 + aes(x = rho_djt_vep) + labs(x = rho_exp[["djt_vep"]])
-ggsave("figures/hist_rho_djt_vep.pdf", width = fig.w, height = fig.h)
-
-gg0 + aes(x = rho_djt_vvt) + labs(x = rho_exp[["djt_vvt"]])
-ggsave("figures/hist_rho_djt_vvt.pdf", width = fig.w, height = fig.h)
-  
-
-gg0 + aes(x = rho_djt_pst) + labs(x = rho_exp[["djt_pst"]])
-ggsave("figures/hist_rho_djt_post.pdf", width = fig.w, height = fig.h)
-  
 # Histogram of cv_turnout
 ggplot(df, aes(x = cv_turnout_wgt)) +
   geom_histogram(bins = 25) + theme_bw() +
