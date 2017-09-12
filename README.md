@@ -12,7 +12,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 58
+    ## # A tibble: 51 x 70
     ##                   state    st color      vap      vep votes_hrc votes_djt
     ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL     R  3770142  3601361    729547   1318255
@@ -25,26 +25,32 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE     D   749872   689125    235603    185127
     ##  9 District of Columbia    DC     D   562329   511463    282830     12723
     ## 10              Florida    FL swing 16565588 14572210   4504975   4617886
-    ## # ... with 41 more rows, and 51 more variables: tot_votes <int>,
+    ## # ... with 41 more rows, and 63 more variables: tot_votes <int>,
     ## #   pct_hrc_vep <dbl>, pct_hrc_voters <dbl>, pct_djt_vep <dbl>,
     ## #   pct_djt_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
     ## #   cces_n_vv <int>, cces_n_post_voters <int>, cces_tothrc_raw <int>,
     ## #   cces_tothrc_raw_post <int>, cces_tothrc_adj_trn <dbl>,
-    ## #   cces_tothrc_vv <int>, cces_pct_hrc_raw <dbl>, cces_pct_hrc_vep <dbl>,
-    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrc_voters_post <dbl>,
-    ## #   cces_pct_hrc_vv <dbl>, cces_totdjt_raw <int>,
+    ## #   cces_tothrc_vv <int>, cces_pct_hrc_raw <dbl>,
+    ## #   cces_pct_hrcund_raw <dbl>, cces_pct_hrc_vep <dbl>,
+    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrcund_voters <dbl>,
+    ## #   cces_pct_hrc_vv <dbl>, cces_pct_hrcund_vv <dbl>,
+    ## #   cces_pct_hrc_voters_post <dbl>, cces_totdjt_raw <int>,
     ## #   cces_totdjt_raw_post <int>, cces_totdjt_adj_trn <dbl>,
-    ## #   cces_totdjt_vv <int>, cces_pct_djt_raw <dbl>, cces_pct_djt_vep <dbl>,
-    ## #   cces_pct_djt_voters <dbl>, cces_pct_djt_voters_post <dbl>,
-    ## #   cces_pct_djt_vv <dbl>, cv_turnout_wgt <dbl>, yougov_pct_hrc <dbl>,
-    ## #   yougov_pct_djt <dbl>, yougov_n <dbl>, rho_hrc_vot <dbl>,
-    ## #   rho_hrc_vep <dbl>, rho_hrc_vvt <dbl>, rho_hrc_pst <dbl>,
-    ## #   rho_djt_vot <dbl>, rho_djt_vep <dbl>, rho_djt_vvt <dbl>,
-    ## #   rho_djt_pst <dbl>, neff_hrc_vot <dbl>, neff_hrc_vep <dbl>,
-    ## #   neff_hrc_vvt <dbl>, neff_djt_vot <dbl>, neff_djt_vep <dbl>,
-    ## #   neff_djt_vvt <dbl>, effratio_hrc_vot <dbl>, effratio_hrc_vep <dbl>,
-    ## #   effratio_hrc_vvt <dbl>, effratio_djt_vot <dbl>,
-    ## #   effratio_djt_vep <dbl>, effratio_djt_vvt <dbl>
+    ## #   cces_totdjt_vv <int>, cces_pct_djt_raw <dbl>,
+    ## #   cces_pct_djtund_raw <dbl>, cces_pct_djt_vep <dbl>,
+    ## #   cces_pct_djt_voters <dbl>, cces_pct_djtund_voters <dbl>,
+    ## #   cces_pct_djt_vv <dbl>, cces_pct_djtund_vv <dbl>,
+    ## #   cces_pct_djt_voters_post <dbl>, cv_turnout_wgt <dbl>,
+    ## #   yougov_pct_hrc <dbl>, yougov_pct_djt <dbl>, yougov_n <dbl>,
+    ## #   rho_hrc_vot <dbl>, rho_hrc_vep <dbl>, rho_hrc_vvt <dbl>,
+    ## #   rho_hrc_pst <dbl>, rho_hcu_vot <dbl>, rho_hcu_vep <dbl>,
+    ## #   rho_hcu_vvt <dbl>, rho_djt_vot <dbl>, rho_djt_vep <dbl>,
+    ## #   rho_djt_vvt <dbl>, rho_djt_pst <dbl>, rho_dtu_vot <dbl>,
+    ## #   rho_dtu_vep <dbl>, rho_dtu_vvt <dbl>, neff_hrc_vot <dbl>,
+    ## #   neff_hrc_vep <dbl>, neff_hrc_vvt <dbl>, neff_djt_vot <dbl>,
+    ## #   neff_djt_vep <dbl>, neff_djt_vvt <dbl>, effratio_hrc_vot <dbl>,
+    ## #   effratio_hrc_vep <dbl>, effratio_hrc_vvt <dbl>,
+    ## #   effratio_djt_vot <dbl>, effratio_djt_vep <dbl>, effratio_djt_vvt <dbl>
 
 The main columns are
 
@@ -89,6 +95,8 @@ Sample mean estimates
 -   `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`)
 -   `cces_pct_hrc_post_voters`: CCES estimated percent of Clinton votes among those who reported voting in the post-election survey wave (`cces_tothrc_raw_post/ cces_n_post_voters`)
 -   `cces_*djt*`: All same as above but with Trump
+-   `cces_*hrcund*`: All same as above but with coding all Undecideds as Clinton supporters as well.
+-   `cces_*djtund*`: All same as above but with coding all Undecideds as Trump supporters as well.
 
 -   `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate.
 
@@ -312,12 +320,12 @@ rho_estimate <- function(data = df, N, mu, muhat, n, cv = NULL) {
 }
 ```
 
-We present two versions of this estimate based on the sampling
+We present four versions of this estimate based on the sampling.
 
 Based on voters
 ---------------
 
-For *ρ*<sub>*H**R**C*, *v**o**t**e**r*</sub>, we use
+For *ρ*<sub>HRC, voter</sub>, we use the turnout-adjusted estimate of the candidates voteshare. Because we use turnout-adjustment, we insert the coefficient of variation of turnout weights.
 
 ``` r
 df$rho_vot <- rho_estimate(N = "tot_votes",
@@ -330,7 +338,7 @@ df$rho_vot <- rho_estimate(N = "tot_votes",
 Based on voting eligible population
 -----------------------------------
 
-For *ρ*<sub>*H**R**C*, *v**e**p*</sub>, we use
+For *ρ*<sub>HRC, vep</sub>, we use the raw estimate of the candidate's voteshare. We use the raw in order to keep the denominator as our estimate of the voter eligible population. *n* becomes the simple number of respondents.
 
 ``` r
 df$rho_vep <- rho_estimate(N = "vep",
@@ -342,7 +350,7 @@ df$rho_vep <- rho_estimate(N = "vep",
 Based on data from validated voters
 -----------------------------------
 
-For *ρ*<sub>*H**R**C*, *v**v**t*</sub> we use
+For *ρ*<sub>HRC, vvt</sub> we use the estimates from the validated vote subset of the pre-election survey. Because turnout here is virtually certain, we do not adjut by turnout weights. *n* becomes the simple number of validated voters.
 
 ``` r
 df$rho_vvt <- rho_estimate(N = "tot_votes",
@@ -354,7 +362,7 @@ df$rho_vvt <- rho_estimate(N = "tot_votes",
 Based on data from post-election survey
 ---------------------------------------
 
-For *ρ*<sub>*H**R**C*, *p**o**s**t*</sub> we use
+For *ρ*<sub>HRC, post</sub> we use the estimates from those who respondend to the post-election follow-up wave. We only use those who reported having voted, so there is no turnout-adjustment via weights here as well. *n* becomes the number of respondents in the post-election wave who self-reported turning out to vote.
 
 ``` r
 rho_hrc_pst = rho_estimate(N = "tot_votes",
@@ -363,7 +371,7 @@ rho_hrc_pst = rho_estimate(N = "tot_votes",
                            n = "cces_n_post_voters")
 ```
 
-I did the same for Trump voters ( *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**o**t**e**r*</sub>, *ρ*<sub>*D**J**T*, *v**v**t*</sub>, *ρ*<sub>*D**J**T*, *p**o**s**t*</sub>), where all estimates of Clinton were replaced with their Trump equivalents.
+I did the same for Trump voters ( *ρ*<sub>DJT, voter</sub>, *ρ*<sub>DJT, voter</sub>, *ρ*<sub>DJT, vvt</sub>, *ρ*<sub>DJT, post</sub>), where all estimates of Clinton were replaced with their Trump equivalents. I also did the same by classifying "Undecideds" in the pre-election poll as either Clinton or Trump (the only exception here is that we do not repeat this for the post-election wave -- there were no undecideds there by definition).
 
 References
 ==========

@@ -64,6 +64,8 @@ Sample mean estimates
 * `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`)
 * `cces_pct_hrc_post_voters`: CCES estimated percent of Clinton votes among those who reported voting in the post-election survey wave (`cces_tothrc_raw_post/ cces_n_post_voters`)
 * `cces_*djt*`: All same as above but with Trump
+* `cces_*hrcund*`: All same as above but with coding all Undecideds as Clinton supporters as well.
+* `cces_*djtund*`: All same as above but with coding all Undecideds as Trump supporters as well.
 
 * `cv_turnout_wgt` is the coefficient of variation on weights for each state. It is a statistic from `turnout_wgt` in `data/input/cces2016_slim.Rds`. This is used as an adjustment when calculating our parameter estimate. 
 
@@ -315,10 +317,10 @@ rho_estimate <- function(data = df, N, mu, muhat, n, cv = NULL) {
 }
 ```
 
-We present two versions of this estimate based on the sampling
+We present four versions of this estimate based on the sampling.
 
 ## Based on voters
-For $\rho_{HRC, voter}$, we use
+For $\rho_{\text{HRC, voter}}$, we use the turnout-adjusted estimate of the candidates voteshare. Because we use turnout-adjustment, we insert the coefficient of variation of turnout weights. 
 
 ```{r, eval = FALSE}
 df$rho_vot <- rho_estimate(N = "tot_votes",
@@ -329,7 +331,8 @@ df$rho_vot <- rho_estimate(N = "tot_votes",
 ```
 
 ## Based on voting eligible population
-For $\rho_{HRC, vep}$, we use
+For $\rho_{\text{HRC, vep}}$, we use the raw estimate of the candidate's voteshare. We use the raw in order to keep the denominator as our estimate of the voter eligible population. $n$ becomes the simple number of respondents.
+
 ```{r, eval = FALSE}
 df$rho_vep <- rho_estimate(N = "vep",
                            mu = "pct_hrc_voters",
@@ -338,7 +341,8 @@ df$rho_vep <- rho_estimate(N = "vep",
 ```
 
 ## Based on data from validated voters
-For $\rho_{HRC, vvt}$ we use
+For $\rho_{\text{HRC, vvt}}$ we use the estimates from the validated vote subset of the pre-election survey. Because turnout here is virtually certain, we do not adjut by turnout weights. $n$ becomes the simple number of validated voters. 
+
 ```{r, eval = FALSE}
 df$rho_vvt <- rho_estimate(N = "tot_votes",
                            mu = "pct_hrc_voters",
@@ -347,7 +351,8 @@ df$rho_vvt <- rho_estimate(N = "tot_votes",
 ```
 
 ## Based on data from post-election survey
-For $\rho_{HRC, post}$ we use
+For $\rho_{\text{HRC, post}}$ we use the estimates from those who respondend to the post-election follow-up wave. We only use those who reported having voted, so there is no turnout-adjustment via weights here as well. $n$ becomes the number of respondents in the post-election wave who self-reported turning out to vote. 
+
 ```{r, eval = FALSE}
 rho_hrc_pst = rho_estimate(N = "tot_votes",
                            mu = "pct_hrc_voters",
@@ -357,7 +362,7 @@ rho_hrc_pst = rho_estimate(N = "tot_votes",
 
 
 
-I did the same for Trump voters ( $\rho_{DJT, voter}$,  $\rho_{DJT, voter}$, $\rho_{DJT, vvt}$, $\rho_{DJT, post}$), where all estimates of Clinton were replaced with their Trump equivalents.
+I did the same for Trump voters ( $\rho_{\text{DJT, voter}}$,  $\rho_{\text{DJT, voter}}$, $\rho_{\text{DJT, vvt}}$, $\rho_{\text{DJT, post}}$), where all estimates of Clinton were replaced with their Trump equivalents. I also did the same by classifying "Undecideds" in the pre-election poll as either Clinton or Trump (the only exception here is that we do not repeat this for the post-election wave -- there were no undecideds there by definition).
 
 
 # References
