@@ -230,7 +230,7 @@ ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = s
   coord_flip() +
   theme_bw() +
   theme(legend.position = "bottom") +
-  labs(x = "Specifications of rho",
+  labs(x = expression(Specifications of rho),
        y = "Slope coefficient from log(abs(rho)) regressed on log(N), with 95 percent CI",
        caption = "Points ordered by specification then by color.
        Missing values occur when there were too few observations (3 or less) to calculate a slope.")
@@ -343,16 +343,16 @@ sct_gglist <- foreach(i = 1:nrow(sct_labs)) %do% {
   if (sct_labs$cand[i] == "H") {
     mu <- df$pct_hrc_voters
     gg <- gg0 +
-      annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
-      annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
+      annotate("text", x = 0.75, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
+      annotate("text", x = 0.25, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
       labs(y = "Final Clinton Popular Vote Share")
   }
   
   if (sct_labs$cand[i] == "T") {
     mu <- df$pct_djt_voters
     gg <- gg0 + aes(y = pct_djt_voters) +
-      annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
-      annotate("text", x = 0.22, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
+      annotate("text", x = 0.75, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
+      annotate("text", x = 0.25, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
       labs(y = "Final Trump Popular Vote Share")
   }
   
@@ -410,7 +410,6 @@ gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
   annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nturnout", color = "darkgray") +
   xlab("Turnout-Adjusted Poll Estimate of Turnout") +
   ylab("Final Turnout\n(% of Voting Eligible Population)") +
-  labs(caption = captext)
 ggsave("figures/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
 
 rm(gg0)
