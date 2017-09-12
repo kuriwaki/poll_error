@@ -132,7 +132,7 @@ Figures
 Figures are named according to the following convention
 
 -   `rho-*` is a scatter plot of a `rho` estimate on the y-axis and the target *N* on the x-axis. We take logs, and the OLS slope coefficient is printed in the bottom-right.
-    -   The first part of the filename indicates the estimated *ρ* of interest and takes a `rho`-`[candidate]`-`[specification]` format. For example, `rho-hrc-vot` is the parameter for responding to vote for Hilary Clinton, where the target population is the actual voting population.
+    -   The first part of the filename indicates the estimated *ρ* of interest and takes a `rho`-`[candidate]`-`[specification]` format. For example, `rho-hrc-vot` is the parameter for responding to vote for Hilary Clinton, where the target population is the actual voting population. `hrc` and `djt` stand for Clinton and Trump, respectively. `hcu` and `dtu` stand for Cliton + Undecideds and Trump + Undecideds, respectively.
     -   The second part of the filename indicates the subset of observations we look at. `states-D`, `states-R`, `states-swing` indicate that we limit our scatter and coefficients to Blue, Red, and swing states, respectively. `states-pos` and `states-neg` indicate that we limit our scatter and coefficients to states that have positive or negative rho, respectively. This is an important distinction because we take the absolute value of `rho` before taking the log. `states-all` uses all states.
 -   `hist_*` is a histogram of state-level parameters. Mostly these are `rho`
 -   `scatter_*` is a figure that has state-level estimates of a quantity ($\\widehat{\\mu}$) on the x-axis and the observed quantity (*μ*) on the y-axis.

@@ -382,6 +382,7 @@ for (fnames in names(sct_gglist)) {
          h = fig.h, w = fig.w)
 }
 
+# all scatters in grid 
 ord_labs <- sort(sct_labs$var_name)
 stopifnot(length(ord_labs) == 14)  # for grid
 ord_gg <- sct_gglist[ord_labs]
@@ -401,7 +402,7 @@ gg16 <- plot_grid(ord_gg[[1]], ord_gg[[2]], ord_gg[[3]], ord_gg[[4]],
           ord_gg[[12]], ord_gg[[13]], NULL, ord_gg[[14]],
           nrow = 4)
 
-save_plot("figures/scatter_all.pdf", gg16, ncol = 4, nrow = 4)
+save_plot("figures/scatter_all.pdf", gg16, base_height = 3.25, ncol = 4, nrow = 4)
 
 # Turnout
 gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
