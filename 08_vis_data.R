@@ -185,7 +185,10 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     coord_cartesian(ylim = lim_lro, xlim = lim_lpp) +
     scale_x_continuous(minor_breaks = NULL) +
     scale_y_continuous(minor_breaks = NULL) +
+    annotate("text", x = -Inf, y = -Inf, label = "More accurate", color = "darkgray", hjust = -0.5, vjust = -0.5) +
+    annotate("text", x = -Inf, y = Inf, label = "Less accurate", color = "darkgray", hjust = -0.5, vjust = 1) +
     guides(color = FALSE) +
+    theme(axis.title = element_text(size = 8)) +
     labs(y = lar_exp[[lar_code]],
          x = xlab_text,
          subtitle = stlab,
@@ -272,6 +275,7 @@ for (rho_name in rho_vec) {
   file_name <- paste0("figures/hist/hist_", var_name, ".pdf")
   gg0 + aes_string(x = var_name) + labs(x = rho_exp[[rho_name]])
   ggsave(file_name, width = fig.w, height = fig.h)
+  cat(file_name, "\n")
 }
 
 # Histogram of cv_turnout
