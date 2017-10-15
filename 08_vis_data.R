@@ -66,16 +66,22 @@ lar_exp <-
        hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
        hrc_vvt = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
        hrc_pst = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[post]])), ")")),
-       hcu_vot = expression(log~bgroup("(", abs(~Clinton+Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
-       hcu_vep = expression(log~bgroup("(", abs(~Clinton+Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       hcu_vvt = expression(log~bgroup("(", abs(~Clinton+Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       hcu_vot = expression(log~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       hcu_vep = expression(log~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       hcu_vvt = expression(log~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       hcdu_vot =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       hcdu_vep =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       hcdu_vvt =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vv]])), ")")),
        djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")),
        djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
        djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")),
        djt_pst = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")),
-       dtu_vot = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
-       dtu_vep = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       dtu_vvt = expression(log~bgroup("(", abs(~Trump+Undecided~~italic(widehat(italic(rho))[N[vv]])), ")"))
+       dtu_vot = expression(log~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       dtu_vep = expression(log~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       dtu_vvt = expression(log~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       dtu_vot = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       dtu_vep = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       dtu_vvt = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vv]])), ")"))
   )
 
 # normal rho
@@ -84,16 +90,22 @@ rho_exp <-
        hrc_vep = expression(Clinton~~italic(widehat(italic(rho))[N[vep]])),
        hrc_vvt = expression(Clinton~~italic(widehat(italic(rho))[N[vv]])),
        hrc_pst = expression(Clinton~~italic(widehat(italic(rho))[N[post]])),
-       hcu_vot = expression(Clinton+Undecided~~italic(widehat(italic(rho))[N[avp]])),
-       hcu_vep = expression(Clinton+Undecided~~italic(widehat(italic(rho))[N[vep]])),
-       hcu_vvt = expression(Clinton+Undecided~~italic(widehat(italic(rho))[N[vv]])),
+       hcu_vot = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[avp]])),
+       hcu_vep = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[vep]])),
+       hcu_vvt = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[vv]])),
+       hcdu_vot = expression(Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[avp]])),
+       hcdu_vep = expression(Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vep]])),
+       hcdu_vvt = expression(Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vv]])),
        djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
        djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])),
        djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N[vv]])),
        djt_pst = expression(Trump~~italic(widehat(italic(rho))[N[post]])),
-       dtu_vot = expression(Trump+Undecided~~italic(widehat(italic(rho))[N[avp]])),
-       dtu_vep = expression(Trump+Undecided~~italic(widehat(italic(rho))[N[vep]])),
-       dtu_vvt = expression(Trump+Undecided~~italic(widehat(italic(rho))[N[vv]])))
+       dtu_vot = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[avp]])),
+       dtu_vep = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[vep]])),
+       dtu_vvt = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[vv]])),
+       dtru_vot = expression(Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[avp]])),
+       dtru_vep = expression(Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vep]])),
+       dtru_vvt = expression(Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vv]])))
 
 # titles
 eff_t <- list(
@@ -180,7 +192,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
          caption = lab)
   
   cat(filename, "\n")
-  ggsave(file.path("figures", filename), gg0, width = fig.w, height = fig.h)
+  ggsave(file.path("figures/rho-N/", filename), gg0, width = fig.w, height = fig.h)
 }
 
 
@@ -192,18 +204,20 @@ for (i in which(!is.na(slopes$lab))) {
 
 # show distribution of slopes -----
 coef_plot <- slopes %>% 
-  arrange(rho_type, subset) %>% 
-  mutate(descrip = forcats::as_factor(gsub("(hrc|djt|hcu|dtu)-", "", descrip)),
+  arrange(subset, rho_type) %>% 
+  mutate(descrip = forcats::as_factor(gsub("(hrc|djt|hcu|dtu|hcdu|dtru)-", "", descrip)),
          descrip = forcats::as_factor(gsub("_states-", "; ", descrip)),
-         cand = factor(cand, levels = c("hrc", "djt", "hcu", "dtu")),
+         cand = factor(cand, levels = c("hrc", "djt", "hcdu", "dtru",  "hcu", "dtu")),
          emph = case_when(subset == "all" ~ "1", subset != "all" ~ "0"),
          ymin = coef - qnorm(0.975)*se,
          ymax = coef + qnorm(0.975)*se) 
 
-candlab <- c("hrc" = "Clinton Support Responses",
-             "djt" = "Trump Support Responses",
-             "hcu" = "Clinton + Undecideds Responses",
-             "dtu" = "Trump + Undecideds Response")
+candlab <- c("hrc" = "Clinton Supporters",
+             "djt" = "Trump Supporters",
+             "hcu" = "Clinton Supporters + All Undecideds",
+             "dtu" = "Trump Supporters + All Undecideds",
+             "hcdu" = "Clinton Supporters + Undecided Democrats",
+             "dtru" = "Trump Supporters + Undecided Republicans")
 
 colorvec_pn <- c(colorvec, 
                  "all" = "black",
@@ -218,7 +232,7 @@ labvec <- c("D" = "Blue states",
             "neg" = "rho < 0 (underestimates)")
 
 ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = subset, size = emph)) +
-  facet_wrap(~cand, labeller = labeller(cand = candlab), nrow = 2) +
+  facet_wrap(~cand, labeller = labeller(cand = candlab), ncol = 2) +
   theme(axis.line=element_line()) + 
   scale_color_manual(name = "States used", values = colorvec_pn, labels = labvec) +
   geom_hline(yintercept = 0, linetype = "solid", color = "darkgray") +
@@ -229,12 +243,16 @@ ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = s
   guides(size = FALSE, color = guide_legend(nrow = 1)) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom", 
+        panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        strip.text = element_text(size = 12)) +
   labs(x = expression(Specifications~of~widehat(rho)),
-       y = "Slope coefficient from log(abs(rho)) regressed on log(N), with 95 percent CI",
-       caption = "Points ordered by specification then by color.
+       y = expression(Slope~coefficient~from~log(abs(widehat(rho)))~regressed~on~log(N), with~95~percent~CI),
+       caption = "Each point is a regression coefficient with 95 percent confidence intervals.
+       Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
+       Points ordered by the subset of states (color) and then by estimand (in text).
        Missing values occur when there were too few observations (3 or less) to calculate a slope.")
-ggsave("figures/corr-rho-N_intervals.pdf", w = 1.9*fig.w, h = 2.1*fig.h)
+ggsave("figures/summ/corr-rho-N_intervals.pdf", w = 1.9*fig.w, h = 3*fig.h)
 
 
 # Histogram of rho ----
@@ -251,7 +269,7 @@ rho_vec <- names(rho_exp)
 
 for (rho_name in rho_vec) {
   var_name <- paste0("rho_", rho_name)
-  file_name <- paste0("figures/hist_", var_name, ".pdf")
+  file_name <- paste0("figures/hist/hist_", var_name, ".pdf")
   gg0 + aes_string(x = var_name) + labs(x = rho_exp[[rho_name]])
   ggsave(file_name, width = fig.w, height = fig.h)
 }
@@ -260,7 +278,7 @@ for (rho_name in rho_vec) {
 ggplot(df, aes(x = cv_turnout_wgt)) +
   geom_histogram(bins = 25) + theme_bw() +
   labs(x = "Coefficient of Variation of Turnout Adjustment Weights", y = "Count")
-ggsave("figures/hist_cv_turnout.pdf", width = fig.w, height = fig.h)
+ggsave("figures/hist/hist_cv_turnout.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
 
@@ -300,7 +318,7 @@ ggsave("figures/logabsrho_transformation.pdf", w = fig.w, h = fig.h)
 rm(gg0)
 
 # Scatter ------
-fig.w <- 1.2*fig.w*0.8
+fig.w <- 1.2*fig.w*0.75
 fig.h <- 1.2*fig.h
 
 
@@ -319,12 +337,13 @@ sct_labs <- sct_labs %>%
                            grepl("vv$", var_name) ~ "Validated Voter ",
                            grepl("post$", var_name) ~ "Post-Election Wave ")) %>%
   mutate(cand_t = case_when(grepl("_hrc_", var_name) ~ "Clinton Support",
-                            grepl("_hrcund_", var_name) ~ "Clinton + Undecideds",
-                            grepl("_hrcdund_", var_name) ~ "Clinton + Dem Undecideds",
+                            grepl("_hrcund_", var_name) ~ "Clinton + All Undecideds",
+                            grepl("_hrcdund_", var_name) ~ "Clinton + Undecided Democrats",
                             grepl("_djt_", var_name) ~ "Trump Support",
-                            grepl("_djtund_", var_name) ~ "Trump + Undecideds",
-                            grepl("_djtrund_", var_name) ~ "Trump + Republican Undecideds")) %>%
-  mutate(xlab_text = paste0(est_t, "Poll Estimate, ", cand_t))
+                            grepl("_djtund_", var_name) ~ "Trump + All Undecideds",
+                            grepl("_djtrund_", var_name) ~ "Trump + Undecided Republicans")) %>%
+  mutate(xlab_text = paste0(est_t, "Poll Estimate,\n", cand_t)) %>% 
+  arrange(var_name)
 
 
 # starting scatter
@@ -381,32 +400,30 @@ for (fnames in names(sct_gglist)) {
   est_name <- gsub("hrcdund", "hcdu", est_name)
   est_name <- gsub("djtrund", "dtru", est_name)
   
-  ggsave(paste0("figures/scatter_", est_name, ".pdf"), 
+  ggsave(paste0("figures/scatter/scatter_", est_name, ".pdf"), 
          plot = sct_gglist[[fnames]],
          h = fig.h, w = fig.w)
+  
+  cat(paste0(est_name, ".pdf\n"))
 }
 
 # all scatters in grid 
 ord_labs <- sort(sct_labs$var_name)
-stopifnot(length(ord_labs) == 14)  # for grid
+stopifnot(length(ord_labs) == 20)  # for grid
 ord_gg <- sct_gglist[ord_labs]
 
 
-ord_gg_16 <- c(ord_gg[1:6], 
-               NA, 
-               ord_gg[7], 
-               ord_gg[8:13],
-               NA,
-               ord_gg[14])
 
 
-gg16 <- plot_grid(ord_gg[[1]], ord_gg[[2]], ord_gg[[3]], ord_gg[[4]],
-          ord_gg[[5]], ord_gg[[6]], NULL, ord_gg[[7]],
-          ord_gg[[8]], ord_gg[[9]], ord_gg[[10]], ord_gg[[11]],
-          ord_gg[[12]], ord_gg[[13]], NULL, ord_gg[[14]],
-          nrow = 4)
+gg16 <- plot_grid(ord_gg[[01]], ord_gg[[02]], ord_gg[[04]], ord_gg[[03]],
+                  ord_gg[[05]], ord_gg[[06]], ord_gg[[07]], NULL, 
+                  ord_gg[[08]], ord_gg[[09]], ord_gg[[10]], NULL,
+                  ord_gg[[11]], ord_gg[[12]], ord_gg[[14]], ord_gg[[13]],
+                  ord_gg[[15]], ord_gg[[16]], ord_gg[[17]], NULL,
+                  ord_gg[[18]], ord_gg[[19]], ord_gg[[20]], NULL,
+                  ncol = 4)
 
-save_plot("figures/scatter_all.pdf", gg16, base_height = 3.25, ncol = 4, nrow = 4)
+save_plot("figures/summ/scatter_all.pdf", gg16, base_height = 3.25, ncol = 4, nrow = 6)
 
 # Turnout
 gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
@@ -414,7 +431,7 @@ gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
   annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nturnout", color = "darkgray") +
   xlab("Turnout-Adjusted Poll Estimate of Turnout") +
   ylab("Final Turnout\n(% of Voting Eligible Population)") +
-ggsave("figures/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
 
 rm(gg0)
 
@@ -441,7 +458,7 @@ ggplot(df_diff, aes(x = mudiff_hrc_vot, y = mudiff_djt_vot, color = color, size 
   labs(y = expression(widehat(mu[Trump]) - mu[Trump]),
        x = expression(widehat(mu[Clinton]) - mu[Clinton])) +
   guides(color = FALSE, size = FALSE)
-ggsave("figures/scatter_error_vs_error.pdf", h = fig.h, w = fig.w)
+ggsave("figures/scatter/scatter_error_vs_error.pdf", h = fig.h, w = fig.w)
 
 
 
@@ -470,19 +487,19 @@ gg0 <- ggplot(df_map, aes(x = col, y = row, fill = color)) +
 
 gg0 + aes(label = make_pct(effratio_hrc_vot)) +
   labs(title = eff_t[["hrc_vot"]])
-ggsave("figures/map_hrc_vot.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/map/map_hrc_vot.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(label = make_pct(effratio_hrc_vep)) +
   labs(title = eff_t[["hrc_vep"]])
-ggsave("figures/map_hrc_vep.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/map/map_hrc_vep.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(label = make_pct(effratio_djt_vot)) +
   labs(title = eff_t[["djt_vot"]])
-ggsave("figures/map_djt_vot.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/map/map_djt_vot.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(label = make_pct(effratio_djt_vep)) +
   labs(title = eff_t[["djt_vep"]])
-ggsave("figures/map_djt_vep.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/map/map_djt_vep.pdf", h = fig.h, w = mfig.w)
 
 rm(gg0)
 
@@ -508,19 +525,19 @@ gg0 <-  ggplot(df_dot, aes(x = st, y = effratio_hrc_vot, fill = color)) +
 
 gg0 + aes(y = effratio_hrc_vot) +
   labs(title = eff_t[["hrc_vot"]])
-ggsave("figures/bars_hrc_vot.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/bars/bars_hrc_vot.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(y = effratio_hrc_vep) +
   labs(title = eff_t[["hrc_vep"]])
-ggsave("figures/bars_hrc_vep.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/bars/bars_hrc_vep.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(y = effratio_djt_vot) +
   scale_y_continuous(name = NULL, label = percent, expand = c(0, 0), limit = c(0, 1)) +
   labs(title = eff_t[["djt_vot"]])
-ggsave("figures/bars_djt_vot.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/bars/bars_djt_vot.pdf", h = fig.h, w = mfig.w)
 
 gg0 + aes(y = effratio_djt_vep) +
   scale_y_continuous(name = NULL, label = percent, expand = c(0, 0), limit = c(0, 1)) +
   labs(title = eff_t[["djt_vep"]])
-ggsave("figures/bars_djt_vep.pdf", h = fig.h, w = mfig.w)
+ggsave("figures/bars/bars_djt_vep.pdf", h = fig.h, w = mfig.w)
 
