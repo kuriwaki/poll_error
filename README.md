@@ -1,12 +1,12 @@
 Poll Predictions and Errors
 ================
 Shiro Kuriwaki
-2017-10-15
+README updated: 2017-10-15
 
 -   [Output](#output)
 -   [Figures](#figures)
--   [Data Sources](#data-sources)
--   [Poll Prediction](#poll-prediction)
+-   [Population Data](#population-data)
+-   [Poll Data and Methods](#poll-data-and-methods)
 -   [Poll Estimates](#poll-estimates)
     -   [Estimating Clinton Support](#estimating-clinton-support)
     -   [Estimating Trump Support](#estimating-trump-support)
@@ -162,8 +162,8 @@ Figures are named according to the following convention, in the following folder
 -   In `figures/map`: `map_*` shows a quantity of interest in a simplified map (cartogram)
 -   In `figures/bars`: `bars_*` shows a quantity of interest in a barplot.
 
-Data Sources
-============
+Population Data
+===============
 
 The data comes from three sources and is built in `01_read_data.R`
 
@@ -191,8 +191,8 @@ The column `votes_hrc` refers to the column `Clinton (D)` in the above-linked sp
 
 `R` and `D` are non-swing states defined by the presidential winner.
 
-Poll Prediction
-===============
+Poll Data and Methods
+=====================
 
 The main poll we use is the CCES, which is one of the few polls that has raw data available in accessible form.
 
