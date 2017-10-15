@@ -1,5 +1,6 @@
 library(glue)
 library(tidyr)
+library(readr)
 library(foreach)
 
 df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
