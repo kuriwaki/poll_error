@@ -1,9 +1,11 @@
 library(readr)
 library(dplyr)
+library(haven)
 
 # slim full survey
 cc_raw <- readRDS("data/input/cces2016_slim.Rds")
 
+table(as_factor(cc_raw$pid3), cc_raw$pid3)
 
 
 # tabulate means and estimates
@@ -16,6 +18,8 @@ tab_cc <- cc_raw %>%
             cces_tothrc_raw = sum(vote_hrc_pre, na.rm = TRUE),
             cces_totdjt_raw = sum(vote_djt_pre, na.rm = TRUE),
             cces_totund_raw = sum(vote_und_pre, na.rm = TRUE),
+            cces_demund_raw = sum(vote_und_pre*(pid3 == 1), na.rm = TRUE),
+            cces_repund_raw = sum(vote_und_pre*(pid3 == 2), na.rm = TRUE),
             cces_tothrc_raw_post = sum(vote_hrc_post, na.rm = TRUE),
             cces_totdjt_raw_post = sum(vote_djt_post, na.rm = TRUE),
             cces_tothrc_adj_trn = sum(vote_hrc_pre*turnout_wgt, na.rm = TRUE),
@@ -31,6 +35,7 @@ tab_cc <- cc_raw %>%
          cces_pct_hrc_vep = cces_tothrc_adj_trn / cces_n_raw,
          cces_pct_hrc_voters = cces_tothrc_adj_trn / cces_n_voters,
          cces_pct_hrcund_voters = (cces_tothrc_adj_trn + cces_totund_adj_trn) / cces_n_voters,         cces_pct_hrc_vv = cces_tothrc_vv / cces_n_vv,
+         cces_pct_hrcdund_voters = (cces_tothrc_adj_trn + cces_demund_raw) / cces_n_voters,         cces_pct_hrc_vv = cces_tothrc_vv / cces_n_vv,
          cces_pct_hrc_vv = cces_tothrc_vv / cces_n_vv,
          cces_pct_hrcund_vv = (cces_tothrc_vv + cces_totund_vv) / cces_n_vv,
          cces_pct_hrc_voters_post = cces_tothrc_raw_post / cces_n_voters) %>%
@@ -39,6 +44,7 @@ tab_cc <- cc_raw %>%
          cces_pct_djt_vep = cces_totdjt_adj_trn / cces_n_raw,
          cces_pct_djt_voters = cces_totdjt_adj_trn / cces_n_voters,
          cces_pct_djtund_voters = (cces_totdjt_adj_trn + cces_totund_adj_trn) / cces_n_voters,
+         cces_pct_djtrund_voters = (cces_totdjt_adj_trn + cces_repund_raw) / cces_n_voters,
          cces_pct_djt_vv = cces_totdjt_vv / cces_n_vv,
          cces_pct_djtund_vv = (cces_totdjt_vv + cces_totund_vv) / cces_n_vv,
          cces_pct_djt_voters_post = cces_totdjt_raw_post / cces_n_voters)
