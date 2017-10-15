@@ -50,10 +50,10 @@ lm_store <- function(cand_text, subset, rho_type, N_text) {
 }
 
 
-reg_specs <- tibble(cand = c("hrc", "djt", "hcu", "dtu", rep(NA, 2)),
+reg_specs <- tibble(cand = c("hrc", "djt", "hcu", "dtu", "hcdu", "dtru"),
                     subset = c("all", "R", "D", "swing", "pos", "neg"),
                     rho_type = c("vot", "vep", "vvt", "pst", rep(NA, 2))) %>%
-  complete(cand, subset, rho_type) %>%
+  complete(cand, subset, rho_type) %>% # all factors
   filter(!(grepl("u", cand) & rho_type == "pst")) # these don't apply
 
 rho_N <- tibble(rho_type = c("vot", "vep", "vvt", "pst"),
