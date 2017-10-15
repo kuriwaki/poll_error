@@ -230,7 +230,7 @@ ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = s
   coord_flip() +
   theme_bw() +
   theme(legend.position = "bottom") +
-  labs(x = expression(Specifications of rho),
+  labs(x = expression(Specifications~of~widehat(rho)),
        y = "Slope coefficient from log(abs(rho)) regressed on log(N), with 95 percent CI",
        caption = "Points ordered by specification then by color.
        Missing values occur when there were too few observations (3 or less) to calculate a slope.")
@@ -320,8 +320,10 @@ sct_labs <- sct_labs %>%
                            grepl("post$", var_name) ~ "Post-Election Wave ")) %>%
   mutate(cand_t = case_when(grepl("_hrc_", var_name) ~ "Clinton Support",
                             grepl("_hrcund_", var_name) ~ "Clinton + Undecideds",
+                            grepl("_hrcdund_", var_name) ~ "Clinton + Dem Undecideds",
                             grepl("_djt_", var_name) ~ "Trump Support",
-                            grepl("_djtund_", var_name) ~ "Trump + Undecideds")) %>%
+                            grepl("_djtund_", var_name) ~ "Trump + Undecideds",
+                            grepl("_djtrund_", var_name) ~ "Trump + Republican Undecideds")) %>%
   mutate(xlab_text = paste0(est_t, "Poll Estimate, ", cand_t))
 
 
@@ -376,6 +378,8 @@ for (fnames in names(sct_gglist)) {
   est_name <- gsub("voters", "vot", est_name)
   est_name <- gsub("hrcund", "hcu", est_name)
   est_name <- gsub("djtund", "dtu", est_name)
+  est_name <- gsub("hrcdund", "hcdu", est_name)
+  est_name <- gsub("djtrund", "dtru", est_name)
   
   ggsave(paste0("figures/scatter_", est_name, ".pdf"), 
          plot = sct_gglist[[fnames]],
