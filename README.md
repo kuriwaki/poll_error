@@ -1,10 +1,24 @@
 Poll Predictions and Errors
 ================
+Shiro Kuriwaki
+2017-10-15
 
-This data combines three state-level datasets on the 2016 Presidential Election.
+-   [Output](#output)
+-   [Figures](#figures)
+-   [Data Sources](#data-sources)
+-   [Poll Prediction](#poll-prediction)
+-   [Poll Estimates](#poll-estimates)
+    -   [Estimating Clinton Support](#estimating-clinton-support)
+    -   [Estimating Trump Support](#estimating-trump-support)
+-   [Estimates of *ρ*](#estimates-of-rho)
+    -   [Based on voters](#based-on-voters)
+    -   [Based on voting eligible population](#based-on-voting-eligible-population)
+    -   [Based on data from validated voters](#based-on-data-from-validated-voters)
+    -   [Based on data from post-election survey](#based-on-data-from-post-election-survey)
+-   [References](#references)
 
-Output - State Estimates
-========================
+Output
+======
 
 The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 
@@ -12,7 +26,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 70
+    ## # A tibble: 51 x 82
     ##                   state    st color      vap      vep votes_hrc votes_djt
     ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL     R  3770142  3601361    729547   1318255
@@ -25,28 +39,33 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE     D   749872   689125    235603    185127
     ##  9 District of Columbia    DC     D   562329   511463    282830     12723
     ## 10              Florida    FL swing 16565588 14572210   4504975   4617886
-    ## # ... with 41 more rows, and 63 more variables: tot_votes <int>,
+    ## # ... with 41 more rows, and 75 more variables: tot_votes <int>,
     ## #   pct_hrc_vep <dbl>, pct_hrc_voters <dbl>, pct_djt_vep <dbl>,
     ## #   pct_djt_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
     ## #   cces_n_vv <int>, cces_n_post_voters <int>, cces_tothrc_raw <int>,
     ## #   cces_tothrc_raw_post <int>, cces_tothrc_adj_trn <dbl>,
     ## #   cces_tothrc_vv <int>, cces_pct_hrc_raw <dbl>,
-    ## #   cces_pct_hrcund_raw <dbl>, cces_pct_hrc_vep <dbl>,
-    ## #   cces_pct_hrc_voters <dbl>, cces_pct_hrcund_voters <dbl>,
+    ## #   cces_pct_hrcund_raw <dbl>, cces_pct_hrcdund_raw <dbl>,
+    ## #   cces_pct_hrc_vep <dbl>, cces_pct_hrc_voters <dbl>,
+    ## #   cces_pct_hrcund_voters <dbl>, cces_pct_hrcdund_voters <dbl>,
     ## #   cces_pct_hrc_vv <dbl>, cces_pct_hrcund_vv <dbl>,
-    ## #   cces_pct_hrc_voters_post <dbl>, cces_totdjt_raw <int>,
-    ## #   cces_totdjt_raw_post <int>, cces_totdjt_adj_trn <dbl>,
-    ## #   cces_totdjt_vv <int>, cces_pct_djt_raw <dbl>,
-    ## #   cces_pct_djtund_raw <dbl>, cces_pct_djt_vep <dbl>,
+    ## #   cces_pct_hrcdund_vv <dbl>, cces_pct_hrc_voters_post <dbl>,
+    ## #   cces_totdjt_raw <int>, cces_totdjt_raw_post <int>,
+    ## #   cces_totdjt_adj_trn <dbl>, cces_totdjt_vv <int>,
+    ## #   cces_pct_djt_raw <dbl>, cces_pct_djtund_raw <dbl>,
+    ## #   cces_pct_djtrund_raw <dbl>, cces_pct_djt_vep <dbl>,
     ## #   cces_pct_djt_voters <dbl>, cces_pct_djtund_voters <dbl>,
-    ## #   cces_pct_djt_vv <dbl>, cces_pct_djtund_vv <dbl>,
+    ## #   cces_pct_djtrund_voters <dbl>, cces_pct_djt_vv <dbl>,
+    ## #   cces_pct_djtund_vv <dbl>, cces_pct_djtrund_vv <dbl>,
     ## #   cces_pct_djt_voters_post <dbl>, cv_turnout_wgt <dbl>,
     ## #   yougov_pct_hrc <dbl>, yougov_pct_djt <dbl>, yougov_n <dbl>,
-    ## #   rho_hrc_vot <dbl>, rho_hrc_vep <dbl>, rho_hrc_vvt <dbl>,
-    ## #   rho_hrc_pst <dbl>, rho_hcu_vot <dbl>, rho_hcu_vep <dbl>,
-    ## #   rho_hcu_vvt <dbl>, rho_djt_vot <dbl>, rho_djt_vep <dbl>,
-    ## #   rho_djt_vvt <dbl>, rho_djt_pst <dbl>, rho_dtu_vot <dbl>,
-    ## #   rho_dtu_vep <dbl>, rho_dtu_vvt <dbl>, neff_hrc_vot <dbl>,
+    ## #   rho_hrc_vot <dbl>, rho_hcu_vot <dbl>, rho_hcdu_vot <dbl>,
+    ## #   rho_hrc_vep <dbl>, rho_hcu_vep <dbl>, rho_hcdu_vep <dbl>,
+    ## #   rho_hrc_vvt <dbl>, rho_hcu_vvt <dbl>, rho_hcdu_vvt <dbl>,
+    ## #   rho_hrc_pst <dbl>, rho_djt_vot <dbl>, rho_dtu_vot <dbl>,
+    ## #   rho_dtru_vot <dbl>, rho_djt_vep <dbl>, rho_dtu_vep <dbl>,
+    ## #   rho_dtru_vep <dbl>, rho_djt_vvt <dbl>, rho_dtu_vvt <dbl>,
+    ## #   rho_dtru_vvt <dbl>, rho_djt_pst <dbl>, neff_hrc_vot <dbl>,
     ## #   neff_hrc_vep <dbl>, neff_hrc_vvt <dbl>, neff_djt_vot <dbl>,
     ## #   neff_djt_vep <dbl>, neff_djt_vvt <dbl>, effratio_hrc_vot <dbl>,
     ## #   effratio_hrc_vep <dbl>, effratio_hrc_vvt <dbl>,
@@ -95,6 +114,8 @@ Sample mean estimates
 -   `cces_pct_hrc_vv`: CCES estimated percent of Clinton votes among validated voters (`cces_tothrc_vv/ cces_n_vv`)
 -   `cces_pct_hrc_post_voters`: CCES estimated percent of Clinton votes among those who reported voting in the post-election survey wave (`cces_tothrc_raw_post/ cces_n_post_voters`)
 -   `cces_*djt*`: All same as above but with Trump
+-   `cces_*hrcdund*`: All same as above but with coding Undecided Democrats Clinton supporters as well.
+-   `cces_*djtrund*`: All same as above but with coding Undecided Republicans as Trump supporters as well.
 -   `cces_*hrcund*`: All same as above but with coding all Undecideds as Clinton supporters as well.
 -   `cces_*djtund*`: All same as above but with coding all Undecideds as Trump supporters as well.
 
@@ -113,15 +134,16 @@ Parameter Estimates
 -   `rho_hrc_vvt`: The *ρ* parameter with Clinton support as the quantity of interest and *voters* as the target population, using validated voters only.
 -   `rho_hrc_pst`: The *ρ* parameter with post-election Clinton support as the quantity of interest and *voters* as the target population.
 -   `rho_*djt*`: The same *ρ* as above but for Trump.
+-   `cces_*hrcdund*`: The same *ρ* as above but coding Undecided Democrats Clinton supporters as well.
+-   `cces_*djtrund*`: The same *ρ* as above but coding Undecided Republicans as Trump supporters as well.
+-   `cces_*hrcund*`: The same *ρ* as above but coding all Undecideds as Clinton supporters as well.
+-   `cces_*djtund*`: The same *ρ* as above but coding all Undecideds as Trump supporters as well.
 
 -   `neff_hrc_*` is the estimated effective sample size for the appropriate sample size *n* using the specified estimator. For example, `neff_hrc_vot` is the effective sample size of `cces_n_voters` when we estimate `rho_hrc_vot`
 -   `effratio_hrc_*` is the ratio of the estimated effective sample size (`neff`) over the original sample size. For example, `effratio_hrc_vot` is given by `neff_hrc_vot/cces_n_voters`
 -   `neff_djt_*` and `effratio_djt*` do the same, but for Trump.
 
-Output - Other Estimates
-========================
-
-The following tables have summary statistics and counts not included in the state-level dataset.
+In addition to the state-level data, the following tables have summary statistics and counts not included in the state-level dataset.
 
 -   `pres16_US.csv` has total counts of some of the population turnout and voting data in the U.S. population.
 -   `rho_sum_stats.csv` has summary statistics of the *ρ* estimates. Each column is an estimate of a type of rho for a particular type of state (or all states). Each row is a summary statistic, such as 10 percent, 90 percent quantiles, and means.
@@ -129,25 +151,23 @@ The following tables have summary statistics and counts not included in the stat
 Figures
 =======
 
-Figures are named according to the following convention
+Figures are named according to the following convention, in the following folders:
 
--   `rho-*` is a scatter plot of a `rho` estimate on the y-axis and the target *N* on the x-axis. We take logs, and the OLS slope coefficient is printed in the bottom-right.
+-   In `figures/summ`: Summary figures
+-   In `figures/rho-N`: `rho-*` is a scatter plot of a `rho` estimate on the y-axis and the target *N* on the x-axis. We take logs, and the OLS slope coefficient is printed in the bottom-right.
     -   The first part of the filename indicates the estimated *ρ* of interest and takes a `rho`-`[candidate]`-`[specification]` format. For example, `rho-hrc-vot` is the parameter for responding to vote for Hilary Clinton, where the target population is the actual voting population. `hrc` and `djt` stand for Clinton and Trump, respectively. `hcu` and `dtu` stand for Cliton + Undecideds and Trump + Undecideds, respectively.
     -   The second part of the filename indicates the subset of observations we look at. `states-D`, `states-R`, `states-swing` indicate that we limit our scatter and coefficients to Blue, Red, and swing states, respectively. `states-pos` and `states-neg` indicate that we limit our scatter and coefficients to states that have positive or negative rho, respectively. This is an important distinction because we take the absolute value of `rho` before taking the log. `states-all` uses all states.
--   `hist_*` is a histogram of state-level parameters. Mostly these are `rho`
--   `scatter_*` is a figure that has state-level estimates of a quantity ($\\widehat{\\mu}$) on the x-axis and the observed quantity (*μ*) on the y-axis.
--   `map_*` shows a quantity of interest in a simplified map (cartogram)
--   `bars_*` shows a quantity of interest in a barplot.
+-   In `figures/hist`: `hist_*` is a histogram of state-level parameters. Mostly these are `rho`
+-   In `figures/scatter`: `scatter_*` is a figure that has state-level estimates of a quantity ($\\widehat{\\mu}$) on the x-axis and the observed quantity (*μ*) on the y-axis.
+-   In `figures/map`: `map_*` shows a quantity of interest in a simplified map (cartogram)
+-   In `figures/bars`: `bars_*` shows a quantity of interest in a barplot.
 
 Data Sources
 ============
 
 The data comes from three sources and is built in `01_read_data.R`
 
-Observed Values
----------------
-
-First, the sample space. The U.S. does not have an official census of citizens or voting *eligible* citizens. Numbers on voter registrants are also out-of-date in some states. Thus the denominator of interest is fairly tricky to compute.
+First, the population data. The U.S. does not have an official census of citizens or voting *eligible* citizens. Numbers on voter registrants are also out-of-date in some states. Thus the denominator of interest is fairly tricky to compute.
 
 Here we rely on Michael McDonald's estimates at <http://www.electproject.org/>
 
@@ -175,9 +195,6 @@ Poll Prediction
 ===============
 
 The main poll we use is the CCES, which is one of the few polls that has raw data available in accessible form.
-
-CCES
-----
 
 The Cooperative Congressional Election Study (CCES) is one of the largest pre-election studies conducted in the 2016 election. The CCES is conducted online for the several weeks before the election.
 
@@ -224,10 +241,7 @@ tab_cc <- cc_raw %>%
          cces_pct_hrc_vv = cces_tothrc_vv / cces_n_vv)
 ```
 
-YouGov Release
---------------
-
-YouGov runs the CCES survey and generates their estimates with their algorithm. I took estimates from their November 16, 2016 press release [here](https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016). A Google Sheets version of the same table in the release is [here](https://docs.google.com/spreadsheets/d/1pJLEHfvCN-eX1mBfe6sgs0dwF2oq9G1FcUhKFk0Pe8g).
+Also, YouGov runs the CCES survey and generates their estimates with their own algorithm (not public). I took estimates from their November 16, 2016 press release [here](https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016). A Google Sheets version of the same table in the release is [here](https://docs.google.com/spreadsheets/d/1pJLEHfvCN-eX1mBfe6sgs0dwF2oq9G1FcUhKFk0Pe8g).
 
 Read the press release and guides (e.g. for 2014: [dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=2794577&version=RELEASED&version=.0)) for more details on implementation.
 
