@@ -145,13 +145,15 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   rho_type <- slope_i$rho_type
   rho_text <- slope_i$rho_text
   N_text <- slope_i$N_text
-  filename <- paste0("temp_rho-", slope_i$descrip, ".pdf")
-  lab <- slope_i$lab
+  filename <- paste0("rho-", slope_i$descrip, ".pdf")
+  lab <- slope_i$lab_bias
   
   # pretty labels 
   if (N_text == "tot_votes") xlab_text <- "log(Total Voters)"
   if (N_text == "vep") xlab_text <- "log(Voting Eligible Population)"
   lar_code <- gsub("rho_", "", rho_text)
+  ylab_text <- expression(log(abs(~relative~error)))
+  rho_expr <- rho_exp[[lar_code]]
   
   # update lab by adding state subset info
   if (subset == "R") stlab <- "Red states"
@@ -179,7 +181,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   df_plot <- df_plot %>%
     mutate(log_abs_rho = log(abs(rhovar)),
            log_N = log(.data[[N_text]])) %>% 
-    mutate(lrho_N = log_abs_rho + 0.5*log_N)
+    mutate(rho_metric = log_abs_rho + (0.5*log_N))
   
   # data to label
   df_lab <- filter(df_plot, st %in% c("MI", "WI"))
@@ -187,7 +189,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   
   # skeleton
   gg0 <- ggplot(df_plot, aes(label = st, color = color)) +
-    aes(x = log_N, y = lrho_N) +
+    aes(x = log_N, y = rho_metric) +
     geom_smooth(method = "lm", se = FALSE, color = "gray") +
     geom_point() +
     scale_color_manual(values = colorvec)  +
@@ -198,9 +200,10 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     annotate("text", x = -Inf, y = -Inf, label = "More accurate", color = "darkgray", hjust = -0.5, vjust = -0.5) +
     annotate("text", x = -Inf, y = Inf, label = "Less accurate", color = "darkgray", hjust = -0.5, vjust = 1) +
     guides(color = FALSE) +
-    theme(axis.title = element_text(size = 8)) +
-    labs(y = lar_exp[[lar_code]],
+    theme(axis.title = element_text(size = 10)) +
+    labs(y = ylab_text, # lar_exp[[lar_code]],
          x = xlab_text,
+         # title = rho_expr,
          subtitle = stlab,
          caption = lab)
   
@@ -215,7 +218,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
 
 
 # run through all of them
-for (i in which(!is.na(slopes$lab))) {
+for (i in which(!is.na(slopes$lab) & !(slopes$subset %in% c("pos", "neg")))) {
   plot_corr(lmrow = i)
 }
 
@@ -228,15 +231,15 @@ coef_plot <- slopes %>%
          descrip = forcats::as_factor(gsub("_states-", "; ", descrip)),
          cand = factor(cand, levels = c("hrc", "djt", "hcdu", "dtru",  "hcu", "dtu")),
          emph = case_when(subset == "all" ~ "1", subset != "all" ~ "0"),
-         ymin = coef - qnorm(0.975)*se,
-         ymax = coef + qnorm(0.975)*se) 
+         ymin = coef_bias - qnorm(0.975)*se,
+         ymax = coef_bias + qnorm(0.975)*se) 
 
 candlab <- c("hrc" = "Clinton Supporters",
              "djt" = "Trump Supporters",
-             "hcu" = "Clinton Supporters + All Undecideds",
-             "dtu" = "Trump Supporters + All Undecideds",
-             "hcdu" = "Clinton Supporters + Undecided Democrats",
-             "dtru" = "Trump Supporters + Undecided Republicans")
+             "hcu" = "Clinton Supporters\n+\nAll Undecideds",
+             "dtu" = "Trump Supporters\n+\nAll Undecideds",
+             "hcdu" = "Clinton Supporters\n+\nUndecided Democrats",
+             "dtru" = "Trump Supporters\n+\nUndecided Republicans")
 
 colorvec_pn <- c(colorvec, 
                  "all" = "black",
@@ -250,28 +253,41 @@ labvec <- c("D" = "Blue states",
             "pos" = "rho > 0 (overestimates)",
             "neg" = "rho < 0 (underestimates)")
 
-ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = subset, size = emph)) +
-  facet_wrap(~cand, labeller = labeller(cand = candlab), ncol = 2) +
-  theme(axis.line=element_line()) + 
-  scale_color_manual(name = "States used", values = colorvec_pn, labels = labvec) +
-  geom_hline(yintercept = 0, linetype = "solid", color = "darkgray") +
-  geom_hline(yintercept = -0.5, linetype = "dashed") +
-  geom_pointrange(shape = 18) +
-  scale_y_continuous(minor_breaks = NULL) +
-  scale_size_manual(values = c("1" = 0.75, "0" = 0.5)) +
-  guides(size = FALSE, color = guide_legend(nrow = 1)) +
-  coord_flip() +
-  theme_bw() +
-  theme(legend.position = "bottom", 
-        panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
-        strip.text = element_text(size = 12)) +
-  labs(x = expression(Specifications~of~widehat(rho)),
-       y = expression(Slope~coefficient~from~log(abs(widehat(rho)))~regressed~on~log(N), with~95~percent~CI),
-       caption = "Each point is a regression coefficient with 95 percent confidence intervals.
-       Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
-       Points ordered by the subset of states (color) and then by estimand (in text).
-       Missing values occur when there were too few observations (3 or less) to calculate a slope.")
+
+plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2)) {
+  ggplot(df, aes(y = coef_bias, x = descrip, ymin = ymin, ymax = ymax, color = subset, size = emph)) +
+    facet_wrap(~cand, labeller = labeller(cand = candlab), ncol = 2) +
+    theme(axis.line=element_line()) + 
+    scale_color_manual(name = "States used", values = colorvec_pn, labels = labvec) +
+    geom_hline(yintercept = 0, linetype = "solid", color = "darkgray") +
+    # geom_hline(yintercept = 0.5, linetype = "dashed") +
+    geom_pointrange(shape = 18) +
+    scale_y_continuous(minor_breaks = NULL, limit = coefrange) +
+    scale_size_manual(values = c("1" = 1, "0" = 0.75)) +
+    guides(size = FALSE, color = guide_legend(ncol = 1, reverse = TRUE)) +
+    coord_flip() +
+    theme_bw() +
+    theme(legend.position = "right", 
+          panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+          strip.text = element_text(size = 11)) +
+    labs(x = expression(Specifications~of~widehat(rho)),
+         y = expression(log(abs(relative~error)), with~95~percent~CI),
+         caption = "Each point is a regression coefficient with 95 percent confidence interval.")
+       # Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
+       # Points ordered by the subset of states (color) and then by estimand (in text).
+       # Missing values occur when there were too few observations (3 or less) to calculate a slope.")
+}
+
+plot_coef(coef_plot)
 ggsave("figures/summ/corr-rho-N_intervals.pdf", w = 1.8*fig.w, h = 2.5*fig.h)
+
+plot_coef(filter(coef_plot, cand %in% c("hrc", "djt")))
+ggsave("figures/summ/corr-rho-N_intervals_hrc-djt.pdf", w = 1.3*fig.w, h = 1.3*fig.h)
+
+plot_coef(filter(coef_plot, cand %in% c("hcu", "dtu")))
+ggsave("figures/summ/corr-rho-N_intervals_hcu-dtu.pdf", w = 1.3*fig.w, h = 1.3*fig.h)
+
+
 
 
 
