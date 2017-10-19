@@ -130,6 +130,11 @@ df <- df %>%
                                     n = "cces_n_post_voters"))
 
 
+  
+  
+
+
+
 # Estimate n_eff ----
 eff_estimate <- function(data = df, rho, n, N, color = "color", avg_by_color = TRUE) {
   N <- data[[N]]

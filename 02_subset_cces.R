@@ -2,6 +2,7 @@ library(haven)
 library(dplyr)
 
 
+
 cc16_full <- read_dta("~/Dropbox/cces_cumulative/data/source/cces/2016_cc_vv.dta")
 
 
@@ -58,3 +59,4 @@ cc16 <- cc16 %>%
 
 
 saveRDS(cc16, "data/input/cces2016_slim.Rds")
+write_dta(cc16, "data/input/cces2016_slim.dta")
