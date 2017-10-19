@@ -66,7 +66,7 @@ ylim_hist <- c(0, 12.5)
 lar_end <- ")"
 
 lar_exp <- 
-  list(hrc_vot = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")),
+  list(hrc_vot = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")+frac(1,2)*log(N)),
        hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
        hrc_vvt = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
        hrc_pst = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[post]])), ")")),
@@ -76,7 +76,7 @@ lar_exp <-
        hcdu_vot =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[avp]])), ")")),
        hcdu_vep =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vep]])), ")")),
        hcdu_vvt =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vv]])), ")")),
-       djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")+frac(1,2)*log(N)),
        djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
        djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")),
        djt_pst = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")),
@@ -145,7 +145,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   rho_type <- slope_i$rho_type
   rho_text <- slope_i$rho_text
   N_text <- slope_i$N_text
-  filename <- paste0("rho-", slope_i$descrip, ".pdf")
+  filename <- paste0("temp_rho-", slope_i$descrip, ".pdf")
   lab <- slope_i$lab
   
   # pretty labels 
@@ -187,12 +187,12 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   
   # skeleton
   gg0 <- ggplot(df_plot, aes(label = st, color = color)) +
-    aes(x = log_N, y = log_abs_rho) +
+    aes(x = log_N, y = lrho_N) +
     geom_smooth(method = "lm", se = FALSE, color = "gray") +
     geom_point() +
     scale_color_manual(values = colorvec)  +
     theme_bw() +
-    coord_cartesian(ylim = lim_lro, xlim = lim_lpp) +
+    coord_cartesian(ylim = c(-2, 4), xlim = lim_lpp) +
     scale_x_continuous(minor_breaks = NULL) +
     scale_y_continuous(minor_breaks = NULL) +
     annotate("text", x = -Inf, y = -Inf, label = "More accurate", color = "darkgray", hjust = -0.5, vjust = -0.5) +
