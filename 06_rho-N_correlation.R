@@ -10,6 +10,7 @@ lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
   
   rho_text <- glue("rho_{cand_text}_{rho_type}") # e.g. rho_hrc_vot
   ff <- glue("log(abs({rho_text})) ~ log({N_text})")
+  ff_bias <- glue("I(log(abs({rho_text})) + 0.5*log({N_text})) ~ log({N_text})")
   
   ## subset states
   if (subset == "all") dfreg <- df
@@ -23,13 +24,19 @@ lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
     coef <- sprintf("%.2f", coef(mod)[2])
     se <- sprintf("%.2f", summary(mod)$coef[2, 2])
     lab <- glue("{coef}\n ({se})")
-    
-    # update with precise values
-    coef <- coef(mod)[2]
+    coef <- coef(mod)[2] # overwrite
     se <- summary(mod)$coef[2, 2]
     
+    # separate regression for getting relative bias
+    mod_bias <- lm(as.formula(ff_bias), dfreg)
+    coef_bias <- sprintf("%.2f", coef(mod_bias)[2])
+    se_bias <- sprintf("%.2f", summary(mod_bias)$coef[2, 2])
+    lab_bias <- glue("{coef_bias}\n ({se_bias})")
+    coef_bias <- coef(mod_bias)[2]
+    se_bias <- summary(mod_bias)$coef[2, 2]
+    
   } else {
-    coef <- se <- lab <- NA
+    coef_bias <- se_bias <- lab_bias <- coef <- se <- lab <- NA
   }
   
   # short description
@@ -47,7 +54,10 @@ lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
          lm_form = as.character(ff),
          coef = coef,
          se = se,
-         lab = as.character(lab))
+         lab = as.character(lab),
+         coef_bias = coef_bias,
+         se_bias = se_bias,
+         lab_bias = lab_bias)
 }
 
 
