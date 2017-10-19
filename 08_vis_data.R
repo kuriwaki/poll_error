@@ -53,6 +53,7 @@ all_pops <- unlist(select(df, vep, tot_votes), use.names = FALSE)
 # ranges
 lim_rho <- range(all_rhos)
 lim_lro <- range(log(abs(all_rhos)))
+lim_lroN <- range(log(abs(all_rhos)*all_pops))
 lim_lpp <- range(log(all_pops))
 
 # for hist
@@ -61,6 +62,9 @@ ylim_hist <- c(0, 12.5)
 
 # labels ---
 # log absolute value expressions 
+
+lar_end <- ")"
+
 lar_exp <- 
   list(hrc_vot = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")),
        hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
@@ -83,6 +87,9 @@ lar_exp <-
        dtu_vep = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vep]])), ")")),
        dtu_vvt = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vv]])), ")"))
   )
+
+# +0.5log(N)
+
 
 # normal rho
 rho_exp <- 
@@ -171,8 +178,11 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   # add log version of x and y variable
   df_plot <- df_plot %>%
     mutate(log_abs_rho = log(abs(rhovar)),
-           log_N = log(.data[[N_text]]))
+           log_N = log(.data[[N_text]])) %>% 
+    mutate(lrho_N = log_abs_rho + 0.5*log_N)
   
+  # data to label
+  df_lab <- filter(df_plot, st %in% c("MI", "WI"))
   
   
   # skeleton
@@ -194,6 +204,11 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
          subtitle = stlab,
          caption = lab)
   
+  if (NROW(df_lab) > 0) {
+    gg0 <- gg0 + 
+      geom_text_repel(data = df_lab, aes(label = st))
+  }
+  
   cat(filename, "\n")
   ggsave(file.path("figures/rho-N/", filename), gg0, width = fig.w, height = fig.h)
 }
@@ -207,6 +222,7 @@ for (i in which(!is.na(slopes$lab))) {
 
 # show distribution of slopes -----
 coef_plot <- slopes %>% 
+  filter(!subset %in% c("neg", "pos")) %>%
   arrange(subset, rho_type) %>% 
   mutate(descrip = forcats::as_factor(gsub("(hrc|djt|hcu|dtu|hcdu|dtru)-", "", descrip)),
          descrip = forcats::as_factor(gsub("_states-", "; ", descrip)),
@@ -255,7 +271,10 @@ ggplot(coef_plot, aes(y = coef, x = descrip, ymin = ymin, ymax = ymax, color = s
        Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
        Points ordered by the subset of states (color) and then by estimand (in text).
        Missing values occur when there were too few observations (3 or less) to calculate a slope.")
-ggsave("figures/summ/corr-rho-N_intervals.pdf", w = 1.9*fig.w, h = 3*fig.h)
+ggsave("figures/summ/corr-rho-N_intervals.pdf", w = 1.8*fig.w, h = 2.5*fig.h)
+
+
+
 
 
 # Histogram of rho ----
@@ -286,7 +305,15 @@ ggsave("figures/hist/hist_cv_turnout.pdf", width = fig.w, height = fig.h)
 
 rm(gg0)
 
+# show differences in rhos ---
 
+df_rho_diff <- df %>% 
+  select(state:color, matches("rho"))
+
+df_rho_diff %>% 
+  ggplot(aes(x = rho_hrc_vot - rho_dtru_vot)) +
+  geom_histogram(bins = 25) + 
+  theme_bw()
 
 
 # what log transforms look like ----
@@ -317,7 +344,7 @@ log_trans_list <- list(
 
 
 plot_grid(plotlist = log_trans_list)
-ggsave("figures/logabsrho_transformation.pdf", w = fig.w, h = fig.h)
+ggsave("figures/summ/logabsrho_transformation.pdf", w = fig.w, h = fig.h)
 
 rm(gg0)
 
