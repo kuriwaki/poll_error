@@ -60,7 +60,7 @@ lim_lpp <- range(log(all_pops))
 ylim_hist <- c(0, 12.5)
 
 
-# labels ---
+# labels ------
 # log absolute value expressions 
 
 lar_end <- ")"
@@ -241,6 +241,8 @@ candlab <- c("hrc" = "Clinton Supporters",
              "hcdu" = "Clinton Supporters\n+\nUndecided Democrats",
              "dtru" = "Trump Supporters\n+\nUndecided Republicans")
 
+candlab <- gsub("\\n", " ", candlab) # remove or keep line breaks
+
 colorvec_pn <- c(colorvec, 
                  "all" = "black",
                  "pos" = "#ff7f00",
@@ -254,20 +256,22 @@ labvec <- c("D" = "Blue states",
             "neg" = "rho < 0 (underestimates)")
 
 
-plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2)) {
+plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right") {
+  if (legendpos == "right") legendcol <- 1
+  if (legendpos == "bottom") legendcol <- 4
   ggplot(df, aes(y = coef_bias, x = descrip, ymin = ymin, ymax = ymax, color = subset, size = emph)) +
     facet_wrap(~cand, labeller = labeller(cand = candlab), ncol = 2) +
     theme(axis.line=element_line()) + 
     scale_color_manual(name = "States used", values = colorvec_pn, labels = labvec) +
     geom_hline(yintercept = 0, linetype = "solid", color = "darkgray") +
-    # geom_hline(yintercept = 0.5, linetype = "dashed") +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
     geom_pointrange(shape = 18) +
     scale_y_continuous(minor_breaks = NULL, limit = coefrange) +
     scale_size_manual(values = c("1" = 1, "0" = 0.75)) +
-    guides(size = FALSE, color = guide_legend(ncol = 1, reverse = TRUE)) +
+    guides(size = FALSE, color = guide_legend(ncol = legendcol, reverse = TRUE)) +
     coord_flip() +
     theme_bw() +
-    theme(legend.position = "right", 
+    theme(legend.position = legendpos, 
           panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
           strip.text = element_text(size = 11)) +
     labs(x = expression(Specifications~of~widehat(rho)),
@@ -278,8 +282,8 @@ plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2)) {
        # Missing values occur when there were too few observations (3 or less) to calculate a slope.")
 }
 
-plot_coef(coef_plot)
-ggsave("figures/summ/corr-rho-N_intervals.pdf", w = 1.8*fig.w, h = 2.5*fig.h)
+plot_coef(coef_plot, legendpos = "bottom")
+ggsave("figures/summ/corr-rho-N_intervals_all.pdf", w = 1.5*fig.w, h = 2*fig.h)
 
 plot_coef(filter(coef_plot, cand %in% c("hrc", "djt")))
 ggsave("figures/summ/corr-rho-N_intervals_hrc-djt.pdf", w = 1.3*fig.w, h = 1.3*fig.h)
@@ -308,7 +312,14 @@ rho_vec <- names(rho_exp)
 for (rho_name in rho_vec) {
   var_name <- paste0("rho_", rho_name)
   file_name <- paste0("figures/hist/hist_", var_name, ".pdf")
-  gg0 + aes_string(x = var_name) + labs(x = rho_exp[[rho_name]])
+  
+  rho_vec <- df[[var_name]]
+  rhobar <- signif(mean(rho_vec), 2)
+  rhoci <- signif(qnorm(0.975)*sd(rho_vec)/sqrt(length(rho_vec)), 2)
+  lab <- paste0(rhobar, " ± ", rhoci)
+
+  gg0 + aes_string(x = var_name) + labs(x = rho_exp[[rho_name]]) +
+    annotate("label", x = Inf, y= Inf, label = lab, hjust = 1.1, vjust = 2, size = 4)
   ggsave(file_name, width = fig.w, height = fig.h)
   cat(file_name, "\n")
 }
