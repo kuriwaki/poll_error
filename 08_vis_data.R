@@ -276,7 +276,7 @@ plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right"
           panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
           strip.text = element_text(size = 11)) +
     labs(x = "Specification of relative error",
-         y = expression(log(abs(relative~error)), with~95~percent~CI),
+         y = expression(Slope~on~log~N),
          caption = "Each point is a regression coefficient with 95 percent confidence interval.")
        # Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
        # Points ordered by the subset of states (color) and then by estimand (in text).

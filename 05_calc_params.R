@@ -1,6 +1,7 @@
 library(dplyr)
 library(readr)
 library(tibble)
+library(haven)
 library(data.table)
 
 # df 
@@ -205,7 +206,7 @@ df <- df %>%
 
 # Save ----
 write_csv(df, "data/output/pres16_state.csv")
-
+write_dta(df, "data/output/pres16_state.dta")
 
 
 
