@@ -161,8 +161,8 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   if (subset == "swing") stlab <- "Swing states"
   if (subset == "pos") stlab <- "States where rho > 0" 
   if (subset == "neg") stlab <- "States where rho < 0"
-  if (subset == "all") stlab <- "All states"
-  lab <- paste0("Slope Coefficient =   ", lab)
+  if (subset == "all") stlab <- ""
+  lab <- paste0("", lab)
 
     
   # repel text labels?
@@ -197,15 +197,16 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     coord_cartesian(ylim = c(-2, 4), xlim = lim_lpp) +
     scale_x_continuous(minor_breaks = NULL) +
     scale_y_continuous(minor_breaks = NULL) +
-    annotate("text", x = -Inf, y = -Inf, label = "More accurate", color = "darkgray", hjust = -0.5, vjust = -0.5) +
-    annotate("text", x = -Inf, y = Inf, label = "Less accurate", color = "darkgray", hjust = -0.5, vjust = 1) +
+    annotate("text", x = -Inf, y = -Inf, label = "More accurate", color = "darkgray", hjust = -0.3, vjust = -0.5) +
+    annotate("text", x = -Inf, y = Inf, label = "Less accurate", color = "darkgray", hjust = -0.3, vjust = 1) +
+    annotate("label", x = Inf, y= -Inf, label = lab, hjust = 1.2, vjust = -1, size = 4) +
     guides(color = FALSE) +
     theme(axis.title = element_text(size = 10)) +
     labs(y = ylab_text, # lar_exp[[lar_code]],
          x = xlab_text,
          # title = rho_expr,
-         subtitle = stlab,
-         caption = lab)
+         subtitle = stlab)
+         # caption = lab)
   
   if (NROW(df_lab) > 0) {
     gg0 <- gg0 + 
@@ -274,7 +275,7 @@ plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right"
     theme(legend.position = legendpos, 
           panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
           strip.text = element_text(size = 11)) +
-    labs(x = expression(Specifications~of~widehat(rho)),
+    labs(x = "Specification of relative error",
          y = expression(log(abs(relative~error)), with~95~percent~CI),
          caption = "Each point is a regression coefficient with 95 percent confidence interval.")
        # Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
