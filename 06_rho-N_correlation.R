@@ -23,7 +23,7 @@ lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
     mod <- lm(as.formula(ff), dfreg)
     coef <- sprintf("%.2f", coef(mod)[2])
     se <- sprintf("%.2f", summary(mod)$coef[2, 2])
-    lab <- glue("{coef}\n ({se})")
+    lab <- glue("{coef} \n({se})")
     coef <- coef(mod)[2] # overwrite
     se <- summary(mod)$coef[2, 2]
     
@@ -31,7 +31,7 @@ lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
     mod_bias <- lm(as.formula(ff_bias), dfreg)
     coef_bias <- sprintf("%.2f", coef(mod_bias)[2])
     se_bias <- sprintf("%.2f", summary(mod_bias)$coef[2, 2])
-    lab_bias <- glue("{coef_bias}\n ({se_bias})")
+    lab_bias <- glue("{coef_bias} \n({se_bias})")
     coef_bias <- coef(mod_bias)[2]
     se_bias <- summary(mod_bias)$coef[2, 2]
     
