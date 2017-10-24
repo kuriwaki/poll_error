@@ -267,7 +267,7 @@ plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right"
     geom_hline(yintercept = 0, linetype = "solid", color = "darkgray") +
     geom_hline(yintercept = 0.5, linetype = "dashed") +
     geom_pointrange(shape = 18) +
-    scale_y_continuous(minor_breaks = NULL, limit = coefrange) +
+    scale_y_continuous(minor_breaks = NULL, limit = coefrange, breaks = c(-1, 0, 0.5, 1, 2)) +
     scale_size_manual(values = c("1" = 1, "0" = 0.75)) +
     guides(size = FALSE, color = guide_legend(ncol = legendcol, reverse = TRUE)) +
     coord_flip() +
