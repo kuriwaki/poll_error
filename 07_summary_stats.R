@@ -1,6 +1,7 @@
-library(tibble)
-library(readr)
-library(dplyr)
+library(tidyverse)
+library(scales)
+library(ggrepel)
+library(glue)
 
 df <- read_csv("data/output/pres16_state.csv", col_types = cols())
 
@@ -11,7 +12,40 @@ colSums(select(df, vap, vep, matches("votes"), matches("cces_tot"),  matches("cc
   write_csv("data/output/pres16_US.csv")
 
 
+cces_n_raw <- sum(df$cces_n_raw)
+cces_n_vv <- sum(df$cces_n_vv)
 
+df %>% 
+  mutate(pct_n_vv = percent(round(cces_n_vv / cces_n_raw, 2))) %>%
+  mutate(state = glue("{state} ({pct_n_vv})")) %>%
+  arrange(cces_n_raw) %>%
+  ggplot(aes(x = fct_inorder(state), y = cces_n_raw)) +
+  geom_point() +
+  geom_point(aes(y = cces_n_vv), shape = 21, fill = "white") +
+  scale_y_continuous(label = comma) +
+  ggExtra::rotateTextX() +
+  labs(x = "State (In parentheses: proportion of validated voters among full sample)",
+       y = "CCES sample size \nBlack: full sample, white:validaated voters",
+       caption = "Source: 2016 CCES pre-election survey")
+ggsave("figures/sample-size_by-state.pdf", w = 10, h = 5)
+
+
+ggplot(df, aes(x = tot_votes/vap, y = cces_n_vv/cces_n_raw, color = color)) +
+  coord_equal() +
+  scale_color_manual(values =colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  geom_point() +
+  scale_x_continuous(label = percent) +
+  scale_y_continuous(label = percent) +
+  guides(color = FALSE) +
+  labs(x = "Population Turnout\n(Total Votes for President / Voting Age Population)",
+       y = "Estimated Turnout\n(CCES validated voters / CCES total sample)")
+ggsave("figures/turnout_vvt.pdf", h = 5, w = 4)
+
+tots <- colSums(select(df, vap, vep, matches("votes"), matches("cces_tot"),  matches("cces_n_"))) %>% 
+  t() %>% as.data.frame()
+
+tots["tot_votes"] / tots["vap"]
 
 # summary stats ------
 my_qtl <- function(vec, vecname) {
