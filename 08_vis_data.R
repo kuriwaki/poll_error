@@ -184,7 +184,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     mutate(rho_metric = log_abs_rho + (0.5*log_N))
   
   # data to label
-  df_lab <- filter(df_plot, st %in% c("MI", "WI"))
+  df_lab <- NULL # filter(df_plot, st %in% c("MI", "WI"))
   
   
   # skeleton

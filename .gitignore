@@ -27,6 +27,12 @@ vignettes/*.pdf
 .DS_Store
 data/.DS_Store
 data/input/.DS_Store
+slides/
+tex
+Icon*
+references
+.dropbox
 
 # let's not store figures
-figures/*pdf
+figures/*/*.pdf
+
