@@ -257,7 +257,7 @@ labvec <- c("D" = "Blue states",
             "neg" = "rho < 0 (underestimates)")
 
 
-plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right") {
+plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right", cap = "Each point is a regression coefficient with 95 percent confidence interval.") {
   if (legendpos == "right") legendcol <- 1
   if (legendpos == "bottom") legendcol <- 4
   ggplot(df, aes(y = coef_bias, x = descrip, ymin = ymin, ymax = ymax, color = subset, size = emph)) +
@@ -277,14 +277,14 @@ plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right"
           strip.text = element_text(size = 11)) +
     labs(x = "Specification of relative error",
          y = expression(Slope~on~log~N),
-         caption = "Each point is a regression coefficient with 95 percent confidence interval.")
+         caption = cap)
        # Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
        # Points ordered by the subset of states (color) and then by estimand (in text).
        # Missing values occur when there were too few observations (3 or less) to calculate a slope.")
 }
 
-plot_coef(coef_plot, legendpos = "bottom")
-ggsave("figures/summ/corr-rho-N_intervals_all.pdf", w = 1.5*fig.w, h = 2*fig.h)
+plot_coef(coef_plot, cap = NULL)
+ggsave("figures/summ/corr-rho-N_intervals_all.pdf", w = 2*fig.w, h = 1.75*fig.h)
 
 plot_coef(filter(coef_plot, cand %in% c("hrc", "djt")))
 ggsave("figures/summ/corr-rho-N_intervals_hrc-djt.pdf", w = 1.3*fig.w, h = 1.3*fig.h)
@@ -600,3 +600,20 @@ gg0 + aes(y = effratio_djt_vep) +
   labs(title = eff_t[["djt_vep"]])
 ggsave("figures/bars/bars_djt_vep.pdf", h = fig.h, w = mfig.w)
 
+
+
+# diagnostic all undecideds vs. R undecidesd---- 
+df %>% 
+ggplot(aes(x = cces_pct_djtund_vv - cces_pct_djt_vv, y = cces_pct_djtrund_vv - cces_pct_djt_vv, color = color, size = tot_votes)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  scale_x_continuous(label = percent, minor_breaks = NULL) +
+  scale_y_continuous(label = percent, minor_breaks = NULL) +
+  scale_color_manual(values = colorvec) +
+  geom_point(alpha = 0.8) +
+  geom_text_repel(aes(label = st)) +
+  guides(size = FALSE, color = FALSE) +
+  coord_equal() +
+  theme_bw() +
+  labs(x = "Percentage of All Undecided Voters in State",
+       y = "Percentage of Republican Undecided Voters in State")
+ggsave("figures/temp_undecided-pop.pdf", h = 4, w = 7)
