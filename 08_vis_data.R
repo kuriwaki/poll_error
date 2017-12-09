@@ -401,12 +401,12 @@ sct_labs <- sct_labs %>%
                             grepl("_djt_", var_name) ~ "Trump Support",
                             grepl("_djtund_", var_name) ~ "Trump + All Undecideds",
                             grepl("_djtrund_", var_name) ~ "Trump + Undecided Republicans")) %>%
-  mutate(xlab_text = paste0(est_t, "Poll Estimate,\n", cand_t)) %>% 
+  mutate(ylab_text = paste0(est_t, "Poll Estimate,\n", cand_t)) %>% 
   arrange(var_name)
 
 
 # starting scatter
-gg0 <- ggplot(df, aes(x = cces_pct_hrc_voters, y = pct_hrc_voters, color = color, size = vap)) +
+gg0 <- ggplot(df, aes(x = pct_hrc_voters, y = cces_pct_hrc_voters, color = color, size = vap)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   scale_x_continuous(limits = c(0, 1), label = percent, minor_breaks = NULL) +
   scale_y_continuous(limits = c(0, 1), label = percent, minor_breaks = NULL) +
@@ -423,23 +423,23 @@ sct_gglist <- foreach(i = 1:nrow(sct_labs)) %do% {
   if (sct_labs$cand[i] == "H") {
     mu <- df$pct_hrc_voters
     gg <- gg0 +
-      annotate("text", x = 0.75, y = 0.1, label = "Poll overestimated\nClinton support", color = "darkgray") +
-      annotate("text", x = 0.25, y = 0.9, label = "Poll underestimated\nClinton support", color = "darkgray") +
-      labs(y = "Final Clinton Popular Vote Share")
+      annotate("text", x = 0.75, y = 0.1, label = "Poll underestimated\nClinton support", color = "darkgray") +
+      annotate("text", x = 0.25, y = 0.9, label = "Poll overestimated\nClinton support", color = "darkgray") +
+      labs(x = "Final Clinton Popular Vote Share")
   }
   
   if (sct_labs$cand[i] == "T") {
     mu <- df$pct_djt_voters
-    gg <- gg0 + aes(y = pct_djt_voters) +
-      annotate("text", x = 0.75, y = 0.1, label = "Poll overestimated\nTrump support", color = "darkgray") +
-      annotate("text", x = 0.25, y = 0.9, label = "Poll underestimated\nTrump support", color = "darkgray") +
-      labs(y = "Final Trump Popular Vote Share")
+    gg <- gg0 + aes(x = pct_djt_voters) +
+      annotate("text", x = 0.75, y = 0.1, label = "Poll underestimated\nTrump support", color = "darkgray") +
+      annotate("text", x = 0.25, y = 0.9, label = "Poll overestimated\nTrump support", color = "darkgray") +
+      labs(x = "Final Trump Popular Vote Share")
   }
   
   rmse <- sqrt(mean((mu - df[[sct_labs$var_name[i]]])^2))
   
-  gg <- gg + aes_string(x = sct_labs$var_name[i]) +
-    xlab(sct_labs$xlab_text[i]) +
+  gg <- gg + aes_string(y = sct_labs$var_name[i]) +
+    ylab(sct_labs$ylab_text[i]) +
     labs(caption = paste0("Root Mean Squared Error: ", sprintf("%3.2f", rmse)))
   
   return(gg)
@@ -485,11 +485,11 @@ gg16 <- plot_grid(ord_gg[[01]], ord_gg[[02]], ord_gg[[04]], ord_gg[[03]],
 save_plot("figures/summ/scatter_all.pdf", gg16, base_height = 3.25, ncol = 4, nrow = 6)
 
 # Turnout
-gg0 + aes(x = (cces_n_voters/cces_n_raw), y = (tot_votes/vep), size = vap) +
-  annotate("text", x = 0.8, y = 0.1, label = "Poll overestimated\nturnout", color = "darkgray") +
-  annotate("text", x = 0.2, y = 0.9, label = "Poll underestimated\nturnout", color = "darkgray") +
-  xlab("Turnout-Adjusted Poll Estimate of Turnout") +
-  ylab("Final Turnout\n(% of Voting Eligible Population)") +
+gg0 + aes(y = (cces_n_voters/cces_n_raw), x = (tot_votes/vep), size = vap) +
+  annotate("text", x = 0.8, y = 0.1, label = "Poll underestimated\nturnout", color = "darkgray") +
+  annotate("text", x = 0.2, y = 0.9, label = "Poll overestimated\nturnout", color = "darkgray") +
+  ylab("Turnout-Adjusted Poll Estimate of Turnout") +
+  xlab("Final Turnout\n(% of Voting Eligible Population)") +
 ggsave("figures/scatter/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
 
 rm(gg0)
