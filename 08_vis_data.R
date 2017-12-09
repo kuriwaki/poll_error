@@ -9,8 +9,8 @@ library(tibble)
 library(foreach)
 
 
-fig.w <- 6*0.80
-fig.h <- 4*0.751
+fig.w <- 6*0.80*0.9
+fig.h <- 4*0.751*0.9
 mfig.w <- fig.w
 
 
@@ -95,24 +95,24 @@ lar_exp <-
 rho_exp <- 
   list(hrc_vot = expression(Clinton~~italic(widehat(italic(rho))[N[avp]])),
        hrc_vep = expression(Clinton~~italic(widehat(italic(rho))[N[vep]])),
-       hrc_vvt = expression(Clinton~~italic(widehat(italic(rho))[N[vv]])),
+       hrc_vvt = expression(Clinton~~italic(widehat(italic(rho))[N])),
        hrc_pst = expression(Clinton~~italic(widehat(italic(rho))[N[post]])),
        hcu_vot = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[avp]])),
        hcu_vep = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[vep]])),
-       hcu_vvt = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[vv]])),
+       hcu_vvt = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N])),
        hcdu_vot = expression(Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[avp]])),
        hcdu_vep = expression(Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vep]])),
-       hcdu_vvt = expression(Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vv]])),
+       hcdu_vvt = expression(Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N])),
        djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
        djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])),
-       djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N[vv]])),
+       djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N])),
        djt_pst = expression(Trump~~italic(widehat(italic(rho))[N[post]])),
        dtu_vot = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[avp]])),
        dtu_vep = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[vep]])),
-       dtu_vvt = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[vv]])),
+       dtu_vvt = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N])),
        dtru_vot = expression(Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[avp]])),
        dtru_vep = expression(Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vep]])),
-       dtru_vvt = expression(Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vv]])))
+       dtru_vvt = expression(Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N])))
 
 # titles
 eff_t <- list(
