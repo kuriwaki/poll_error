@@ -15,7 +15,7 @@ tab_cc <- cc_raw %>%
   summarize(cces_n_raw = n(),
             cces_n_voters = sum(turnout_wgt, na.rm = TRUE),
             cces_n_vv = sum(vv_turnout, na.rm = TRUE),
-            cces_n_post_voters = sum(post_turnout, na.rm = TRUE),
+            cces_n_postvoters = sum(post_turnout, na.rm = TRUE),
             
             cces_tothrc_raw = sum(vote_hrc_pre, na.rm = TRUE),
             cces_totdjt_raw = sum(vote_djt_pre, na.rm = TRUE),
@@ -52,7 +52,7 @@ tab_cc <- cc_raw %>%
          cces_pct_hrc_vv = cces_tothrc_vv / cces_n_vv,
          cces_pct_hrcund_vv = (cces_tothrc_vv + cces_totund_vv) / cces_n_vv,
          cces_pct_hrcdund_vv = (cces_tothrc_vv + cces_demund_vv) / cces_n_vv,
-         cces_pct_hrc_voters_post = cces_tothrc_raw_post / cces_n_voters) %>%
+         cces_pct_hrc_postvoters = cces_tothrc_raw_post / cces_n_voters) %>%
   mutate(cces_pct_djt_raw = cces_totdjt_raw / cces_n_raw,
          cces_pct_djtund_raw = (cces_totdjt_raw + cces_totund_raw) / cces_n_raw,
          cces_pct_djtrund_raw = (cces_totdjt_raw + cces_repund_raw) / cces_n_raw,
@@ -65,7 +65,7 @@ tab_cc <- cc_raw %>%
          cces_pct_djt_vv = cces_totdjt_vv / cces_n_vv,
          cces_pct_djtund_vv = (cces_totdjt_vv + cces_totund_vv) / cces_n_vv,
          cces_pct_djtrund_vv = (cces_totdjt_vv + cces_repund_vv) / cces_n_vv,
-         cces_pct_djt_voters_post = cces_totdjt_raw_post / cces_n_voters)
+         cces_pct_djt_postvoters = cces_totdjt_raw_post / cces_n_voters)
 tab_cc
 
 saveRDS(tab_cc, "data/output/cc_tabulation_state.rds")

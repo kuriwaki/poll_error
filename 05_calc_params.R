@@ -81,8 +81,8 @@ df <- df %>%
                                     n = "cces_n_vv"),
          rho_hrc_pst = rho_estimate(N = "tot_votes",
                                     mu = "pct_hrc_voters",
-                                    muhat = "cces_pct_hrc_voters_post",
-                                    n = "cces_n_post_voters")) # no post in hcu
+                                    muhat = "cces_pct_hrc_postvoters",
+                                    n = "cces_n_postvoters")) # no post in hcu
 
 df <- df %>% 
   mutate(
@@ -127,8 +127,8 @@ df <- df %>%
                                     n = "cces_n_vv"),
          rho_djt_pst = rho_estimate(N = "tot_votes",
                                     mu = "pct_djt_voters",
-                                    muhat = "cces_pct_djt_voters_post",
-                                    n = "cces_n_post_voters"))
+                                    muhat = "cces_pct_djt_postvoters",
+                                    n = "cces_n_postvoters"))
 
 
   
@@ -206,7 +206,6 @@ df <- df %>%
 
 # Save ----
 write_csv(df, "data/output/pres16_state.csv")
-write_dta(df, "data/output/pres16_state.dta")
 
 
 
