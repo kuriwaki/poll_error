@@ -28,6 +28,7 @@ df <- df_joined %>%
          matches("cces_pct_hrc"),
          matches("cces_totdjt"),
          matches("cces_pct_djt"),
+         matches("cces_varhat"),
          cv_turnout_wgt,
          yougov_pct_hrc, yougov_pct_djt, yougov_n)
 
