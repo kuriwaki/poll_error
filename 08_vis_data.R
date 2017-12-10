@@ -153,7 +153,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   if (N_text == "tot_votes") xlab_text <- "log(Total Voters)"
   if (N_text == "vep") xlab_text <- "log(Voting Eligible Population)"
   lar_code <- gsub("rho_", "", rho_text)
-  ylab_text <- expression(log(abs(~relative~error)))
+  ylab_text <- expression(log(abs(~relative~error )))
   rho_expr <- rho_exp[[lar_code]]
   
   # update lab by adding state subset info
@@ -294,6 +294,33 @@ plot_coef(filter(coef_plot, cand %in% c("hcu", "dtu")))
 ggsave("figures/summ/corr-rho-N_intervals_hcu-dtu.pdf", w = 1.3*fig.w, h = 1.3*fig.h)
 
 
+# Z and N -----
+
+yrange <- range(c(df$rho_djt_vvt*sqrt(df$tot_votes - 1),
+                  df$rho_hrc_vvt*sqrt(df$tot_votes - 1)))
+xrange <- log(range(df$tot_votes))
+
+ZNn_djt <- ggplot(df, aes(x = log(tot_votes), 
+               y = rho_djt_vvt*sqrt(tot_votes - 1),
+               color = color,
+               label = st)) +
+  # geom_hline(yintercept = c(-2 , 2), linetype = "dotted") +
+  annotate("rect", ymin = -2, ymax = 2, xmin = -Inf, xmax = Inf, alpha = 0.2) +
+  geom_point() +
+  geom_text_repel(size = 2.5, alpha = 0.7) +
+  scale_color_manual(values = colorvec) +
+  theme_bw() +
+  scale_x_continuous(minor_breaks = FALSE) +
+  scale_y_continuous(limit = yrange, breaks = c(-10, -5, -2, 0, 2, 5), minor_breaks = FALSE) +
+  guides(color = FALSE) +
+  labs(x = "log(Total Voters)",
+       y = expression(Trump~~Z[~list(n, N)]))
+
+ZNn_hrc <-  ZNn_djt + aes(y = rho_hrc_vvt*sqrt(tot_votes -1)) +
+  labs(y = expression(Clinton~~Z[~list(n, N)]))
+
+ggsave("figures/Zscore/Zscore_djt_vvt.pdf", ZNn_djt, width = fig.w, height = fig.h)
+ggsave("figures/Zscore/Zscore_hrc_vvt.pdf", ZNn_hrc, width = fig.w, height = fig.h)
 
 
 
@@ -400,9 +427,15 @@ for(v in muhats) {
   
   se <- sqrt(df[[v]]*(1 - df[[v]]) / df[[n_var]])
   
+  if (v %in% c("cces_pct_hrc_voters", "cces_pct_djt_voters")) {
+    cand_N <- gsub("cces_pct_", "", v)
+    wvarhat <- glue("cces_varhat_{cand_N}")
+    se <- sqrt(df[[wvarhat]])
+  }
   
-  df[[ub_name]] <- df[[v]] + qnorm(0.975)*se
-  df[[lb_name]] <- df[[v]] - qnorm(0.975)*se
+  
+  df[[ub_name]] <- df[[v]] + 2*se
+  df[[lb_name]] <- df[[v]] - 2*se
   
   rm(se)
 }
