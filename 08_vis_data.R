@@ -7,6 +7,7 @@ library(ggrepel)
 library(dplyr)
 library(tibble)
 library(foreach)
+library(glue)
 
 
 fig.w <- 6*0.80*0.9
@@ -382,19 +383,43 @@ fig.h <- 1.2*fig.h
 
 
 
+# colnames
 muhats <- grep("cces_pct_", colnames(df), value = TRUE)
 muhats <- setdiff(muhats, grep("vep", muhats, value = TRUE))
+
+## generate naive 95 percent CI 
+
+for(v in muhats) {
+  
+  n_type <- gsub(".*_([a-z]+)$", "\\1", v)
+  n_var <- glue("cces_n_{n_type}")
+  
+  
+  ub_name <- glue("{v}_ub")
+  lb_name <- glue("{v}_lb")
+  
+  se <- df[[v]]*(1 - df[[v]]) / sqrt(df[[n_var]])
+  
+  
+  df[[ub_name]] <- df[[v]] + qnorm(0.975)*se
+  df[[lb_name]] <- df[[v]] - qnorm(0.975)*se
+  
+  rm(se)
+}
+
 
 
 # make data frame for plots top print
 sct_labs <- tibble(var_name = muhats)
 sct_labs <- sct_labs %>%
+  mutate(ub_name = glue("{var_name}_ub"),
+         lb_name = glue("{var_name}_lb")) %>% 
   mutate(cand = case_when(grepl("cces_pct_h", var_name) ~ "H",
                           grepl("cces_pct_d", var_name) ~ "T")) %>%
   mutate(est_t = case_when(grepl("raw$", var_name) ~ "Raw ",
-                           grepl("voters$", var_name) ~ "Turnout-adjusted ",
+                           grepl("_voters$", var_name) ~ "Turnout-adjusted ",
                            grepl("vv$", var_name) ~ "Validated Voter ",
-                           grepl("post$", var_name) ~ "Post-Election Wave ")) %>%
+                           grepl("postvoters$", var_name) ~ "Post-Election Wave ")) %>%
   mutate(cand_t = case_when(grepl("_hrc_", var_name) ~ "Clinton Support",
                             grepl("_hrcund_", var_name) ~ "Clinton + All Undecideds",
                             grepl("_hrcdund_", var_name) ~ "Clinton + Undecided Democrats",
@@ -406,15 +431,16 @@ sct_labs <- sct_labs %>%
 
 
 # starting scatter
-gg0 <- ggplot(df, aes(x = pct_hrc_voters, y = cces_pct_hrc_voters, color = color, size = vap)) +
+gg0 <- ggplot(df, aes(x = pct_hrc_voters, y = cces_pct_hrc_voters, color = color)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  scale_x_continuous(limits = c(0, 1), label = percent, minor_breaks = NULL) +
-  scale_y_continuous(limits = c(0, 1), label = percent, minor_breaks = NULL) +
+  scale_x_continuous(limits = c(0, 1),breaks = c(0, 0.5, 1), label = percent) +
+  scale_y_continuous(limits = c(0, 1),breaks = c(0, 0.5, 1), label = percent) +
   scale_color_manual(values = colorvec) +
   guides(size = FALSE, color = FALSE) +
   coord_equal() +
   theme_bw() +
-  geom_point(alpha = 0.8) +
+  geom_point(alpha = 1, shape = 20) +
+  geom_errorbar(alpha = 0.8, width = 0, size = 0.5) +
   theme(plot.caption = element_text(size = 8))
 
 # loop through and list
@@ -438,7 +464,11 @@ sct_gglist <- foreach(i = 1:nrow(sct_labs)) %do% {
   
   rmse <- sqrt(mean((mu - df[[sct_labs$var_name[i]]])^2))
   
-  gg <- gg + aes_string(y = sct_labs$var_name[i]) +
+  # associate the right y-axis vars (estimate)
+  gg <- gg + 
+    aes_string(y = sct_labs$var_name[i],
+               ymax = sct_labs$ub_name[i],
+               ymin = sct_labs$lb_name[i]) +
     ylab(sct_labs$ylab_text[i]) +
     labs(caption = paste0("Root Mean Squared Error: ", sprintf("%3.2f", rmse)))
   
@@ -451,7 +481,7 @@ names(sct_gglist) <- sct_labs$var_name
 # plot one by one
 for (fnames in names(sct_gglist)) {
   est_name <- gsub("cces_pct_", "", fnames)
-  est_name <- gsub("voters_post", "pst", est_name)
+  est_name <- gsub("postvoters", "pst", est_name)
   est_name <- gsub("vv", "vvt", est_name)
   est_name <- gsub("voters", "vot", est_name)
   est_name <- gsub("hrcund", "hcu", est_name)
@@ -483,16 +513,6 @@ gg16 <- plot_grid(ord_gg[[01]], ord_gg[[02]], ord_gg[[04]], ord_gg[[03]],
                   ncol = 4)
 
 save_plot("figures/summ/scatter_all.pdf", gg16, base_height = 3.25, ncol = 4, nrow = 6)
-
-# Turnout
-gg0 + aes(y = (cces_n_voters/cces_n_raw), x = (tot_votes/vep), size = vap) +
-  annotate("text", x = 0.8, y = 0.1, label = "Poll underestimated\nturnout", color = "darkgray") +
-  annotate("text", x = 0.2, y = 0.9, label = "Poll overestimated\nturnout", color = "darkgray") +
-  ylab("Turnout-Adjusted Poll Estimate of Turnout") +
-  xlab("Final Turnout\n(% of Voting Eligible Population)") +
-ggsave("figures/scatter/scatter_turnout_accuracy.pdf", h = fig.h, w = fig.w)
-
-rm(gg0)
 
 
 # more summary stats
