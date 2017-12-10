@@ -398,7 +398,7 @@ for(v in muhats) {
   ub_name <- glue("{v}_ub")
   lb_name <- glue("{v}_lb")
   
-  se <- df[[v]]*(1 - df[[v]]) / sqrt(df[[n_var]])
+  se <- sqrt(df[[v]]*(1 - df[[v]]) / df[[n_var]])
   
   
   df[[ub_name]] <- df[[v]] + qnorm(0.975)*se
