@@ -153,7 +153,8 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   if (N_text == "tot_votes") xlab_text <- expression(log[10]~plain("(Total Voters)"))
   if (N_text == "vep") xlab_text <- expression(log[10]~plain("(Voting Eligible Population)"))
   lar_code <- gsub("rho_", "", rho_text)
-  ylab_text <- expression(log[10](abs(~relative~error )))
+  if (grepl("^h", cand)) ylab_text <- expression(plain("Clinton  ")~log[10]~abs(~Z[~list(n, N)] ))
+  if (grepl("^d", cand)) ylab_text <- expression(plain("Trump  ")~log[10]~abs(~Z[~list(n, N)] ))
   rho_expr <- rho_exp[[lar_code]]
   
   # update lab by adding state subset info
@@ -216,6 +217,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   
   cat(filename, "\n")
   ggsave(file.path("figures/rho-N/", filename), gg0, width = fig.w, height = fig.h)
+  rm(df_plot)
 }
 
 
@@ -296,8 +298,11 @@ ggsave("figures/summ/corr-rho-N_intervals_hcu-dtu.pdf", w = 1.3*fig.w, h = 1.3*f
 
 # Z and N -----
 
-yrange <- range(c(df$rho_djt_vvt*sqrt(df$tot_votes - 1),
-                  df$rho_hrc_vvt*sqrt(df$tot_votes - 1)))
+yrange <- range(with(df,c(
+                     (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
+                     (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv)))))
+                     
+                     
 
 ZNn_djt <- ggplot(df, aes(x = log10(tot_votes), 
                y = (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
@@ -313,11 +318,11 @@ ZNn_djt <- ggplot(df, aes(x = log10(tot_votes),
   scale_y_continuous(limit = yrange, breaks = c(-10, -5, -2, 0, 2, 5), minor_breaks = FALSE) +
   guides(color = FALSE) +
   labs(x = expression(log[10]~plain("(Total Voters)")),
-       y = expression(Trump~~Z[~list(n, N)]))
+       y = expression(Trump~~Z[~list(n)]))
 
 ZNn_hrc <-  ZNn_djt + 
   aes(y = (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv))) +
-  labs(y = expression(Clinton~~Z[~list(n, N)]))
+  labs(y = expression(Clinton~~Z[~list(n)]))
 
 ggsave("figures/Zscore/Zscore_djt_vvt.pdf", ZNn_djt, width = fig.w, height = fig.h)
 ggsave("figures/Zscore/Zscore_hrc_vvt.pdf", ZNn_hrc, width = fig.w, height = fig.h)
@@ -331,10 +336,16 @@ ggplot(df, aes(x = tot_votes,
 
 
 foo <- df %>% 
-  mutate(Z_djt = (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)))
+  mutate(Z_djt = (cces_pct_djt_vv - pct_djt_voters) / (sqrt((1 - cces_n_vv/tot_votes)*pct_djt_voters*(1 - pct_djt_voters)/cces_n_vv)))
 
-foo %>% arrange(-Z_djt) %>% 
-  select(st, state, Z_djt, tot_votes, vap, vep)
+
+bar <- foo %>% arrange(-Z_djt) %>% 
+  mutate(Z_djt_byrho = log10(abs(rho_djt_vvt)) + 0.5*log10(tot_votes - 1),
+         Z_djt_log = log10(abs(Z_djt))) %>%
+  select(st, state, Z_djt, Z_djt_log, Z_djt_byrho, tot_votes, vap, vep)
+
+bar %>% 
+  summarize(mad = mean(abs(Z_djt_log - Z_djt_byrho)))
 
 
 # Histogram of rho ----
