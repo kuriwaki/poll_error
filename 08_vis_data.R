@@ -363,16 +363,29 @@ ggplot(df_bounds, aes(x = log10(tot_votes),
                       y = rho_djt_vvt,
                       ymin = lb_djt,
                       ymax = ub_djt)) +
-  geom_ribbon(alpha = 0.2) +
+  geom_hline(yintercept = -0.005, color = "gray") +
+  geom_errorbar(linetype = "dashed", alpha = 0.25) +
+  geom_point(aes(y = lb_djt, color = NULL), shape = 21, fill = "white", size = 1) +
+  geom_point(aes(y = ub_djt, color = NULL), shape = 21, fill = "white", size = 1) + 
   geom_point(aes(color = color)) +
-  geom_text_repel(aes(label= st, color = color)) +
   theme_bw() +
   scale_color_manual(values = colorvec) +
-  labs(y = expression(plain("Trump~~")widehat(rho[N])))
+  scale_y_continuous(breaks = c(seq(-0.03, 0.09, 0.03), -0.005), minor_breaks = FALSE) + 
+  scale_x_continuous(minor_breaks = FALSE) + 
+  labs(y = expression(plain("Trump  ")~widehat(rho[N])~plain(" with lower and upper bounds")),
+       x = expression(log[10]~plain("(Total Voters)"))) +
   guides(color = FALSE)
+ggsave("figures/temp_rho_bounds_djt_vvt.pdf", h = 1.3*fig.h, w = 1.3*fig.w)
   
 
 
+df_bounds %>% select(st, pct_djt_voters, fR, DO, OG_djt, lb_djt, rho_djt_vvt, ub_djt) %>% 
+  mutate_if(is_numeric, function(x) signif(x, 3))
+
+(1 - 0.000181) / 0.000181
+0.6210 / (1 - 0.6210)
+
+min(sqrt(5510/1.640), sqrt(1.640/5510))
 
 
 # Histogram of rho ----
