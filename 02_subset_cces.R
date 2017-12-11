@@ -48,7 +48,7 @@ cc16 <- cc16 %>%
                                  intent_turnout %in% c(4,8,9, NA) ~ 0),
          post_turnout =  as.numeric(post_turnout == 5),
          vv_turnout = as.numeric(vv_16 != ""))  %>%
-  select(caseID, commonweight, commonweight_post, tookpost, state, pid3, race,
+  select(caseID, commonweight, commonweight_post, commonweight_vv, tookpost, state, pid3, race,
          matches("vote_"), combined_pres_pre, voted_pres_16,
          intent_turnout, post_turnout, turnout_wgt, vv_turnout)
 
