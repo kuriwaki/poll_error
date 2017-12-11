@@ -203,7 +203,6 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     annotate("text", x = -Inf, y = Inf, label = "Less accurate", color = "darkgray", hjust = -0.3, vjust = 1) +
     annotate("label", x = Inf, y= -Inf, label = lab, hjust = 1.2, vjust = -1, size = 4) +
     guides(color = FALSE) +
-    theme(axis.title = element_text(size = 10)) +
     labs(y = ylab_text, # lar_exp[[lar_code]],
          x = xlab_text,
          # title = rho_expr,
@@ -335,18 +334,6 @@ ggplot(df, aes(x = tot_votes,
   geom_point()
 
 
-foo <- df %>% 
-  mutate(Z_djt = (cces_pct_djt_vv - pct_djt_voters) / (sqrt((1 - cces_n_vv/tot_votes)*pct_djt_voters*(1 - pct_djt_voters)/cces_n_vv)))
-
-
-bar <- foo %>% arrange(-Z_djt) %>% 
-  mutate(Z_djt_byrho = log10(abs(rho_djt_vvt)) + 0.5*log10(tot_votes - 1),
-         Z_djt_log = log10(abs(Z_djt))) %>%
-  select(st, state, Z_djt, Z_djt_log, Z_djt_byrho, tot_votes, vap, vep)
-
-bar %>% 
-  summarize(mad = mean(abs(Z_djt_log - Z_djt_byrho)))
-
 # bounds of rho ----
 
 df_bounds <- df %>% 
@@ -356,36 +343,59 @@ df_bounds <- df %>%
          OG_hrc = pct_hrc_voters/(1 - pct_hrc_voters)) %>%
   rowwise() %>% 
   mutate(lb_djt = -min(sqrt(DO/OG_djt), sqrt(OG_djt/DO)),
-         ub_djt = min(sqrt(OG_djt*DO),1 /sqrt(OG_djt*DO)))
-  
-  
-ggplot(df_bounds, aes(x = log10(tot_votes), 
-                      y = rho_djt_vvt,
-                      ymin = lb_djt,
-                      ymax = ub_djt)) +
+         lb_hrc = -min(sqrt(DO/OG_hrc), sqrt(OG_hrc/DO)),
+         ub_djt = min(sqrt(OG_djt*DO),1 /sqrt(OG_djt*DO)),
+         ub_hrc = min(sqrt(OG_hrc*DO),1 /sqrt(OG_hrc*DO))
+         )
+
+ylim_rho_bounds <- range(with(df_bounds,
+                   c(lb_djt, lb_hrc, ub_djt, ub_hrc)))
+
+bounds <-ggplot(df_bounds, 
+                    aes(x = log10(tot_votes), 
+                        y = rho_djt_vvt,
+                        ymin = lb_djt,
+                        ymax = ub_djt,
+                        color = color)) +
   geom_hline(yintercept = -0.005, color = "gray") +
-  geom_errorbar(linetype = "dashed", alpha = 0.25) +
-  geom_point(aes(y = lb_djt, color = NULL), shape = 21, fill = "white", size = 1) +
-  geom_point(aes(y = ub_djt, color = NULL), shape = 21, fill = "white", size = 1) + 
-  geom_point(aes(color = color)) +
+  geom_errorbar(linetype = "dashed", alpha = 0.8, size = 0.3) +
+  geom_point() +
   theme_bw() +
   scale_color_manual(values = colorvec) +
-  scale_y_continuous(breaks = c(seq(-0.03, 0.09, 0.03), -0.005), minor_breaks = FALSE) + 
+  scale_y_continuous(limit = ylim_rho_bounds,
+                     breaks = c(-0.005, 0, 0.050), minor_breaks = FALSE) + 
   scale_x_continuous(minor_breaks = FALSE) + 
-  labs(y = expression(plain("Trump  ")~widehat(rho[N])~plain(" with lower and upper bounds")),
-       x = expression(log[10]~plain("(Total Voters)"))) +
+  labs(x = expression(log[10]~plain("(Total Voters)"))) +
+  theme(axis.text.y = element_text(size = 7)) +
   guides(color = FALSE)
-ggsave("figures/temp_rho_bounds_djt_vvt.pdf", h = 1.3*fig.h, w = 1.3*fig.w)
+
+bounds_djt <- bounds +
+  geom_point(aes(y = lb_djt), alpha = 0.5, size = 1) +
+  geom_point(aes(y = ub_djt), alpha = 0.5, size = 1) +
+  labs(y = expression(plain("Trump ")~widehat(rho)[N]~plain("(with bounds)")))
+
+bounds_djt
+
+bounds_hrc <- bounds + 
+  aes(y = rho_hrc_vvt, ymin = lb_hrc, ymax = ub_hrc) +
+  geom_point(aes(y = lb_hrc), alpha = 0.5, size = 1) +
+  geom_point(aes(y = ub_hrc), alpha = 0.5, size = 1) +
+  labs(y = expression(plain("Clinton ")~widehat(rho)[N]~plain("(with bounds)")))
+
+  
+
+exp_factor <- 1
+ggsave("figures/bounds/rho-bounds_djt_vvt.pdf", bounds_djt, h = exp_factor*fig.h, w = exp_factor*fig.w)
+ggsave("figures/bounds/rho-bounds_hrc_vvt.pdf", bounds_hrc, h = exp_factor*fig.h, w = exp_factor*fig.w)
   
 
 
 df_bounds %>% select(st, pct_djt_voters, fR, DO, OG_djt, lb_djt, rho_djt_vvt, ub_djt) %>% 
   mutate_if(is_numeric, function(x) signif(x, 3))
 
-(1 - 0.000181) / 0.000181
-0.6210 / (1 - 0.6210)
 
-min(sqrt(5510/1.640), sqrt(1.640/5510))
+summary(df$rho_djt_vvt)
+summary(df$rho_hrc_vvt)
 
 
 # Histogram of rho ----
@@ -412,7 +422,7 @@ for (rho_name in rho_vec) {
 
   gg0 + aes_string(x = var_name) + labs(x = rho_exp[[rho_name]]) +
     annotate("label", x = Inf, y= Inf, label = lab, hjust = 1.1, vjust = 2, size = 4)
-  ggsave(file_name, width = fig.w, height = fig.h)
+  ggsave(file_name, width = fig.w, height = 0.7*fig.h)
   cat(file_name, "\n")
 }
 
