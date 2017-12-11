@@ -347,6 +347,33 @@ bar <- foo %>% arrange(-Z_djt) %>%
 bar %>% 
   summarize(mad = mean(abs(Z_djt_log - Z_djt_byrho)))
 
+# bounds of rho ----
+
+df_bounds <- df %>% 
+  mutate(fR = cces_n_vv / tot_votes,
+         DO = (1 - fR) / fR,
+         OG_djt = pct_djt_voters/(1 - pct_djt_voters),
+         OG_hrc = pct_hrc_voters/(1 - pct_hrc_voters)) %>%
+  rowwise() %>% 
+  mutate(lb_djt = -min(sqrt(DO/OG_djt), sqrt(OG_djt/DO)),
+         ub_djt = min(sqrt(OG_djt*DO),1 /sqrt(OG_djt*DO)))
+  
+  
+ggplot(df_bounds, aes(x = log10(tot_votes), 
+                      y = rho_djt_vvt,
+                      ymin = lb_djt,
+                      ymax = ub_djt)) +
+  geom_ribbon(alpha = 0.2) +
+  geom_point(aes(color = color)) +
+  geom_text_repel(aes(label= st, color = color)) +
+  theme_bw() +
+  scale_color_manual(values = colorvec) +
+  labs(y = expression(plain("Trump~~")widehat(rho[N])))
+  guides(color = FALSE)
+  
+
+
+
 
 # Histogram of rho ----
 
