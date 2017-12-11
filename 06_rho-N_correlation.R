@@ -9,8 +9,8 @@ df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
 lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
   
   rho_text <- glue("rho_{cand_text}_{rho_type}") # e.g. rho_hrc_vot
-  ff <- glue("log(abs({rho_text})) ~ log({N_text})")
-  ff_bias <- glue("I(log(abs({rho_text})) + 0.5*log({N_text})) ~ log({N_text})")
+  ff <- glue("log10(abs({rho_text})) ~ log10({N_text})")
+  ff_bias <- glue("I(log10(abs({rho_text})) + 0.5*log10({N_text})) ~ log10({N_text})")
   
   ## subset states
   if (subset == "all") dfreg <- df

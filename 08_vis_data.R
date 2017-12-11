@@ -53,9 +53,9 @@ all_pops <- unlist(select(df, vep, tot_votes), use.names = FALSE)
 
 # ranges
 lim_rho <- range(all_rhos)
-lim_lro <- range(log(abs(all_rhos)))
-lim_lroN <- range(log(abs(all_rhos)*all_pops))
-lim_lpp <- range(log(all_pops))
+lim_lro <- range(log10(abs(all_rhos)))
+lim_lroN <- range(log10(abs(all_rhos)*all_pops))
+lim_lpp <- range(log10(all_pops))
 
 # for hist
 ylim_hist <- c(0, 12.5)
@@ -67,26 +67,26 @@ ylim_hist <- c(0, 12.5)
 lar_end <- ")"
 
 lar_exp <- 
-  list(hrc_vot = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")+frac(1,2)*log(N)),
-       hrc_vep = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       hrc_vvt = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
-       hrc_pst = expression(log~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[post]])), ")")),
-       hcu_vot = expression(log~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
-       hcu_vep = expression(log~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       hcu_vvt = expression(log~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
-       hcdu_vot =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[avp]])), ")")),
-       hcdu_vep =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       hcdu_vvt =expression(log~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vv]])), ")")),
-       djt_vot = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")+frac(1,2)*log(N)),
-       djt_vep = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       djt_vvt = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")),
-       djt_pst = expression(log~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")),
-       dtu_vot = expression(log~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
-       dtu_vep = expression(log~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       dtu_vvt = expression(log~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
-       dtu_vot = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[avp]])), ")")),
-       dtu_vep = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vep]])), ")")),
-       dtu_vvt = expression(log~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vv]])), ")"))
+  list(hrc_vot = expression(log[10]~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       hrc_vep = expression(log[10]~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       hrc_vvt = expression(log[10]~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       hrc_pst = expression(log[10]~bgroup("(", abs(~Clinton~~italic(widehat(italic(rho))[N[post]])), ")")),
+       hcu_vot = expression(log[10]~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       hcu_vep = expression(log[10]~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       hcu_vvt = expression(log[10]~bgroup("(", abs(~Clinton+All~Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       hcdu_vot =expression(log[10]~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       hcdu_vep =expression(log[10]~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       hcdu_vvt =expression(log[10]~bgroup("(", abs(~Clinton+Undecided~Democrats~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       djt_vot = expression(log[10]~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[avp]])), ")")+frac(1,2)*log(N)),
+       djt_vep = expression(log[10]~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       djt_vvt = expression(log[10]~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       djt_pst = expression(log[10]~bgroup("(", abs(~Trump~~italic(widehat(italic(rho))[N[post]])), ")")),
+       dtu_vot = expression(log[10]~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       dtu_vep = expression(log[10]~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       dtu_vvt = expression(log[10]~bgroup("(", abs(~Trump+All~Undecided~~italic(widehat(italic(rho))[N[vv]])), ")")),
+       dtu_vot = expression(log[10]~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[avp]])), ")")),
+       dtu_vep = expression(log[10]~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vep]])), ")")),
+       dtu_vvt = expression(log[10]~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vv]])), ")"))
   )
 
 # +0.5log(N)
@@ -150,10 +150,10 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   lab <- slope_i$lab_bias
   
   # pretty labels 
-  if (N_text == "tot_votes") xlab_text <- "log(Total Voters)"
-  if (N_text == "vep") xlab_text <- "log(Voting Eligible Population)"
+  if (N_text == "tot_votes") xlab_text <- expression(log[10]~plain("(Total Voters)"))
+  if (N_text == "vep") xlab_text <- expression(log[10]~plain("(Voting Eligible Population)"))
   lar_code <- gsub("rho_", "", rho_text)
-  ylab_text <- expression(log(abs(~relative~error )))
+  ylab_text <- expression(log[10](abs(~relative~error )))
   rho_expr <- rho_exp[[lar_code]]
   
   # update lab by adding state subset info
@@ -180,8 +180,8 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   
   # add log version of x and y variable
   df_plot <- df_plot %>%
-    mutate(log_abs_rho = log(abs(rhovar)),
-           log_N = log(.data[[N_text]])) %>% 
+    mutate(log_abs_rho = log10(abs(rhovar)),
+           log_N = log10(.data[[N_text]])) %>% 
     mutate(rho_metric = log_abs_rho + (0.5*log_N))
   
   # data to label
@@ -195,7 +195,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     geom_point() +
     scale_color_manual(values = colorvec)  +
     theme_bw() +
-    coord_cartesian(ylim = c(-2, 4), xlim = lim_lpp) +
+    coord_cartesian(ylim = c(-2, 2), xlim = lim_lpp) +
     scale_x_continuous(minor_breaks = NULL) +
     scale_y_continuous(minor_breaks = NULL) +
     annotate("text", x = -Inf, y = -Inf, label = "More accurate", color = "darkgray", hjust = -0.3, vjust = -0.5) +
@@ -277,7 +277,7 @@ plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right"
           panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
           strip.text = element_text(size = 11)) +
     labs(x = "Specification of relative error",
-         y = expression(Slope~on~log~N),
+         y = expression(Slope~on~log[10]~N),
          caption = cap)
        # Facets separate different estimands (Clinton vs. Trump) and different ways to treat Undecideds.
        # Points ordered by the subset of states (color) and then by estimand (in text).
@@ -298,10 +298,9 @@ ggsave("figures/summ/corr-rho-N_intervals_hcu-dtu.pdf", w = 1.3*fig.w, h = 1.3*f
 
 yrange <- range(c(df$rho_djt_vvt*sqrt(df$tot_votes - 1),
                   df$rho_hrc_vvt*sqrt(df$tot_votes - 1)))
-xrange <- log(range(df$tot_votes))
 
-ZNn_djt <- ggplot(df, aes(x = log(tot_votes), 
-               y = rho_djt_vvt*sqrt(tot_votes - 1),
+ZNn_djt <- ggplot(df, aes(x = log10(tot_votes), 
+               y = (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
                color = color,
                label = st)) +
   # geom_hline(yintercept = c(-2 , 2), linetype = "dotted") +
@@ -313,17 +312,29 @@ ZNn_djt <- ggplot(df, aes(x = log(tot_votes),
   scale_x_continuous(minor_breaks = FALSE) +
   scale_y_continuous(limit = yrange, breaks = c(-10, -5, -2, 0, 2, 5), minor_breaks = FALSE) +
   guides(color = FALSE) +
-  labs(x = "log(Total Voters)",
+  labs(x = expression(log[10]~plain("(Total Voters)")),
        y = expression(Trump~~Z[~list(n, N)]))
 
-ZNn_hrc <-  ZNn_djt + aes(y = rho_hrc_vvt*sqrt(tot_votes -1)) +
+ZNn_hrc <-  ZNn_djt + 
+  aes(y = (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv))) +
   labs(y = expression(Clinton~~Z[~list(n, N)]))
 
 ggsave("figures/Zscore/Zscore_djt_vvt.pdf", ZNn_djt, width = fig.w, height = fig.h)
 ggsave("figures/Zscore/Zscore_hrc_vvt.pdf", ZNn_hrc, width = fig.w, height = fig.h)
 
 
+ggplot(df, aes(x = tot_votes, 
+               y = rho_djt_vvt*sqrt(tot_votes - 1),
+               color = color,
+               label = st)) +
+  geom_point()
 
+
+foo <- df %>% 
+  mutate(Z_djt = (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)))
+
+foo %>% arrange(-Z_djt) %>% 
+  select(st, state, Z_djt, tot_votes, vap, vep)
 
 
 # Histogram of rho ----
@@ -343,8 +354,9 @@ for (rho_name in rho_vec) {
   file_name <- paste0("figures/hist/hist_", var_name, ".pdf")
   
   rho_vec <- df[[var_name]]
+  options("scipen"=100)
   rhobar <- signif(mean(rho_vec), 2)
-  rhoci <- signif(qnorm(0.975)*sd(rho_vec)/sqrt(length(rho_vec)), 2)
+  rhoci <- signif(2*sd(rho_vec)/sqrt(length(rho_vec)), 2)
   lab <- paste0(rhobar, " ± ", rhoci)
 
   gg0 + aes_string(x = var_name) + labs(x = rho_exp[[rho_name]]) +
@@ -388,13 +400,13 @@ ycap <- "log(abs(.))"
 
 # four things
 log_trans_list <- list(
-  gg0 + aes(x = rho_hrc_vot, y = log(abs(rho_hrc_vot))) +
+  gg0 + aes(x = rho_hrc_vot, y = log10(abs(rho_hrc_vot))) +
     labs(x = rho_exp[["hrc_vot"]], y = ycap),
-  gg0 + aes(x = rho_djt_vot, y = log(abs(rho_djt_vot))) +
+  gg0 + aes(x = rho_djt_vot, y = log10(abs(rho_djt_vot))) +
     labs(x = rho_exp[["djt_vot"]], y = ycap),
-  gg0 + aes(x = rho_hrc_vep, y = log(abs(rho_hrc_vep))) + 
+  gg0 + aes(x = rho_hrc_vep, y = log10(abs(rho_hrc_vep))) + 
     labs(x = rho_exp[["hrc_vep"]], y = ycap),
-  gg0 + aes(x = rho_djt_vep, y = log(abs(rho_djt_vep))) +
+  gg0 + aes(x = rho_djt_vep, y = log10(abs(rho_djt_vep))) +
     labs(x = rho_exp[["djt_vep"]], y = ycap)
     )
 
