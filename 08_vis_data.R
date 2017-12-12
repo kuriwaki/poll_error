@@ -34,13 +34,7 @@ make_pct <- function(dbl, points = FALSE) {
 
 # data and vars -----
 df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
-df <- df_raw %>%
-  mutate(rc_vot_pos = rho_hrc_vot > 0,
-         rc_vep_pos = rho_hrc_vep > 0,
-         rc_vvt_pos = rho_hrc_vvt > 0,
-         rt_vot_pos = rho_djt_vot > 0,
-         rt_vep_pos = rho_djt_vep > 0,
-         rt_vvt_pos = rho_djt_vvt > 0)
+df <- df_raw
 
 
 slopes <- readRDS("data/output/rho-N_lm-output.rds")
