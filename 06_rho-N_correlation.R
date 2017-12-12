@@ -15,8 +15,6 @@ lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
   ## subset states
   if (subset == "all") dfreg <- df
   if (subset %in% c("D", "R", "swing")) dfreg <- filter(df, color == subset)
-  if (subset == "pos") dfreg <- filter(df, .data[[rho_text]] > 0)
-  if (subset == "neg") dfreg <- filter(df, .data[[rho_text]] < 0)
   
   ## run model
   if (nrow(dfreg) > 3) {
@@ -62,13 +60,13 @@ lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
 
 
 reg_specs <- tibble(cand = c("hrc", "djt", "hcu", "dtu", "hcdu", "dtru"),
-                    subset = c("all", "R", "D", "swing", "pos", "neg"),
-                    rho_type = c("vot", "vep", "vvt", "pst", rep(NA, 2))) %>%
+                    subset = c("all", "R", "D", "swing", rep(NA, 2)),
+                    rho_type = c("vot", "vep", "vvt", "wvv", "pst", rep(NA, 1))) %>%
   complete(cand, subset, rho_type) %>% # all factors
   filter(!(grepl("u", cand) & rho_type == "pst")) # these don't apply
 
-rho_N <- tibble(rho_type = c("vot", "vep", "vvt", "pst"),
-                N_type = c("tot_votes", "vep", "tot_votes", "tot_votes"))
+rho_N <- tibble(rho_type = c("vot", "vep", "vvt", "wvv", "pst"),
+                N_type = c("tot_votes", "vep", "tot_votes", "tot_votes", "tot_votes"))
 
 reg_specs <- left_join(reg_specs, rho_N, by = "rho_type")
 
