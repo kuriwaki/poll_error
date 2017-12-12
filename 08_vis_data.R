@@ -131,9 +131,6 @@ file.remove(fig_pdfs)
 
 # plots for rho vs. N ---------
 
-# can't run a regression with only one data point
-stopifnot(sum(df$rt_vep_pos == TRUE) <= 1)
-stopifnot(sum(df$rt_vot_pos == TRUE) <= 1)
 
 plot_corr <- function(dat = df, slp = slopes, lmrow) {
   
@@ -150,8 +147,8 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   if (N_text == "tot_votes") xlab_text <- expression(log[10]~plain("(Total Voters)"))
   if (N_text == "vep") xlab_text <- expression(log[10]~plain("(Voting Eligible Population)"))
   lar_code <- gsub("rho_", "", rho_text)
-  if (grepl("^h", cand)) ylab_text <- expression(plain("Clinton  ")~log[10]~abs(~Z[~list(n, N)] ))
-  if (grepl("^d", cand)) ylab_text <- expression(plain("Trump  ")~log[10]~abs(~Z[~list(n, N)] ))
+  if (grepl("^h", cand)) ylab_text <- expression(plain("Clinton ")~log[10]~abs(~italic(Z[~list(n, N)] )))
+  if (grepl("^d", cand)) ylab_text <- expression(plain("Trump ")~log[10]~abs(~italic(Z[~list(n, N)] )))
   rho_expr <- rho_exp[[lar_code]]
   
   # update lab by adding state subset info
@@ -183,7 +180,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     mutate(rho_metric = log_abs_rho + (0.5*log_N))
   
   # data to label
-  df_lab <- NULL # filter(df_plot, st %in% c("MI", "WI"))
+  df_lab <- NULL 
   
   
   # skeleton
@@ -200,7 +197,7 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     annotate("text", x = -Inf, y = Inf, label = "Less accurate", color = "darkgray", hjust = -0.3, vjust = 1) +
     annotate("label", x = Inf, y= -Inf, label = lab, hjust = 1.2, vjust = -1, size = 4) +
     guides(color = FALSE) +
-    labs(y = ylab_text, # lar_exp[[lar_code]],
+    labs(y = ylab_text, 
          x = xlab_text,
          # title = rho_expr,
          subtitle = stlab)
@@ -313,14 +310,28 @@ ZNn_djt <- ggplot(df, aes(x = log10(tot_votes),
   scale_y_continuous(limit = yrange, breaks = c(-10, -5, -2, 0, 2, 5), minor_breaks = FALSE) +
   guides(color = FALSE) +
   labs(x = expression(log[10]~plain("(Total Voters)")),
-       y = expression(Trump~~Z[~list(n)]))
+       y = expression(Trump~italic(Z[n])))
 
 ZNn_hrc <-  ZNn_djt + 
   aes(y = (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv))) +
-  labs(y = expression(Clinton~~Z[~list(n)]))
+  labs(y = expression(Clinton~italic(Z[n])))
+
 
 ggsave("figures/Zscore/Zscore_djt_vvt.pdf", ZNn_djt, width = fig.w, height = fig.h)
 ggsave("figures/Zscore/Zscore_hrc_vvt.pdf", ZNn_hrc, width = fig.w, height = fig.h)
+
+
+ZNn_djt_wvv <- ZNn_djt + 
+  aes(y = (cces_pct_djt_wvv - pct_djt_voters) / (sqrt(cces_varhat_djt_wvv))) +
+  labs(y = expression(Trump~~italic(Z[~n])~plain("with weights")))
+
+ZNn_hrc_wvv <- ZNn_hrc + 
+  aes(y = (cces_pct_hrc_wvv - pct_hrc_voters) / (sqrt(cces_varhat_hrc_wvv))) +
+  labs(y = expression(Clinton~~italic(Z[~n])~plain("with weights")))
+
+ggsave("figures/Zscore/Zscore_djt_wvv.pdf", ZNn_djt_wvv, width = fig.w, height = fig.h)
+ggsave("figures/Zscore/Zscore_hrc_wvv.pdf", ZNn_hrc_wvv, width = fig.w, height = fig.h)
+
 
 
 ggplot(df, aes(x = tot_votes, 
@@ -730,20 +741,3 @@ gg0 + aes(y = effratio_djt_vep) +
   labs(title = eff_t[["djt_vep"]])
 ggsave("figures/bars/bars_djt_vep.pdf", h = fig.h, w = mfig.w)
 
-
-
-# diagnostic all undecideds vs. R undecidesd---- 
-df %>% 
-ggplot(aes(x = cces_pct_djtund_vv - cces_pct_djt_vv, y = cces_pct_djtrund_vv - cces_pct_djt_vv, color = color, size = tot_votes)) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  scale_x_continuous(label = percent, minor_breaks = NULL) +
-  scale_y_continuous(label = percent, minor_breaks = NULL) +
-  scale_color_manual(values = colorvec) +
-  geom_point(alpha = 0.8) +
-  geom_text_repel(aes(label = st)) +
-  guides(size = FALSE, color = FALSE) +
-  coord_equal() +
-  theme_bw() +
-  labs(x = "Percentage of All Undecided Voters in State",
-       y = "Percentage of Republican Undecided Voters in State")
-ggsave("figures/temp_undecided-pop.pdf", h = 4, w = 7)
