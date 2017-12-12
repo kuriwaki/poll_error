@@ -49,7 +49,10 @@ tab_cc <- cc_raw %>%
             cces_varhat_djt_voters = sum(turnout_wgt^2*((vote_djt_pre - mean(vote_djt_pre))^2), na.rm = TRUE) / (sum(turnout_wgt, na.rm = TRUE)^2),
             
             sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
-            cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt)) %>%
+            cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt),
+            
+            sd_common_wgt = sqrt(sum((commonweight_vv - mean(commonweight_vv))^2)/n()),
+            cv_common_wgt = sd_common_wgt / mean(commonweight_vv)) %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
          cces_pct_hrcund_raw = (cces_tothrc_raw + cces_totund_raw) / cces_n_raw,
          cces_pct_hrcdund_raw = (cces_tothrc_raw + cces_demund_raw) / cces_n_raw,
