@@ -47,7 +47,7 @@ tab_cc <- cc_raw %>%
             
             cces_varhat_hrc_voters = sum(turnout_wgt^2*((vote_hrc_pre - mean(vote_hrc_pre))^2), na.rm = TRUE) / (sum(turnout_wgt, na.rm = TRUE)^2),
             cces_varhat_djt_voters = sum(turnout_wgt^2*((vote_djt_pre - mean(vote_djt_pre))^2), na.rm = TRUE) / (sum(turnout_wgt, na.rm = TRUE)^2),
-
+            
             sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
             cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt)) %>%
   mutate(cces_pct_hrc_raw = cces_tothrc_raw / cces_n_raw,
@@ -87,6 +87,18 @@ tab_cc <- cc_raw %>%
          
          cces_pct_djt_postvoters = cces_totdjt_raw_post / cces_n_voters)
 tab_cc
+
+# get validated voter variance separately by filtering validated voters
+vv_var <- cc_raw %>% 
+  filter(vv_turnout == 1) %>%
+  group_by(state) %>%
+  summarize(
+    cces_varhat_hrc_wvv = sum(commonweight_vv^2*((vote_hrc_pre - mean(vote_hrc_pre))^2), na.rm = TRUE) / (sum(commonweight_vv, na.rm = TRUE)^2),
+    cces_varhat_djt_wvv = sum(commonweight_vv^2*((vote_djt_pre - mean(vote_djt_pre))^2), na.rm = TRUE) / (sum(commonweight_vv, na.rm = TRUE)^2)
+  )
+  
+
+tab_cc <- left_join(tab_cc, vv_var, by = "state")
 
 saveRDS(tab_cc, "data/output/cc_tabulation_state.rds")
   
