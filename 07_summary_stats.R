@@ -15,6 +15,8 @@ colSums(select(df, vap, vep, matches("votes"), matches("cces_tot"),  matches("cc
 cces_n_raw <- sum(df$cces_n_raw)
 cces_n_vv <- sum(df$cces_n_vv)
 
+# validated voters  ------
+
 df %>% 
   mutate(pct_n_vv = percent(round(cces_n_vv / cces_n_raw, 2))) %>%
   mutate(state = glue("{state} ({pct_n_vv})")) %>%
@@ -23,6 +25,7 @@ df %>%
   geom_point() +
   geom_point(aes(y = cces_n_vv), shape = 21, fill = "white") +
   scale_y_continuous(label = comma) +
+  theme_bw() +
   ggExtra::rotateTextX() +
   labs(x = "State (In parentheses: proportion of validated voters among full sample)",
        y = "CCES sample size \nBlack: full sample, white:validaated voters",
@@ -30,6 +33,23 @@ df %>%
 ggsave("figures/sample-size_by-state.pdf", w = 10, h = 5)
 
 
+# sample to population fractions -----
+df %>% 
+  mutate(f_raw = (cces_n_raw / tot_votes),
+         f_vot = (cces_n_voters / tot_votes),
+         f_vvt = (cces_n_vv / tot_votes)) %>%  
+  melt(id.vars = "st", measure.vars = c("f_raw", "f_vot", "f_vvt")) %>% 
+  group_by(variable) %>%
+  summarize(n = n(),
+            min = min(value),
+            p25 = quantile(value, 0.25),
+            median = median(value),
+            mean = mean(value),
+            p75 = quantile(value, 0.75),
+            max = max(value))
+
+
+# turnout estimates  vs. actual turnout ------
 ggplot(df, aes(x = tot_votes/vap, y = cces_n_vv/cces_n_raw, color = color)) +
   coord_equal() +
   scale_color_manual(values =colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')) +
@@ -46,6 +66,7 @@ tots <- colSums(select(df, vap, vep, matches("votes"), matches("cces_tot"),  mat
   t() %>% as.data.frame()
 
 tots["tot_votes"] / tots["vap"]
+
 
 # summary stats ------
 my_qtl <- function(vec, vecname) {
