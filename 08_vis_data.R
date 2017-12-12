@@ -52,7 +52,7 @@ lim_lroN <- range(log10(abs(all_rhos)*all_pops))
 lim_lpp <- range(log10(all_pops))
 
 # for hist
-ylim_hist <- c(0, 12.5)
+ylim_hist <- c(0, 23.5)
 
 
 # labels ------
@@ -91,6 +91,7 @@ rho_exp <-
   list(hrc_vot = expression(Clinton~~italic(widehat(italic(rho))[N[avp]])),
        hrc_vep = expression(Clinton~~italic(widehat(italic(rho))[N[vep]])),
        hrc_vvt = expression(Clinton~~italic(widehat(italic(rho))[N])),
+       hrc_wvv = expression(Clinton~~italic(widehat(italic(rho))[wVV])),
        hrc_pst = expression(Clinton~~italic(widehat(italic(rho))[N[post]])),
        hcu_vot = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[avp]])),
        hcu_vep = expression(Clinton+All~Undecideds~~italic(widehat(italic(rho))[N[vep]])),
@@ -101,6 +102,7 @@ rho_exp <-
        djt_vot = expression(Trump~~italic(widehat(italic(rho))[N[avp]])),
        djt_vep = expression(Trump~~italic(widehat(italic(rho))[N[vep]])),
        djt_vvt = expression(Trump~~italic(widehat(italic(rho))[N])),
+       djt_wvv = expression(Trump~~italic(widehat(italic(rho))[wVV])),
        djt_pst = expression(Trump~~italic(widehat(italic(rho))[N[post]])),
        dtu_vot = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[avp]])),
        dtu_vep = expression(Trump+All~Undecideds~~italic(widehat(italic(rho))[N[vep]])),
@@ -422,6 +424,13 @@ ggplot(df, aes(x = cv_turnout_wgt)) +
   geom_histogram(bins = 25) + theme_bw() +
   labs(x = "Coefficient of Variation of Turnout Adjustment Weights", y = "Count")
 ggsave("figures/hist/hist_cv_turnout.pdf", width = fig.w, height = fig.h)
+
+ggplot(df, aes(x = 1 + (cv_common_wgt^2) / (1 - cces_n_vv / tot_votes))) +
+  geom_histogram(bins = 25) + theme_bw() +
+  labs(x = expression(italic(A[w])==1+frac(CV^2, 1-f[Rvv])),
+       y = "Count")
+ggsave("figures/hist/hist_Aw.pdf", width = fig.w, height = fig.h)
+
 
 rm(gg0)
 
