@@ -36,3 +36,5 @@ references
 # let's not store figures
 figures/*/*.pdf
 
+# or dtas
+*.dta
