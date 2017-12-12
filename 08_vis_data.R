@@ -127,7 +127,8 @@ eff_t <- list(
 
 
 # clear ----
-fig_pdfs <- list.files("figures", pattern = "pdf$", full.names = TRUE)
+fig_pdfs <- list.files("figures", pattern = "pdf$", full.names = TRUE, recursive = TRUE)
+fig_pdfs <- setdiff(fig_pdfs, grep("backup", fig_pdfs, value = TRUE))
 file.remove(fig_pdfs)
 
 
@@ -307,7 +308,6 @@ ZNn_djt <- ggplot(df, aes(x = log10(tot_votes),
                y = (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
                color = color,
                label = st)) +
-  # geom_hline(yintercept = c(-2 , 2), linetype = "dotted") +
   annotate("rect", ymin = -2, ymax = 2, xmin = -Inf, xmax = Inf, alpha = 0.2) +
   geom_point() +
   geom_text_repel(size = 2.5, alpha = 0.7) +
@@ -389,9 +389,6 @@ ggsave("figures/bounds/rho-bounds_djt_vvt.pdf", bounds_djt, h = exp_factor*fig.h
 ggsave("figures/bounds/rho-bounds_hrc_vvt.pdf", bounds_hrc, h = exp_factor*fig.h, w = exp_factor*fig.w)
   
 
-
-df_bounds %>% select(st, pct_djt_voters, fR, DO, OG_djt, lb_djt, rho_djt_vvt, ub_djt) %>% 
-  mutate_if(is_numeric, function(x) signif(x, 3))
 
 
 summary(df$rho_djt_vvt)
@@ -500,7 +497,7 @@ for(v in muhats) {
   
   se <- sqrt(df[[v]]*(1 - df[[v]]) / df[[n_var]])
   
-  if (v %in% c("cces_pct_hrc_voters", "cces_pct_djt_voters")) {
+  if (v %in% c("cces_pct_hrc_voters", "cces_pct_djt_voters", "cces_pct_hrc_wvv", "cces_pct_djt_wvv")) {
     cand_N <- gsub("cces_pct_", "", v)
     wvarhat <- glue("cces_varhat_{cand_N}")
     se <- sqrt(df[[wvarhat]])
@@ -524,7 +521,8 @@ sct_labs <- sct_labs %>%
                           grepl("cces_pct_d", var_name) ~ "T")) %>%
   mutate(est_t = case_when(grepl("raw$", var_name) ~ "Raw ",
                            grepl("_voters$", var_name) ~ "Turnout-adjusted ",
-                           grepl("vv$", var_name) ~ "Validated Voter ",
+                           grepl("_vv$", var_name) ~ "Validated Voter ",
+                           grepl("_wvv$", var_name) ~ "Validated Voter (with Sampling Weights)\n",
                            grepl("postvoters$", var_name) ~ "Post-Election Wave ")) %>%
   mutate(cand_t = case_when(grepl("_hrc_", var_name) ~ "Clinton Support",
                             grepl("_hrcund_", var_name) ~ "Clinton + All Undecideds",
@@ -539,8 +537,8 @@ sct_labs <- sct_labs %>%
 # starting scatter
 gg0 <- ggplot(df, aes(x = pct_hrc_voters, y = cces_pct_hrc_voters, color = color)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  scale_x_continuous(limits = c(0, 1),breaks = c(0, 0.5, 1), label = percent) +
-  scale_y_continuous(limits = c(0, 1),breaks = c(0, 0.5, 1), label = percent) +
+  scale_x_continuous(limits = c(-0.005, 1), breaks = c(0, 0.5, 1), label = percent) +
+  scale_y_continuous(limits = c(-0.005, 1), breaks = c(0, 0.5, 1), label = percent) +
   scale_color_manual(values = colorvec) +
   guides(size = FALSE, color = FALSE) +
   coord_equal() +
@@ -588,7 +586,8 @@ names(sct_gglist) <- sct_labs$var_name
 for (fnames in names(sct_gglist)) {
   est_name <- gsub("cces_pct_", "", fnames)
   est_name <- gsub("postvoters", "pst", est_name)
-  est_name <- gsub("vv", "vvt", est_name)
+  est_name <- gsub("_vv", "_vvt", est_name)
+  est_name <- gsub("_wvv", "_wvv", est_name)
   est_name <- gsub("voters", "vot", est_name)
   est_name <- gsub("hrcund", "hcu", est_name)
   est_name <- gsub("djtund", "dtu", est_name)
@@ -604,6 +603,8 @@ for (fnames in names(sct_gglist)) {
 
 # all scatters in grid 
 ord_labs <- sort(sct_labs$var_name)
+
+ord_labs <- grep("(_raw|_voters|_vv|_postvoters)", ord_labs, value = TRUE)
 stopifnot(length(ord_labs) == 20)  # for grid
 ord_gg <- sct_gglist[ord_labs]
 
