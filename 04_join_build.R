@@ -15,6 +15,7 @@ df_joined <-  inner_join(mm, dw, by = "state") %>%
   inner_join(yg, by = "state")
 
 
+
 # select ----
 df <- df_joined %>% 
   mutate(pct_hrc_vep = votes_hrc / vep,

@@ -8,9 +8,24 @@ df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
 
 lm_store <- function(cand_text, subset, rho_type, N_text, df = df_raw) {
   
+  # reset
+  ff <- ff_bias <- ""
+  
+  
   rho_text <- glue("rho_{cand_text}_{rho_type}") # e.g. rho_hrc_vot
   ff <- glue("log10(abs({rho_text})) ~ log10({N_text})")
   ff_bias <- glue("I(log10(abs({rho_text})) + 0.5*log10({N_text})) ~ log10({N_text})")
+  
+  # special case with weighted
+  if (rho_type == "wvv" & cand_text == "djt") {
+    ff <- glue("log10(abs({rho_text})) ~ log10({N_text})")
+    ff_bias <- glue("I(log10(abs((cces_pct_djt_wvv - pct_djt_voters) / (sqrt(cces_varhatN_djt_wvv))))) ~ log10({N_text})")
+  }
+  if (rho_type == "wvv" & cand_text == "hrc") {
+    ff <- glue("log10(abs({rho_text})) ~ log10({N_text})")
+    ff_bias <- glue("I(log10(abs((cces_pct_hrc_wvv - pct_hrc_voters) / (sqrt(cces_varhatN_hrc_wvv))))) ~ log10({N_text})")
+  }
+  
   
   ## subset states
   if (subset == "all") dfreg <- df

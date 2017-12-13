@@ -92,14 +92,26 @@ tab_cc <- cc_raw %>%
 tab_cc
 
 # get validated voter variance separately by filtering validated voters
+# get approximate validated vote variance for ZnN, by using the true p
+
+dw <- readRDS("data/output/dw_results_state.rds") %>% 
+  select(state, pct_hrc_voters, pct_djt_voters)
+
 vv_var <- cc_raw %>% 
   filter(vv_turnout == 1) %>%
+  left_join(dw, by = "state") %>%
   group_by(state) %>%
   summarize(
     cces_varhat_hrc_wvv = sum(commonweight_vv^2*((vote_hrc_pre - mean(vote_hrc_pre))^2), na.rm = TRUE) / (sum(commonweight_vv, na.rm = TRUE)^2),
-    cces_varhat_djt_wvv = sum(commonweight_vv^2*((vote_djt_pre - mean(vote_djt_pre))^2), na.rm = TRUE) / (sum(commonweight_vv, na.rm = TRUE)^2)
+    cces_varhatN_hrc_wvv = sum(commonweight_vv^2*((vote_hrc_pre - mean(pct_hrc_voters))^2), na.rm = TRUE) / (sum(commonweight_vv, na.rm = TRUE)^2),
+    cces_varhat_djt_wvv = sum(commonweight_vv^2*((vote_djt_pre - mean(vote_djt_pre))^2), na.rm = TRUE) / (sum(commonweight_vv, na.rm = TRUE)^2),
+    cces_varhatN_djt_wvv = sum(commonweight_vv^2*((vote_djt_pre - mean(pct_djt_voters))^2), na.rm = TRUE) / (sum(commonweight_vv, na.rm = TRUE)^2)
   )
   
+
+
+
+
 
 tab_cc <- left_join(tab_cc, vv_var, by = "state")
 

@@ -161,7 +161,6 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
   lab <- paste0("", lab)
 
     
-  # repel text labels?
   
   # subset data frame
   if (subset %in% c("R", "D", "swing")) df_plot <- filter(dat, color == subset)
@@ -178,6 +177,23 @@ plot_corr <- function(dat = df, slp = slopes, lmrow) {
     mutate(log_abs_rho = log10(abs(rhovar)),
            log_N = log10(.data[[N_text]])) %>% 
     mutate(rho_metric = log_abs_rho + (0.5*log_N))
+  
+  
+  # for sampling weights use the approximate weighted variance and compute directly
+  
+  if (rho_type == "wvv" & cand == "djt") {
+    df_plot <- df_plot %>% 
+      mutate(log_N = log10(.data[[N_text]]),
+             log_abs_rho = NULL) %>% 
+      mutate(rho_metric = log10(abs((cces_pct_djt_wvv - pct_djt_voters) / (sqrt(cces_varhatN_djt_wvv)))))
+  }
+  if (rho_type == "wvv" & cand == "hrc") {
+    df_plot <- df_plot %>% 
+      mutate(log_N = log10(.data[[N_text]]),
+             log_abs_rho = NULL) %>% 
+      mutate(rho_metric = log10(abs((cces_pct_hrc_wvv - pct_hrc_voters) / (sqrt(cces_varhatN_hrc_wvv)))))
+  }
+  
   
   # data to label
   df_lab <- NULL 
@@ -339,6 +355,37 @@ ggplot(df, aes(x = tot_votes,
                color = color,
                label = st)) +
   geom_point()
+
+# check ZnN calculations
+
+
+foo <- df %>% 
+  mutate(Z_djt = (cces_pct_djt_wvv - pct_djt_voters) / (sqrt(cces_varhatN_djt_wvv)))
+
+
+bar <- foo %>% arrange(-Z_djt) %>% 
+  mutate(Z_djt_byrho = log10(abs(rho_djt_wvv)) + 0.5*log10(tot_votes),
+         Z_djt_log = log10(abs(Z_djt))) %>%
+  select(st, state, color, Z_djt, Z_djt_log, Z_djt_byrho, tot_votes, vap, vep)
+
+bar %>% 
+  ggplot(aes(x = Z_djt_log, y = Z_djt_byrho, 
+             color= color)) +
+  theme_bw() +
+  coord_equal() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_color_manual(values = colorvec) +
+  guides(color = FALSE, size = FALSE) +
+  geom_point(alpha = 0.8) +
+  labs(y = expression(log(abs(hat(rho[N]))) + 0.5*log(N)),
+       x = expression(log~bgroup("|",italic(frac(hat(p) - p, sqrt(widehat(wVar)))),"|")),
+       title = "Comparison of relative error on Trump",
+       subtitle = " (validated voters, with weights)")
+ggsave("figures/temp_different-var.pdf", w = 5, h = 5)
+
+bar %>% 
+  summarize(mad = mean(abs(Z_djt_log - Z_djt_byrho)))
+
 
 
 # bounds of rho ----
