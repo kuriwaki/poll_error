@@ -383,7 +383,7 @@ bar %>%
        subtitle = " (validated voters, with weights)")
 ggsave("figures/temp_different-var.pdf", w = 5, h = 5)
 
-bar %>% 
+  bar %>% 
   summarize(mad = mean(abs(Z_djt_log - Z_djt_byrho)))
 
 
