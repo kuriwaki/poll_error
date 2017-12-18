@@ -64,7 +64,6 @@ pp.surface <- plot_ly(showscale = FALSE) %>%
 chart_link <- api_create(pp.surface, filename = "poll-error_rho", sharing = "public")
 chart_link
 
-kd <- with(MASS::geyser, MASS::kde2d(duration, waiting, n = 50))
 
 
 
@@ -111,4 +110,4 @@ gg6 <-  ggplot(dfz, aes(x = b)) +
        x = "Relative Bias")
 
 gg6
-ggsave("figures/sims/coverage_6.pdf", gg6, w  = 4, h = 2.25)
+ggsave("figures/sims/coverage_6.pdf", gg6, w  = 6, h = 2.25)

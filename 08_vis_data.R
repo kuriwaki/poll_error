@@ -1,4 +1,3 @@
-rm(list = ls())
 library(cowplot)
 library(ggplot2)
 library(scales)
@@ -9,19 +8,14 @@ library(tibble)
 library(foreach)
 library(glue)
 
-
 fig.w <- 6*0.80*0.9
 fig.h <- 4*0.751*0.9
 mfig.w <- fig.w
-
-
-
 
 # labels -----
 colorvec <- c("R" =  '#d7191c', "swing" = 'darkgreen', "D" = '#2c7bb6')
 rho_pos_labs <- c(`TRUE` = "rho > 0 (Overestimated Clinton)",
                   `FALSE` = "rho < 0 (Underestimated Clinton)")
-
 # percent function
 make_pct <- function(dbl, points = FALSE) {
   if (points) 
@@ -30,7 +24,6 @@ make_pct <- function(dbl, points = FALSE) {
     if (!points) 
     return(paste0(round(dbl, 2)))
 }
-
 
 # data and vars -----
 df_raw <- read_csv("data/output/pres16_state.csv", col_types = cols())
@@ -83,7 +76,6 @@ lar_exp <-
        dtu_vvt = expression(log[10]~bgroup("(", abs(~Trump+Undecided~Republicans~~italic(widehat(italic(rho))[N[vv]])), ")"))
   )
 
-# +0.5log(N)
 
 
 # normal rho
@@ -124,7 +116,7 @@ eff_t <- list(
 
 # clear ----
 fig_pdfs <- list.files("figures", pattern = "pdf$", full.names = TRUE, recursive = TRUE)
-fig_pdfs <- setdiff(fig_pdfs, grep("backup", fig_pdfs, value = TRUE))
+fig_pdfs <- setdiff(fig_pdfs, grep("(backup|sims)", fig_pdfs, value = TRUE))
 file.remove(fig_pdfs)
 
 
@@ -307,12 +299,11 @@ ggsave("figures/summ/corr-rho-N_intervals_hcu-dtu.pdf", w = 1.3*fig.w, h = 1.3*f
 
 # Z and N -----
 
+# so far with vv
 yrange <- range(with(df,c(
                      (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
                      (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv)))))
                      
-                     
-
 ZNn_djt <- ggplot(df, aes(x = log10(tot_votes), 
                y = (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
                color = color,
@@ -336,7 +327,7 @@ ZNn_hrc <-  ZNn_djt +
 ggsave("figures/Zscore/Zscore_djt_vvt.pdf", ZNn_djt, width = fig.w, height = fig.h)
 ggsave("figures/Zscore/Zscore_hrc_vvt.pdf", ZNn_hrc, width = fig.w, height = fig.h)
 
-
+# with weights
 ZNn_djt_wvv <- ZNn_djt + 
   aes(y = (cces_pct_djt_wvv - pct_djt_voters) / (sqrt(cces_varhat_djt_wvv))) +
   labs(y = expression(Trump~~italic(Z[~n])~plain("with weights")))
@@ -356,8 +347,45 @@ ggplot(df, aes(x = tot_votes,
                label = st)) +
   geom_point()
 
-# check ZnN calculations
+# check coverage ----
 
+chk_cov <- df %>% 
+  mutate(hrc_Z_vv = (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv)),
+         hrc_Z_wvv = (cces_pct_djt_wvv - pct_djt_voters) / (sqrt(cces_varhat_djt_wvv)))
+
+mean(abs(chk_cov$hrc_Z_vv) < 2)
+mean(abs(chk_cov$hrc_Z_wvv) < 2)
+
+
+edu <- read_csv("data/input/R11548735_SL040.csv") %>% 
+  select(Geo_NAME, matches("SE_T025")) %>% 
+  mutate(bach_above = SE_T025_005 + SE_T025_006 + SE_T025_007 + SE_T025_008)  %>% 
+  rename(state = Geo_NAME) %>% 
+  select(state, bach_above)
+
+chk_cov <- left_join(chk_cov, edu, by = "state") %>% 
+  mutate(prop_bach = bach_above / vep)
+
+gg_edu_b <-  ggplot(chk_cov, aes(x = prop_bach, y = (cces_pct_hrc_vv - pct_hrc_voters), color = color, group = color)) +
+  scale_color_manual(values = colorvec) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(method = "gam", aes(group = NULL), se = FALSE, color = "darkgray", alpha = 0.5) +
+  geom_smooth(method = "gam", se = FALSE, alpha = 0.25) +
+  scale_x_continuous(labels = percent) +
+  geom_point(aes(size = vep), alpha = 0.75) +
+  geom_text_repel(aes(label = st), alpha = 0.75) +
+  theme_bw() +
+  guides(color = FALSE, size = FALSE) +
+  labs(x = "Proportion of Voting Eligible Population who are\n25+ and have a Bachelor's Degree or Above",
+       y = expression(plain("Clinton Error: ")~widehat(italic(p)) - italic(p)))
+
+gg_edu_Z <- gg_edu_b + aes(y = hrc_Z_vv) +
+  labs(y = expression(plain("Clinton")~italic(Z[n]):frac(widehat(italic(p)) - italic(p), sqrt(widehat(italic(p))(1 - widehat(italic(p)))/n))))
+
+plot_grid(gg_edu_b, gg_edu_Z, ncol = 1, align = "v")
+ggsave("figures/temp_error-by-education.pdf", h = 8, w = 8)
+
+# check ZnN calculation ---
 
 foo <- df %>% 
   mutate(Z_djt = (cces_pct_djt_wvv - pct_djt_voters) / (sqrt(cces_varhatN_djt_wvv)))
@@ -387,7 +415,6 @@ ggsave("figures/temp_different-var.pdf", w = 5, h = 5)
   summarize(mad = mean(abs(Z_djt_log - Z_djt_byrho)))
 
 
-
 # bounds of rho ----
 
 df_bounds <- df %>% 
@@ -405,7 +432,7 @@ df_bounds <- df %>%
 ylim_rho_bounds <- range(with(df_bounds,
                    c(lb_djt, lb_hrc, ub_djt, ub_hrc)))
 
-bounds <-ggplot(df_bounds, 
+bounds <- ggplot(df_bounds, 
                     aes(x = log10(tot_votes), 
                         y = rho_djt_vvt,
                         ymin = lb_djt,
@@ -442,8 +469,6 @@ exp_factor <- 1
 ggsave("figures/bounds/rho-bounds_djt_vvt.pdf", bounds_djt, h = exp_factor*fig.h, w = exp_factor*fig.w)
 ggsave("figures/bounds/rho-bounds_hrc_vvt.pdf", bounds_hrc, h = exp_factor*fig.h, w = exp_factor*fig.w)
   
-
-
 
 summary(df$rho_djt_vvt)
 summary(df$rho_hrc_vvt)
@@ -488,7 +513,6 @@ ggplot(df, aes(x = 1 + (cv_common_wgt^2) / (1 - cces_n_vv / tot_votes))) +
   labs(x = expression(italic(A[w])==1+frac(CV^2, 1-f[Rvv])),
        y = "Count")
 ggsave("figures/hist/hist_Aw.pdf", width = fig.w, height = fig.h)
-
 
 rm(gg0)
 
@@ -551,9 +575,8 @@ for(v in muhats) {
   
   n_type <- gsub(".*_([a-z]+)$", "\\1", v)
   n_var <- glue("cces_n_{n_type}")
-  
-  
-  ub_name <- glue("{v}_ub")
+
+    ub_name <- glue("{v}_ub")
   lb_name <- glue("{v}_lb")
   
   se <- sqrt(df[[v]]*(1 - df[[v]]) / df[[n_var]])
@@ -564,14 +587,11 @@ for(v in muhats) {
     se <- sqrt(df[[wvarhat]])
   }
   
-  
   df[[ub_name]] <- df[[v]] + 2*se
   df[[lb_name]] <- df[[v]] - 2*se
   
   rm(se)
 }
-
-
 
 # make data frame for plots top print
 sct_labs <- tibble(var_name = muhats)
@@ -668,9 +688,6 @@ ord_labs <- sort(sct_labs$var_name)
 ord_labs <- grep("(_raw|_voters|_vv|_postvoters)", ord_labs, value = TRUE)
 stopifnot(length(ord_labs) == 20)  # for grid
 ord_gg <- sct_gglist[ord_labs]
-
-
-
 
 gg16 <- plot_grid(ord_gg[[01]], ord_gg[[02]], ord_gg[[04]], ord_gg[[03]],
                   ord_gg[[05]], ord_gg[[06]], ord_gg[[07]], NULL, 
