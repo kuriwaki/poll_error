@@ -1,7 +1,7 @@
 Poll Predictions and Errors
 ================
 Shiro Kuriwaki
-README updated: 2017-10-22
+README updated: 2017-12-25
 
 -   [Output](#output)
 -   [Figures](#figures)
@@ -30,7 +30,7 @@ The final dataset (`pres16_state.csv`) is a spreadsheet of the 50 states and DC.
 read_csv("data/output/pres16_state.csv")
 ```
 
-    ## # A tibble: 51 x 82
+    ## # A tibble: 51 x 104
     ##                   state    st color      vap      vep votes_hrc votes_djt
     ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
     ##  1              Alabama    AL     R  3770142  3601361    729547   1318255
@@ -43,33 +43,42 @@ read_csv("data/output/pres16_state.csv")
     ##  8             Delaware    DE     D   749872   689125    235603    185127
     ##  9 District of Columbia    DC     D   562329   511463    282830     12723
     ## 10              Florida    FL swing 16565588 14572210   4504975   4617886
-    ## # ... with 41 more rows, and 75 more variables: tot_votes <int>,
+    ## # ... with 41 more rows, and 97 more variables: tot_votes <int>,
     ## #   pct_hrc_vep <dbl>, pct_hrc_voters <dbl>, pct_djt_vep <dbl>,
     ## #   pct_djt_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
-    ## #   cces_n_vv <int>, cces_n_post_voters <int>, cces_tothrc_raw <int>,
-    ## #   cces_tothrc_raw_post <int>, cces_tothrc_adj_trn <dbl>,
-    ## #   cces_tothrc_vv <int>, cces_pct_hrc_raw <dbl>,
+    ## #   cces_n_vv <int>, cces_n_wvv <dbl>, cces_n_postvoters <int>,
+    ## #   cces_tothrc_raw <int>, cces_tothrc_raw_post <int>,
+    ## #   cces_tothrc_adj_trn <dbl>, cces_tothrc_vv <int>,
+    ## #   cces_tothrc_wvv <dbl>, cces_pct_hrc_raw <dbl>,
     ## #   cces_pct_hrcund_raw <dbl>, cces_pct_hrcdund_raw <dbl>,
     ## #   cces_pct_hrc_vep <dbl>, cces_pct_hrc_voters <dbl>,
     ## #   cces_pct_hrcund_voters <dbl>, cces_pct_hrcdund_voters <dbl>,
     ## #   cces_pct_hrc_vv <dbl>, cces_pct_hrcund_vv <dbl>,
-    ## #   cces_pct_hrcdund_vv <dbl>, cces_pct_hrc_voters_post <dbl>,
-    ## #   cces_totdjt_raw <int>, cces_totdjt_raw_post <int>,
-    ## #   cces_totdjt_adj_trn <dbl>, cces_totdjt_vv <int>,
-    ## #   cces_pct_djt_raw <dbl>, cces_pct_djtund_raw <dbl>,
-    ## #   cces_pct_djtrund_raw <dbl>, cces_pct_djt_vep <dbl>,
-    ## #   cces_pct_djt_voters <dbl>, cces_pct_djtund_voters <dbl>,
-    ## #   cces_pct_djtrund_voters <dbl>, cces_pct_djt_vv <dbl>,
-    ## #   cces_pct_djtund_vv <dbl>, cces_pct_djtrund_vv <dbl>,
-    ## #   cces_pct_djt_voters_post <dbl>, cv_turnout_wgt <dbl>,
+    ## #   cces_pct_hrcdund_vv <dbl>, cces_pct_hrc_wvv <dbl>,
+    ## #   cces_pct_hrcund_wvv <dbl>, cces_pct_hrcdund_wvv <dbl>,
+    ## #   cces_pct_hrc_postvoters <dbl>, cces_totdjt_raw <int>,
+    ## #   cces_totdjt_raw_post <int>, cces_totdjt_adj_trn <dbl>,
+    ## #   cces_totdjt_vv <int>, cces_totdjt_wvv <dbl>, cces_pct_djt_raw <dbl>,
+    ## #   cces_pct_djtund_raw <dbl>, cces_pct_djtrund_raw <dbl>,
+    ## #   cces_pct_djt_vep <dbl>, cces_pct_djt_voters <dbl>,
+    ## #   cces_pct_djtund_voters <dbl>, cces_pct_djtrund_voters <dbl>,
+    ## #   cces_pct_djt_vv <dbl>, cces_pct_djtund_vv <dbl>,
+    ## #   cces_pct_djtrund_vv <dbl>, cces_pct_djt_wvv <dbl>,
+    ## #   cces_pct_djtund_wvv <dbl>, cces_pct_djtrund_wvv <dbl>,
+    ## #   cces_pct_djt_postvoters <dbl>, cces_varhat_hrc_voters <dbl>,
+    ## #   cces_varhat_djt_voters <dbl>, cces_varhat_hrc_wvv <dbl>,
+    ## #   cces_varhatN_hrc_wvv <dbl>, cces_varhat_djt_wvv <dbl>,
+    ## #   cces_varhatN_djt_wvv <dbl>, cv_turnout_wgt <dbl>, cv_common_wgt <dbl>,
     ## #   yougov_pct_hrc <dbl>, yougov_pct_djt <dbl>, yougov_n <dbl>,
     ## #   rho_hrc_vot <dbl>, rho_hcu_vot <dbl>, rho_hcdu_vot <dbl>,
     ## #   rho_hrc_vep <dbl>, rho_hcu_vep <dbl>, rho_hcdu_vep <dbl>,
     ## #   rho_hrc_vvt <dbl>, rho_hcu_vvt <dbl>, rho_hcdu_vvt <dbl>,
+    ## #   rho_hrc_wvv <dbl>, rho_hcu_wvv <dbl>, rho_hcdu_wvv <dbl>,
     ## #   rho_hrc_pst <dbl>, rho_djt_vot <dbl>, rho_dtu_vot <dbl>,
     ## #   rho_dtru_vot <dbl>, rho_djt_vep <dbl>, rho_dtu_vep <dbl>,
     ## #   rho_dtru_vep <dbl>, rho_djt_vvt <dbl>, rho_dtu_vvt <dbl>,
-    ## #   rho_dtru_vvt <dbl>, rho_djt_pst <dbl>, neff_hrc_vot <dbl>,
+    ## #   rho_dtru_vvt <dbl>, rho_djt_wvv <dbl>, rho_dtu_wvv <dbl>,
+    ## #   rho_dtru_wvv <dbl>, rho_djt_pst <dbl>, neff_hrc_vot <dbl>,
     ## #   neff_hrc_vep <dbl>, neff_hrc_vvt <dbl>, neff_djt_vot <dbl>,
     ## #   neff_djt_vep <dbl>, neff_djt_vvt <dbl>, effratio_hrc_vot <dbl>,
     ## #   effratio_hrc_vep <dbl>, effratio_hrc_vvt <dbl>,
@@ -255,49 +264,49 @@ Estimating Clinton Support
 --------------------------
 
 ``` r
-gg_hrc + aes(x = cces_pct_hrc_voters) +
-  xlab("Turnout-adjusted Poll Estimate, Clinton Support")
+gg_hrc + aes(y = cces_pct_hrc_voters) +
+  ylab("Turnout-adjusted Poll Estimate, Clinton Support")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 ``` r
-gg_hrc + aes(x = cces_pct_hrc_raw) +
-  xlab("Raw Poll Estimate, Clinton Suport")
+gg_hrc + aes(y = cces_pct_hrc_raw) +
+  ylab("Raw Poll Estimate, Clinton Suport")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ``` r
-gg_hrc + aes(x = cces_pct_hrc_vv) +
-  xlab("Poll Estimate among Validated Voters, Clinton Suport")
+gg_hrc + aes(y = cces_pct_hrc_vv) +
+  ylab("Poll Estimate among Validated Voters, Clinton Suport")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 Estimating Trump Support
 ------------------------
 
 ``` r
-gg_djt + aes(x = cces_pct_djt_voters) +
-  xlab("Turnout-adjusted Poll Estimate, Trump Support")
+gg_djt + aes(y = cces_pct_djt_voters) +
+  ylab("Turnout-adjusted Poll Estimate, Trump Support")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 ``` r
-gg_djt + aes(x = cces_pct_djt_raw) +
-  xlab("Raw Poll Estimate, Trump Suport")
+gg_djt + aes(y = cces_pct_djt_raw) +
+  ylab("Raw Poll Estimate, Trump Suport")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ``` r
-gg_djt + aes(x = cces_pct_djt_vv) +
-  xlab("Poll Estimate among Validated Voters, Trump Suport")
+gg_djt + aes(y = cces_pct_djt_vv) +
+  ylab("Poll Estimate among Validated Voters, Trump Suport")
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 Estimates of *ρ*
 ================
@@ -394,4 +403,4 @@ References
 -   McDonald, Michael P. 2017. "2016 November General Election" *United States Elections Project.* Accessed July 23, 2017.<http://www.electproject.org/home/voter-turnout/voter-turnout-data>
 -   CCES. 2016. Press Release. <https://cces.gov.harvard.edu/news/cces-pre-election-survey-2016>
 -   CCES. 2016. Data Release. <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi%3A10.7910/DVN/GDF6Z0>
--   Cook Political Report. 2017. <http://cookpolitical.com/story/10174>
+-   Cook Political Report. 2017.
