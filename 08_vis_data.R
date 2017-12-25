@@ -116,7 +116,7 @@ eff_t <- list(
 
 # clear ----
 fig_pdfs <- list.files("figures", pattern = "pdf$", full.names = TRUE, recursive = TRUE)
-fig_pdfs <- setdiff(fig_pdfs, grep("(backup|sims)", fig_pdfs, value = TRUE))
+fig_pdfs <- setdiff(fig_pdfs, grep("(backup|sims|bounds)", fig_pdfs, value = TRUE))
 file.remove(fig_pdfs)
 
 
@@ -618,8 +618,8 @@ sct_labs <- sct_labs %>%
 # starting scatter
 gg0 <- ggplot(df, aes(x = pct_hrc_voters, y = cces_pct_hrc_voters, color = color)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  scale_x_continuous(limits = c(-0.005, 1), breaks = c(0, 0.5, 1), label = percent) +
-  scale_y_continuous(limits = c(-0.005, 1), breaks = c(0, 0.5, 1), label = percent) +
+  scale_x_continuous(limits = c(-0.005, 1), breaks = c(0, 0.5, 1), labels = percent, expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-0.005, 1), breaks = c(0, 0.5, 1), labels = percent, expand = c(0, 0)) +
   scale_color_manual(values = colorvec) +
   guides(size = FALSE, color = FALSE) +
   coord_equal() +
@@ -634,7 +634,7 @@ sct_gglist <- foreach(i = 1:nrow(sct_labs)) %do% {
   if (sct_labs$cand[i] == "H") {
     mu <- df$pct_hrc_voters
     gg <- gg0 +
-      annotate("text", x = 0.75, y = 0.1, label = "Poll underestimated\nClinton support", color = "darkgray") +
+      annotate("text", x = 0.72, y = 0.1, label = "Poll underestimated\nClinton support", color = "darkgray") +
       annotate("text", x = 0.25, y = 0.9, label = "Poll overestimated\nClinton support", color = "darkgray") +
       labs(x = "Final Clinton Popular Vote Share")
   }
@@ -642,7 +642,7 @@ sct_gglist <- foreach(i = 1:nrow(sct_labs)) %do% {
   if (sct_labs$cand[i] == "T") {
     mu <- df$pct_djt_voters
     gg <- gg0 + aes(x = pct_djt_voters) +
-      annotate("text", x = 0.75, y = 0.1, label = "Poll underestimated\nTrump support", color = "darkgray") +
+      annotate("text", x = 0.72, y = 0.1, label = "Poll underestimated\nTrump support", color = "darkgray") +
       annotate("text", x = 0.25, y = 0.9, label = "Poll overestimated\nTrump support", color = "darkgray") +
       labs(x = "Final Trump Popular Vote Share")
   }
