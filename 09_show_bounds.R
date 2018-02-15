@@ -115,8 +115,10 @@ for (xi in f) {
 
 
 pp.surface <- plot_ly(showscale = FALSE) %>%
-  add_surface(x = f, y = p, z = rho_ub, opacity = 0.65, reversescale = TRUE) %>%
-  add_surface(x = f, y = p, z = rho_lb, opacity = 0.65) %>%
+  add_surface(x = f, y = p, z = rho_ub, opacity = 0.65, reversescale = TRUE,
+              colorscale = list(c(0,1), c("rgb(0,0,0)","rgb(256,256,256)"))) %>%
+  add_surface(x = f, y = p, z = rho_lb, opacity = 0.65, 
+              colorscale = list(c(0,1), c("rgb(0,0,0)","rgb(256,256,256)"))) %>%
   layout(scene = list(
     xaxis = list(title = "f = n / N"),
     yaxis = list(title = "p = P(G = 1)"),
