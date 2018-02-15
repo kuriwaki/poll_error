@@ -68,17 +68,18 @@ plists <- c(0.05, 0.10, 0.25, 0.5)
 boundslist <- list()
 
 for (p_i in 1:length(plists)) {
-  boundslist[[p_i]] <- ggplot(df, aes(x = f)) +
+  boundslist[[p_i]] <- df %>% 
+    mutate(p = plists[[p_i]]) %>%
+    ggplot(aes(x = f)) +
     theme_bw() +
-    scale_y_continuous(limits = c(-1, 1), minor_breaks = FALSE) +
-    scale_x_continuous(minor_breaks = FALSE) +
+    facet_wrap(~p, labeller = label_bquote(italic(p[G]) == .(p))) +
+    scale_y_continuous(limits = c(-1, 1), breaks = c(-1, 0, 1)) +
+    scale_x_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1)) +
     stat_function(fun = calc_ub, args = list(p = plists[p_i]), geom = "line") +
     stat_function(fun = calc_lb, args = list(p = plists[p_i]), geom = "line") +
     labs(
       y = expression(plain("Bounds on ")~italic(rho[list(italic(R), italic(G))])),
-      x = expression(italic(f[R] == n / N)),
-      title = substitute(italic(p[G]) == X, list(X = plists[p_i]))
-    ) +
+      x = expression(italic(f == n / N))) +
     theme(plot.title = element_text(size = 12, hjust = 0.5))
 }
 
