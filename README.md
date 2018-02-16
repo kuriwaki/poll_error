@@ -1,7 +1,7 @@
 Poll Predictions and Errors
 ================
 Shiro Kuriwaki
-README updated: 2017-12-25
+README updated: 2018-02-16
 
 -   [Output](#output)
 -   [Figures](#figures)
@@ -31,25 +31,24 @@ read_csv("data/output/pres16_state.csv")
 ```
 
     ## # A tibble: 51 x 104
-    ##                   state    st color      vap      vep votes_hrc votes_djt
-    ##                   <chr> <chr> <chr>    <int>    <int>     <int>     <int>
-    ##  1              Alabama    AL     R  3770142  3601361    729547   1318255
-    ##  2               Alaska    AK     R   555367   519849    116454    163387
-    ##  3              Arizona    AZ swing  5331034  4734313   1161167   1252401
-    ##  4             Arkansas    AR     R  2286625  2142571    380494    684872
-    ##  5           California    CA     D 30201571 25017408   8753788   4483810
-    ##  6             Colorado    CO swing  4305728  3966297   1338870   1202484
-    ##  7          Connecticut    CT     D  2821935  2561555    897572    673215
-    ##  8             Delaware    DE     D   749872   689125    235603    185127
-    ##  9 District of Columbia    DC     D   562329   511463    282830     12723
-    ## 10              Florida    FL swing 16565588 14572210   4504975   4617886
-    ## # ... with 41 more rows, and 97 more variables: tot_votes <int>,
-    ## #   pct_hrc_vep <dbl>, pct_hrc_voters <dbl>, pct_djt_vep <dbl>,
-    ## #   pct_djt_voters <dbl>, cces_n_raw <int>, cces_n_voters <dbl>,
-    ## #   cces_n_vv <int>, cces_n_wvv <dbl>, cces_n_postvoters <int>,
-    ## #   cces_tothrc_raw <int>, cces_tothrc_raw_post <int>,
-    ## #   cces_tothrc_adj_trn <dbl>, cces_tothrc_vv <int>,
-    ## #   cces_tothrc_wvv <dbl>, cces_pct_hrc_raw <dbl>,
+    ##    state         st    color     vap     vep votes_hrc votes_djt tot_votes
+    ##    <chr>         <chr> <chr>   <int>   <int>     <int>     <int>     <int>
+    ##  1 Alabama       AL    R      3.77e⁶  3.60e⁶    729547   1318255   2123372
+    ##  2 Alaska        AK    R      5.55e⁵  5.20e⁵    116454    163387    318608
+    ##  3 Arizona       AZ    swing  5.33e⁶  4.73e⁶   1161167   1252401   2573165
+    ##  4 Arkansas      AR    R      2.29e⁶  2.14e⁶    380494    684872   1130635
+    ##  5 California    CA    D      3.02e⁷  2.50e⁷   8753788   4483810  14181595
+    ##  6 Colorado      CO    swing  4.31e⁶  3.97e⁶   1338870   1202484   2780220
+    ##  7 Connecticut   CT    D      2.82e⁶  2.56e⁶    897572    673215   1644920
+    ##  8 Delaware      DE    D      7.50e⁵  6.89e⁵    235603    185127    441590
+    ##  9 District of … DC    D      5.62e⁵  5.11e⁵    282830     12723    311268
+    ## 10 Florida       FL    swing  1.66e⁷  1.46e⁷   4504975   4617886   9420039
+    ## # ... with 41 more rows, and 96 more variables: pct_hrc_vep <dbl>,
+    ## #   pct_hrc_voters <dbl>, pct_djt_vep <dbl>, pct_djt_voters <dbl>,
+    ## #   cces_n_raw <int>, cces_n_voters <dbl>, cces_n_vv <int>,
+    ## #   cces_n_wvv <dbl>, cces_n_postvoters <int>, cces_tothrc_raw <int>,
+    ## #   cces_tothrc_raw_post <int>, cces_tothrc_adj_trn <dbl>,
+    ## #   cces_tothrc_vv <int>, cces_tothrc_wvv <dbl>, cces_pct_hrc_raw <dbl>,
     ## #   cces_pct_hrcund_raw <dbl>, cces_pct_hrcdund_raw <dbl>,
     ## #   cces_pct_hrc_vep <dbl>, cces_pct_hrc_voters <dbl>,
     ## #   cces_pct_hrcund_voters <dbl>, cces_pct_hrcdund_voters <dbl>,
