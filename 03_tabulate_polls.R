@@ -45,8 +45,8 @@ tab_cc <- cc_raw %>%
             cces_demund_wvv = sum(vote_und_pre*vv_turnout*(pid3 == 1)*commonweight_vv, na.rm = TRUE),
             cces_repund_wvv = sum(vote_und_pre*vv_turnout*(pid3 == 2)*commonweight_vv, na.rm = TRUE),
             
-            cces_varhat_hrc_voters = sum(turnout_wgt^2*((vote_hrc_pre - mean(vote_hrc_pre))^2), na.rm = TRUE) / (sum(turnout_wgt, na.rm = TRUE)^2),
-            cces_varhat_djt_voters = sum(turnout_wgt^2*((vote_djt_pre - mean(vote_djt_pre))^2), na.rm = TRUE) / (sum(turnout_wgt, na.rm = TRUE)^2),
+            cces_varhat_hrc_voters = sum(turnout_wgt^2*((vote_hrc_pre - mean(vote_hrc_pre, na.rm = TRUE))^2), na.rm = TRUE) / (sum(turnout_wgt, na.rm = TRUE)^2),
+            cces_varhat_djt_voters = sum(turnout_wgt^2*((vote_djt_pre - mean(vote_djt_pre, na.rm = TRUE))^2), na.rm = TRUE) / (sum(turnout_wgt, na.rm = TRUE)^2),
             
             sd_turnout_wgt = sqrt(sum((turnout_wgt - mean(turnout_wgt))^2)/n()),
             cv_turnout_wgt = sd_turnout_wgt / mean(turnout_wgt),

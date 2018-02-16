@@ -1,9 +1,7 @@
 library(haven)
 library(dplyr)
 
-
-
-cc16_full <- read_dta("~/Dropbox/cces_cumulative/data/source/cces/2016_cc_vv.dta")
+cc16_full <- read_dta("~/Dropbox/cces_cumulative/data/source/cces/2016_cc.dta")
 
 
 # select columns

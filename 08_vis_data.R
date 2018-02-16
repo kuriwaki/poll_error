@@ -805,3 +805,22 @@ gg0 + aes(y = effratio_djt_vep) +
   labs(title = eff_t[["djt_vep"]])
 ggsave("figures/bars/bars_djt_vep.pdf", h = fig.h, w = mfig.w)
 
+
+
+both <- left_join(old, df, by = c("state", "st", "color", "vap", "vep", "votes_hrc", "votes_djt", "tot_votes", "pct_djt_voters"))
+
+ggplot(both, aes(x = cces_pct_djt_vv.x, y = cces_pct_djt_vv.y, color = color)) + 
+  geom_point() + geom_text_repel(aes(label = st)) + geom_abline(intercept = 0, slope = 1) + 
+  scale_color_manual(values = colorvec) + theme_bw() + 
+  scale_x_continuous("CCES Trump Estimate (Old)", labels = percent) + 
+  scale_y_continuous("CCES Trump Estimate (New)", labels = percent) 
+
+ggplot(both, aes(x = 100*(cces_pct_djt_vv.x - pct_djt_voters), 
+                 y = 100*(cces_pct_djt_vv.y - pct_djt_voters),
+                 color = color)) + 
+  geom_point() + geom_text_repel(aes(label = st)) + geom_abline(intercept = 0, slope = 1) + 
+  scale_color_manual(values = colorvec) + theme_bw() + 
+  scale_x_continuous("CCES Trump Polling Error (Old)", labels = unit_format(unit = "pp")) + 
+  scale_y_continuous("CCES Trump Polling Error (New)", labels = unit_format(unit = "pp")) 
+
+
