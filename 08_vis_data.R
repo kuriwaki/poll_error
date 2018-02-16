@@ -45,7 +45,7 @@ lim_lroN <- range(log10(abs(all_rhos)*all_pops))
 lim_lpp <- range(log10(all_pops))
 
 # for hist
-ylim_hist <- c(0, 23.5)
+ylim_hist <- c(0, 12.5)
 
 
 # labels ------
@@ -261,7 +261,7 @@ labvec <- c("D" = "Blue states",
             "neg" = "rho < 0 (underestimates)")
 
 
-plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right", cap = "Each point is a regression coefficient with 95 percent confidence interval.") {
+plot_coef <- function(df = coef_plot, coefrange = c(-1 , 2), legendpos = "right", cap = "Each point is a regression coefficient with 95 percent CI.") {
   if (legendpos == "right") legendcol <- 1
   if (legendpos == "bottom") legendcol <- 4
   ggplot(df, aes(y = coef_bias, x = descrip, ymin = ymin, ymax = ymax, color = subset, size = emph)) +
@@ -291,7 +291,7 @@ plot_coef(coef_plot, cap = NULL)
 ggsave("figures/summ/corr-rho-N_intervals_all.pdf", w = 2*fig.w, h = 1.75*fig.h)
 
 plot_coef(filter(coef_plot, cand %in% c("hrc", "djt")))
-ggsave("figures/summ/corr-rho-N_intervals_hrc-djt.pdf", w = 1.3*fig.w, h = 1.3*fig.h)
+ggsave("figures/summ/corr-rho-N_intervals_hrc-djt.pdf", w = 1.7*fig.w, h = 1.2*fig.h)
 
 plot_coef(filter(coef_plot, cand %in% c("hcu", "dtu")))
 ggsave("figures/summ/corr-rho-N_intervals_hcu-dtu.pdf", w = 1.3*fig.w, h = 1.3*fig.h)
@@ -485,6 +485,7 @@ gg0 <- ggplot(df) + geom_vline(xintercept = 0, linetype = "dashed") +
   
 
 rho_vec <- names(rho_exp)
+
 
 for (rho_name in rho_vec) {
   var_name <- paste0("rho_", rho_name)
