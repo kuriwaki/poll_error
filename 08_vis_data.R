@@ -299,13 +299,17 @@ ggsave("figures/summ/corr-rho-N_intervals_hcu-dtu.pdf", w = 1.3*fig.w, h = 1.3*f
 
 # Z and N -----
 
+Z_shorthand <- function(muhats, mus, ns) {
+  (muhats - mus) / (sqrt(muhats * (1 - muhats) / ns))
+}
+
 # so far with vv
 yrange <- range(with(df,c(
                      (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
                      (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv)))))
                      
 ZNn_djt <- ggplot(df, aes(x = log10(tot_votes), 
-               y = (cces_pct_djt_vv - pct_djt_voters) / (sqrt(cces_pct_djt_vv*(1 - cces_pct_djt_vv) / cces_n_vv)),
+               y = Z_shorthand(cces_pct_djt_vv, pct_djt_voters, cces_n_vv),
                color = color,
                label = st)) +
   annotate("rect", ymin = -2, ymax = 2, xmin = -Inf, xmax = Inf, alpha = 0.2) +
@@ -314,15 +318,18 @@ ZNn_djt <- ggplot(df, aes(x = log10(tot_votes),
   scale_color_manual(values = colorvec) +
   theme_bw() +
   scale_x_continuous(minor_breaks = FALSE) +
-  scale_y_continuous(limit = yrange, breaks = c(-10, -5, -2, 0, 2, 5), minor_breaks = FALSE) +
+  scale_y_continuous(limits = yrange, breaks = c(-10, -5, -2, 0, 2, 5), minor_breaks = FALSE) +
   guides(color = FALSE) +
   labs(x = expression(log[10]~plain("(Total Voters)")),
        y = expression(Trump~italic(Z[n])))
 
 ZNn_hrc <-  ZNn_djt + 
-  aes(y = (cces_pct_hrc_vv - pct_hrc_voters) / (sqrt(cces_pct_hrc_vv*(1 - cces_pct_hrc_vv) / cces_n_vv))) +
+  aes(y = Z_shorthand(cces_pct_hrc_vv, pct_hrc_voters, cces_n_vv)) +
   labs(y = expression(Clinton~italic(Z[n])))
 
+ZNn_djt + 
+  aes(y = Z_shorthand(cces_pct_djt_wvv, pct_djt_voters, cces_n_wvv)) +
+  labs(y = "DJT Voters")
 
 ggsave("figures/Zscore/Zscore_djt_vvt.pdf", ZNn_djt, width = fig.w, height = fig.h)
 ggsave("figures/Zscore/Zscore_hrc_vvt.pdf", ZNn_hrc, width = fig.w, height = fig.h)
