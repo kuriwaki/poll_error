@@ -63,7 +63,7 @@ calc_ub <- function(f, p) {
 
 df <- tibble(f = 0:1)
 
-plists <- c(0.05, 0.10, 0.25, 0.5)
+plists <- c(0.05, 0.10, 0.25, 0.50)
 
 boundslist <- list()
 
@@ -120,10 +120,12 @@ pp.surface <- plot_ly(showscale = FALSE) %>%
   add_surface(x = f, y = p, z = rho_lb, opacity = 0.65, 
               colorscale = list(c(0,1), c("rgb(0,0,0)","rgb(256,256,256)"))) %>%
   layout(scene = list(
-    xaxis = list(title = "f = n / N"),
-    yaxis = list(title = "p = P(G = 1)"),
-    zaxis = list(title = "Bounds on ρ")
+    xaxis = list(title = "f = n / N",  ticks = "",    ticklen = 10),
+    yaxis = list(title = "p = P(G = 1)", ticks = "",  ticklen = 10),
+    zaxis = list(title = "Bounds on ρ", ticks = "",   ticklen = 10)
   ))
+
+pp.surface
 
 # replace if needed
 chart_link <- api_create(pp.surface, filename = "poll-error_rho", sharing = "public")
