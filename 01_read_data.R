@@ -1,6 +1,6 @@
 library(readr)
 library(googlesheets)
-suppressPackageStartupMessages(library("dplyr"))
+library(dplyr)
 
 # Denominators ----
 # Michael McDonald's Tracker
